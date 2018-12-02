@@ -2,7 +2,7 @@
 
 
 
-spring版本: spring5
+spring版本: 5.0.0.RELEASE
 
 jdk: 1.8
 
