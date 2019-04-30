@@ -37,7 +37,7 @@ NamespaceHandlerSupport 大部分解析器最终是通过它，将解析器注�
 
 ##　1.3 ApplicationContext继承关系
 
-![ApplicationContext](D:\git-project-self\IT_note\spring-note\spring-IOC/ApplicationContext.png)
+![ApplicationContext](blogpic/ApplicationContext.png)
 
 > ApplicationContext extends ListableBeanFactory
 >
