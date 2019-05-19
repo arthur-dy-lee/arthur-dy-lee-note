@@ -1,0 +1,25 @@
+## 1.查看内核版本
+```bash
+[root@localhost ~]# uname -sr
+Linux 4.15.11-1.el7.elrepo.x86_64
+[root@localhost ~]# uname -a
+Linux localhost.localdomain 4.15.11-1.el7.elrepo.x86_64 #1 SMP Mon Mar 19 11:46:06 EDT 2018 x86_64 x86_64 x86_64 GNU/Linux
+[root@localhost ~]# cat /proc/version
+Linux version 4.15.11-1.el7.elrepo.x86_64 (mockbuild@Build64R7) (gcc version 4.8.5 20150623 (Red Hat 4.8.5-16) (GCC)) #1 SMP Mon Mar 19 11:46:06 EDT 2018
+```
+
+
+
+## 2.查看发行版本
+```bash
+[root@localhost ~]# cat /etc/redhat-release
+CentOS Linux release 7.4.1708 (Core)
+[root@localhost ~]# yum install -y redhat-lsb
+[root@localhost ~]#  lsb_release -a
+LSB Version:    :core-4.1-amd64:core-4.1-noarch:cxx-4.1-amd64:cxx-4.1-noarch:desktop-4.1-amd64:desktop-4.1-noarch:languages-4.1-amd64:languages-4.1-noarch:printing-4.1-amd64:printing-4.1-noarch
+Distributor ID: CentOS
+Description:    CentOS Linux release 7.4.1708 (Core)
+Release:        7.4.1708
+Codename:       Core
+```
+
