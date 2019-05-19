@@ -1,0 +1,33 @@
+## 1、打开centos的yum文件夹（需要root权限或者拥有该目录的操作权限才可以）
+
+输入命令
+
+> cd  /etc/yum.repos.d/
+
+## 2、用wget下载repo文件
+
+输入命令
+
+> wget  http://mirrors.aliyun.com/repo/Centos-7.repo
+
+如果wget命令不生效，说明还没有安装wget工具，输入yum -y install wget 回车进行安装。
+
+当前目录是/etc/yum.repos.d/，刚刚下载的Centos-7.repo也在这个目录上
+
+![img](https://img-blog.csdn.net/201807271718313?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2hubXBm/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
+## 3、备份系统原来的repo文件
+
+> mv  CentOS-Base.repo CentOS-Base.repo.bak （其实就是重命名）
+
+## 4、替换系统原理的repo文件
+
+> mv Centos-7.repo CentOS-Base.repo
+
+## 5、执行yum源更新命令
+
+> yum clean all
+>
+> yum makecache
+>
+> yum update （需要比较长的时间）
