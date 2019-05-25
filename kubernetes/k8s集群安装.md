@@ -213,3 +213,6 @@ arthur7     ansible_ssh_host=192.168.8.7   ansible_ssh_user=root   ansible_ssh_p
 arthur8     ansible_ssh_host=192.168.8.8   ansible_ssh_user=root   ansible_ssh_pass=eee  ip=192.168.8.8   mask=/24
 
 authorized_keys
+
+
+
