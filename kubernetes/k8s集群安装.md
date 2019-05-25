@@ -130,6 +130,38 @@ systemctl enable kubelet && systemctl restart kubelet
 
 
 
+## 二、 使用registry镜像创建私有仓库
+
+
+
+官方在Docker hub上提供了registry的镜像（[详情](https://hub.docker.com/_/registry/)），我们可以直接使用该registry镜像来构建一个容器，搭建我们自己的私有仓库服务。Tag为latest的registry镜像是0.9.1版本的，我们直接采用2.1.1版本。
+
+运行下面命令获取registry镜像，
+
+```bash
+$ sudo docker pull registry:2.1.1
+```
+
+然后启动一个容器，
+
+```bash
+$ sudo docker run -d -v /opt/registry:/var/lib/registry -p 5000:5000 --restart=always --name registry registry:2.1.1
+```
+
+Registry服务默认会将上传的镜像保存在容器的/var/lib/registry，我们将主机的/opt/registry目录挂载到该目录，即可实现将镜像保存到主机的/opt/registry目录了。
+
+ 运行docker ps看一下容器情况，
+
+```bash
+lienhua34@lienhua34-Compaq-Presario-CQ35-Notebook-PC ~ $ sudo docker ps 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+f3766397a458        registry:2.1.1      "/bin/registry /etc/d"   46 seconds ago      Up 45 seconds       0.0.0.0:5000->5000/tcp   registry
+```
+
+说明我们已经启动了registry服务，打开浏览器输入http://127.0.0.1:5000/v2，出现下面情况说明registry运行正常，
+
+
+
 
 
 
