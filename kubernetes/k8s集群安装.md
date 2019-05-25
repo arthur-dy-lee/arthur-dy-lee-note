@@ -16,13 +16,39 @@
 
 
 
-关闭selinux
+### 1.1 关闭selinux等
+执行完selinux要重启
 
-vi /etc/selinux/config
+关闭防火墙、selinux、swap等操作 直接执行以下脚本
+```bash
+# 所有主机：基本系统配置
+ 
+# 关闭Selinux/firewalld
+systemctl stop firewalld
+systemctl disable firewalld
+setenforce 0
+sed -i "s/SELINUX=enforcing/SELINUX=disabled/g" /etc/selinux/config
+ 
+# 关闭交换分区
+swapoff -a
+yes | cp /etc/fstab /etc/fstab_bak
+cat /etc/fstab_bak |grep -v swap > /etc/fstab
+ 
+# 设置网桥包经IPTables，core文件生成路径
+echo """
+vm.swappiness = 0
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+""" > /etc/sysctl.conf
+sysctl -p
+ 
+# 同步时间
+yum install -y ntpdate
+ntpdate -u ntp.api.bz
+```
 
 
-
-### 移除旧版本
+### 1.2 移除旧版本
 
 >yum remove kubernetes-client 
 >yum remove kubernetes-node
@@ -32,27 +58,9 @@ vi /etc/selinux/config
 >yum install -y kubelet kubeadm kubectl
 >systemctl enable kubelet && systemctl start kubelet
 
-### 配置各节点阿里K8S YUM源
-```
-cat <<EOF > /etc/yum.repos.d/kubernetes.repo
- 
-[kubernetes]
-name=Kubernetes
-baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
-enabled=1
-gpgcheck=0
- 
-EOF
- 
-yum -y install epel-release
- 
-yum clean all
- 
-yum makecache
-```
 
 
-### 锁定软件版本阻止升级的方法
+### 1.3锁定软件版本阻止升级的方法
 
 > vim /etc/yum.conf
 
@@ -61,9 +69,60 @@ yum makecache
 >exclude=docker*
 >exclude=kube*
 
+### 1.4 安装python和python3
 
+[python2和python3并存](https://www.cnblogs.com/zhujingzhi/p/9778043.html)
 
-### 启动相关服务并设置开机自启
+### 确定docker版本和k8s安装的版本是支持的
+1、查询安装过的包
+```bash
+yum list installed | grep docker
+containerd.io.x86_64                1.2.5-3.1.el7              @docker-ce-stable
+docker-ce.x86_64                    3:18.09.5-3.el7            @docker-ce-stable
+docker-ce-cli.x86_64                1:18.09.5-3.el7            @docker-ce-stable
+```
+2、删除安装的软件包
+```bash
+yum -y remove docker-engine.x86_64 docker-ce.x86_64 docker-ce-cli.x86_64  
+```
+3、删除镜像/容器等
+```bash
+rm -rf /var/lib/docker
+```
+4、安装docker
+```bash
+yum install yum-utils device-mapper-persistent-data lvm2
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+##查看可安装的docker版本，还要支持对应的k8s版本
+yum list docker-ce --showduplicates|grep "^doc"|sort -r
+## Install Docker CE.
+yum update -y && yum install docker-ce-18.09.5
+## Create /etc/docker directory.
+mkdir /etc/docker
+
+# Setup daemon.
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ]
+}
+EOF
+
+mkdir -p /etc/systemd/system/docker.service.d
+
+# Restart Docker
+systemctl daemon-reload
+systemctl restart docker
+```
+
+### 1.6 启动相关服务并设置开机自启
 
 >systemctl daemon-reload 
 systemctl enable docker && systemctl restart docker
@@ -71,29 +130,6 @@ systemctl enable kubelet && systemctl restart kubelet
 
 
 
-### 更新相关依赖
-### 自动生成和安装requirements.txt依赖
-
-生成requirements.txt文件
->pip freeze > requirements.txt
-
-安装requirements.txt依赖
-
->pip install -r requirements.txt
-
-### 安装或更新 idna
-
-> pip install idna
-
-或 
-
-> pip3 install idna
-
-
-
-### 其它
-
-[python2和python3并存](https://www.cnblogs.com/zhujingzhi/p/9778043.html)
 
 
 
@@ -109,7 +145,7 @@ sudo pip install -r requirements.txt
 cp -rfp inventory/sample inventory/mycluster
 
 # Update Ansible inventory file with inventory builder
-declare -a IPS=(10.10.1.3 10.10.1.4 10.10.1.5)
+declare -a IPS=(192.168.3.11 192.168.3.12 192.168.3.13)
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 
 # Review and change parameters under ``inventory/mycluster/group_vars``
@@ -146,7 +182,9 @@ INVALID_TASK_ATTRIBUTE_FAILED:
 
 
 
+### 10.2 ERROR: Cannot uninstall 'python-ldap'. It is a distutils installed project and thus we cannot accurately determine which files belong to it which would lead to only a partial uninstall.
 
+> pip install --ignore-installed python-ldap
 
 ### 10.3
 
