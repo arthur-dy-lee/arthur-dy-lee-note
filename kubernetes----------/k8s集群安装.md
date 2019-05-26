@@ -132,7 +132,9 @@ systemctl enable kubelet && systemctl restart kubelet
 
 ## 二、 使用registry镜像创建私有仓库
 
+### 2.1 安装registry
 
+[Docker私有仓库Registry的搭建验证](https://www.cnblogs.com/lienhua34/p/4922130.html)
 
 官方在Docker hub上提供了registry的镜像（[详情](https://hub.docker.com/_/registry/)），我们可以直接使用该registry镜像来构建一个容器，搭建我们自己的私有仓库服务。Tag为latest的registry镜像是0.9.1版本的，我们直接采用2.1.1版本。
 
@@ -160,14 +162,142 @@ f3766397a458        registry:2.1.1      "/bin/registry /etc/d"   46 seconds ago 
 
 说明我们已经启动了registry服务，打开浏览器输入http://127.0.0.1:5000/v2，出现下面情况说明registry运行正常，
 
+### 2.2 测试
+
+### 1.拉取一个镜像并打tag（以busybox为例，因为busybox比较小）
+
+```bash
+sudo docker pull busybox:latest   //拉取镜像
+```
+
+### 2.提交tag镜像到自己的本地镜像仓库
+
+```bash
+sudo docker tag busybox:latest 127.0.0.1:5000/busybox
+```
+
+### 3.删除所有的关于busybox镜像并查看
+
+```bash
+sudo docker push 127.0.0.1:5000/busybox
+sudo docker images //查看是否还有busybox镜像的信息
+```
+
+### 4.从本地镜像仓库pull busybox镜像并查看
+
+```bash
+sudo docker rmi busybox 127.0.0.1:5000/busybox  //删除busybox镜像
+sudo docker images //查看是否还有busybox镜像的信息
+```
+
+
+
+### 2.3 拉取k8s镜像并打tag
+
+```bash
+vim kube.sh
+```
+
+```bash
+echo ""
+echo "=========================================================="
+echo "Pull Kubernetes v1.14.1 Images from aliyuncs.com ......"
+echo "=========================================================="
+echo ""
+
+MY_REGISTRY=registry.cn-hangzhou.aliyuncs.com/openthings
+
+## 拉取镜像
+docker pull ${MY_REGISTRY}/k8s-gcr-io-kube-apiserver:v1.14.1
+docker pull ${MY_REGISTRY}/k8s-gcr-io-kube-controller-manager:v1.14.1
+docker pull ${MY_REGISTRY}/k8s-gcr-io-kube-scheduler:v1.14.1
+docker pull ${MY_REGISTRY}/k8s-gcr-io-kube-proxy:v1.14.1
+docker pull ${MY_REGISTRY}/k8s-gcr-io-etcd:3.3.10
+docker pull ${MY_REGISTRY}/k8s-gcr-io-pause:3.1
+docker pull ${MY_REGISTRY}/k8s-gcr-io-coredns:1.3.1
+
+## 添加Tag
+docker tag ${MY_REGISTRY}/k8s-gcr-io-kube-apiserver:v1.14.1 k8s.gcr.io/kube-apiserver:v1.14.1
+docker tag ${MY_REGISTRY}/k8s-gcr-io-kube-scheduler:v1.14.1 k8s.gcr.io/kube-scheduler:v1.14.1
+docker tag ${MY_REGISTRY}/k8s-gcr-io-kube-controller-manager:v1.14.1 k8s.gcr.io/kube-controller-manager:v1.14.1
+docker tag ${MY_REGISTRY}/k8s-gcr-io-kube-proxy:v1.14.1 k8s.gcr.io/kube-proxy:v1.14.1
+docker tag ${MY_REGISTRY}/k8s-gcr-io-etcd:3.3.10 k8s.gcr.io/etcd:3.3.10
+docker tag ${MY_REGISTRY}/k8s-gcr-io-pause:3.1 k8s.gcr.io/pause:3.1
+docker tag ${MY_REGISTRY}/k8s-gcr-io-coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
+
+echo ""
+echo "=========================================================="
+echo "Pull Kubernetes v1.14.1 Images FINISHED."
+echo "into registry.cn-hangzhou.aliyuncs.com/openthings, "
+echo "           by openthings@https://my.oschina.net/u/2306127."
+echo "=========================================================="
+
+echo ""
+```
+
+```bash
+sh kube.sh
+```
+
+结果
+
+```bash
+[root@arthur10 home]# docker images
+REPOSITORY                                                                        TAG                 IMAGE ID            CREATED             SIZE
+127.0.0.1:5000/busybox                                                            latest              64f5d945efcc        2 weeks ago         1.2MB
+k8s.gcr.io/kube-proxy                                                             v1.14.1             20a2d7035165        6 weeks ago         82.1MB
+registry.cn-hangzhou.aliyuncs.com/openthings/k8s-gcr-io-kube-proxy                v1.14.1             20a2d7035165        6 weeks ago         82.1MB
+k8s.gcr.io/kube-apiserver                                                         v1.14.1             cfaa4ad74c37        6 weeks ago         210MB
+registry.cn-hangzhou.aliyuncs.com/openthings/k8s-gcr-io-kube-apiserver            v1.14.1             cfaa4ad74c37        6 weeks ago         210MB
+k8s.gcr.io/kube-scheduler                                                         v1.14.1             8931473d5bdb        6 weeks ago         81.6MB
+registry.cn-hangzhou.aliyuncs.com/openthings/k8s-gcr-io-kube-scheduler            v1.14.1             8931473d5bdb        6 weeks ago         81.6MB
+k8s.gcr.io/kube-controller-manager                                                v1.14.1             efb3887b411d        6 weeks ago         158MB
+registry.cn-hangzhou.aliyuncs.com/openthings/k8s-gcr-io-kube-controller-manager   v1.14.1             efb3887b411d        6 weeks ago         158MB
+quay.io/coreos/flannel                                                            v0.11.0-amd64       ff281650a721        3 months ago        52.6MB
+k8s.gcr.io/coredns                                                                1.3.1               eb516548c180        4 months ago        40.3MB
+registry.cn-hangzhou.aliyuncs.com/openthings/k8s-gcr-io-coredns                   1.3.1               eb516548c180        4 months ago        40.3MB
+k8s.gcr.io/etcd                                                                   3.3.10              2c4adeb21b4f        5 months ago        258MB
+registry.cn-hangzhou.aliyuncs.com/openthings/k8s-gcr-io-etcd                      3.3.10              2c4adeb21b4f        5 months ago        258MB
+k8s.gcr.io/pause                                                                  3.1                 da86e6ba6ca1        17 months ago       742kB
+registry.cn-hangzhou.aliyuncs.com/openthings/k8s-gcr-io-pause                     3.1                 da86e6ba6ca1        17 months ago       742kB
+registry                                                                          2.1.1               52bb991b482e        3 years ago         220MB
+
+```
 
 
 
 
 
-##  二、 安装
 
-##  Ansible ， [详情](<https://gitee.com/paincupid/kubespray>)
+##  三、 安装
+
+### 遇到问题卸载
+
+ansible执行卸载操作：
+
+```bash
+ansible-playbook -i inventory/mycluster/hosts.ini reset.yml
+```
+
+安装失败清理Kubernetes机器
+
+```bash
+rm -rf /etc/kubernetes/
+rm -rf /var/lib/kubelet
+rm -rf /var/lib/etcd
+rm -rf /usr/local/bin/kubectl
+rm -rf /etc/systemd/system/calico-node.service
+rm -rf /etc/systemd/system/kubelet.service
+systemctl stop etcd.service
+systemctl disable etcd.service
+systemctl stop calico-node.service
+systemctl disable calico-node.service
+docker stop $(docker ps -q)
+docker rm $(docker ps -a -q)
+service docker restart
+```
+
+###  Ansible ， [详情](<https://gitee.com/paincupid/kubespray>)
 
 ```shell
 # Install dependencies from ``requirements.txt``
@@ -177,7 +307,7 @@ sudo pip install -r requirements.txt
 cp -rfp inventory/sample inventory/mycluster
 
 # Update Ansible inventory file with inventory builder
-declare -a IPS=(192.168.3.11 192.168.3.12 192.168.3.13)
+declare -a IPS=(192.168.3.11 192.168.3.12)
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 
 # Review and change parameters under ``inventory/mycluster/group_vars``
@@ -190,7 +320,35 @@ cat inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 # Without -b the playbook will fail to run!
 ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml
 ```
+### 替换镜像 -------
 
+在kuberspay源码源代码中搜索包含 gcr.io/google_containers 和 quay.io 镜像的文件，并替换为我们之前已经上传到阿里云的进行，替换脚本如下：
+
+```bash
+grc_image_files=(
+./kubespray/extra_playbooks/roles/dnsmasq/templates/dnsmasq-autoscaler.yml
+./kubespray/extra_playbooks/roles/download/defaults/main.yml
+./kubespray/extra_playbooks/roles/kubernetes-apps/ansible/defaults/main.yml
+./kubespray/roles/download/defaults/main.yml
+./kubespray/roles/dnsmasq/templates/dnsmasq-autoscaler.yml
+./kubespray/roles/kubernetes-apps/ansible/defaults/main.yml
+)
+
+for file in ${grc_image_files[@]} ; do
+ sed -i 's/gcr.io\/google_containers/registry.cn-hangzhou.aliyuncs.com\/szss_k8s/g' $file
+done
+
+quay_image_files=(
+./kubespray/extra_playbooks/roles/download/defaults/main.yml
+./kubespray/roles/download/defaults/main.yml
+)
+
+for file in ${quay_image_files[@]} ; do
+ sed -i 's/quay.io\/coreos\//registry.cn-hangzhou.aliyuncs.com\/szss_quay_io\/coreos-/g' $file
+ sed -i 's/quay.io\/calico\//registry.cn-hangzhou.aliyuncs.com\/szss_quay_io\/calico-/g' $file
+ sed -i 's/quay.io\/l23network\//registry.cn-hangzhou.aliyuncs.com\/szss_quay_io\/l23network-/g' $file
+done
+```
 
 
 ## 十、遇到的问题
@@ -247,4 +405,27 @@ arthur8     ansible_ssh_host=192.168.8.8   ansible_ssh_user=root   ansible_ssh_p
 authorized_keys
 
 
+
+
+
+
+
+
+
+
+
+下载自己私有仓的镜像
+脚本内容如下：
+
+```
+gcr_image_files=(
+./kubespray/roles/download/defaults/main.yml
+./kubespray/roles/dnsmasq/templates/dnsmasq-autoscaler.yml.j2
+./kubespray/roles/kubernetes-apps/ansible/defaults/main.yml
+)
+
+for file in ${gcr_image_files[@]} ; do
+    sed -i 's/gcr.io/docker.emarbox.com/g' $file
+done
+```
 
