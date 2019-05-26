@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)https://www.cnblogs.com/fengjian2016/p/6721624.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="origin">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <title>kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园</title>
+    <meta property="og:description" content="#kubeadm init 时从本地私有仓库下载镜像 images=( gcr.io/google_containers/kube-proxy-amd64:v1.6.1 gcr.io/google_c">
+    <link type="text/css" rel="stylesheet" href="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/bundle-SimpleBlue.css">
+<link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/bundle-SimpleBlue-mobile.css">
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/fengjian2016/rss">
+    <link title="RSD" type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/fengjian2016/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/fengjian2016/wlwmanifest.xml">
+    <script async="" src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/analytics.js.下载"></script><script src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/jquery-2.2.0.min.js.下载"></script>
+    <script>var currentBlogId=264978;var currentBlogApp='fengjian2016',cb_enable_mathjax=false;var isLogined=false;</script>
+    <script src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/blog-common.js.下载" type="text/javascript"></script>
+<link rel="preload" href="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/f.txt" as="script"><script type="text/javascript" src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/f.txt"></script><script src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/pubads_impl_2019052001.js.下载" async=""></script></head>
+<body>
+<a name="top"></a>
+
+
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+		
+<!--done-->
+<div class="title"><a id="Header1_HeaderTitle" class="headermaintitle" href="https://www.cnblogs.com/fengjian2016/">fengjian1585</a></div>
+<div class="subtitle"></div>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">博客园</a></li>
+<li id="nav_myhome"><a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/fengjian2016/">首页</a></li>
+<li id="nav_newpost"><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li id="nav_contact"><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/fengjian1585">联系</a></li>
+<li id="nav_rss"><a id="blog_nav_rss" class="menu" href="https://www.cnblogs.com/fengjian2016/rss">订阅</a>
+<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="https://www.cnblogs.com/fengjian2016/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li id="nav_admin"><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<!--done-->
+随笔-268&nbsp;
+文章-2&nbsp;
+评论-14&nbsp;
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+        <div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="https://www.cnblogs.com/fengjian2016/p/6721624.html">kubeadm init 时从本地私有仓库下载镜像</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="blogpost-body"><p>#kubeadm init 时从本地私有仓库下载镜像</p>
+<p>&nbsp;</p>
+<p>images<span class="hljs-subst">=(</span></p>
+<p>gcr.io/google_containers/kube-proxy-amd64:v1.6.1 <br>gcr.io/google_containers/kube-apiserver-amd64:v1.6.1         <br>gcr.io/google_containers/kube-scheduler-amd64:v1.6.1         <br>gcr.io/google_containers/kube-controller-manager-amd64:v1.6.1         <br>gcr.io/google_containers/kube-proxy-amd64:v1.6.0         <br>gcr.io/google_containers/kube-controller-manager-amd64:v1.6.0         <br>gcr.io/google_containers/kube-apiserver-amd64:v1.6.0         <br>gcr.io/google_containers/kube-scheduler-amd64:v1.6.0                  <br>gcr.io/google_containers/kubernetes-dashboard-amd64:v1.6.0         <br>gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.1         <br>gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.1         <br>gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.1         <br>gcr.io/google_containers/etcd-amd64:3.0.17         <br>quay.io/coreos/flannel:v0.7.0-amd64   <br>gcr.io/google_containers/pause-amd64:3.0            </p>
+<p><span class="hljs-subst"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number">)</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>&nbsp;</p>
+<p><span class="hljs-subst"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"><span class="hljs-attribute"><span class="hljs-attribute"><span class="hljs-number"> for imageName <span class="hljs-keyword">in ${images<span class="hljs-preprocessor">[@<span class="hljs-preprocessor">]<span class="hljs-markup">} ;&nbsp;</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>&nbsp; do</p>
+<p>&nbsp; &nbsp; &nbsp;docker pull gcr.io/google_containers/$imageName；</p>
+<p>&nbsp; &nbsp; &nbsp;docker tag gcr.io/google_containers/$imageName docker.cinyi.com:443/senyint/$imageName；</p>
+<p>&nbsp; &nbsp; &nbsp;docker push docker.cinyi.com:443/senyint/$imageName；</p>
+<p>done</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>vim /etc/systemd/<span class="hljs-keyword">system/kubelet.service.d/<span class="hljs-number">10-kubeadm.conf</span></span></p>
+<p><span class="hljs-keyword"><span class="hljs-number">为kubelet添加一个额外的参数 <span class="hljs-comment">// 这样kubelet就不会在启动pod的时候去墙外的k8s仓库拉取pause-amd64:3.0镜像了 </span></span></span></p>
+<p>&nbsp;</p>
+<p><span class="hljs-keyword"><span class="hljs-number"><span class="hljs-comment">--pod-infra-<span class="hljs-keyword">container-<span class="hljs-keyword">image=docker.cinyi.com:443<span class="hljs-number"><span class="hljs-number"><span class="hljs-number"><span class="hljs-number">/senyint/<span class="hljs-keyword">pause-amd64:<span class="hljs-number">3.0 &nbsp; &nbsp; &nbsp; &nbsp;</span></span></span></span></span></span></span></span></span></span></span></p>
+<p>&nbsp;</p>
+<p><span class="hljs-keyword"><span class="hljs-number"><span class="hljs-comment"><span class="hljs-keyword"><span class="hljs-keyword"><span class="hljs-number"><span class="hljs-number"><span class="hljs-number"><span class="hljs-number"><span class="hljs-keyword"><span class="hljs-number">Environment=<span class="hljs-string">"KUBELET_INFRA_IMAGE=--pod-infra-container-image=docker.cinyi.com:443/senyint/pause-amd64:3.0" </span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p><span class="hljs-string" style="color: #008800; box-sizing: border-box; font-family: &#39;Source Code Pro&#39;, monospace; white-space: pre; background-color: rgba(128, 128, 128, 0.0470588);">&nbsp;</span></p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="https://www.cnblogs.com/fengjian2016/category/869527.html" target="_blank">k8s-docker</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(6721624,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;daef403a-aac1-e511-9fc1-ac853d9f53cc&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/fengjian2016/" target="_blank"><img src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/20161226162438.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/fengjian2016/">fengjian1585</a><br>
+            <a href="https://home.cnblogs.com/u/fengjian2016/followees">关注 - 6</a><br>
+            <a href="https://home.cnblogs.com/u/fengjian2016/followers">粉丝 - 37</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;daef403a-aac1-e511-9fc1-ac853d9f53cc&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(6721624,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">0</span>
+    </div>
+    <div class="buryit" onclick="votePost(6721624,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="https://www.cnblogs.com/fengjian2016/p/6704038.html" class="p_n_p_prefix">« </a> 上一篇：<a href="https://www.cnblogs.com/fengjian2016/p/6704038.html" title="发布于2017-04-13 15:13">Kubernetes 1.6新特性</a><br><a href="https://www.cnblogs.com/fengjian2016/p/6723971.html" class="p_n_p_prefix">» </a> 下一篇：<a href="https://www.cnblogs.com/fengjian2016/p/6723971.html" title="发布于2017-04-17 17:40">openssl生成证书</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2017-04-17 10:23</span> <a href="https://www.cnblogs.com/fengjian2016/">fengjian1585</a> 阅读(<span id="post_view_count">4599</span>) 评论(<span id="post_comment_count">0</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=6721624" rel="nofollow">编辑</a> <a href="https://www.cnblogs.com/fengjian2016/p/6721624.html#" onclick="AddToWz(6721624);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=264978,cb_entryId=6721624,cb_blogApp=currentBlogApp,cb_blogUserGuid='daef403a-aac1-e511-9fc1-ac853d9f53cc',cb_entryCreatedDate='2017/4/17 10:23:00';loadViewCount(cb_entryId);var cb_postType=1;var isMarkdown=false;</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/fengjian2016/p/6721624.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/fengjian2016/p/6721624.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-工控&#39;)">【推荐】超50万C++/C#源码: 大型实时仿真组态图形源码</a><br><a href="https://ke.qq.com/adActivity.html?name=xiangxueketang2" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-享学&#39;)">【推荐】Java工作两年，一天竟收到33份面试通知</a><br><a href="https://q.cnblogs.com/" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-博问&#39;)">【推荐】程序员问答平台，解决您开发中遇到的技术难题</a><br></div>
+<div id="opt_under_post"></div>
+<script async="async" src="./kubeadm init 时从本地私有仓库下载镜像 - fengjian1585 - 博客园_files/gpt.js.下载"></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+<script>
+  googletag.cmd.push(function() {
+        googletag.defineSlot('/1090369/C1', [300, 250], 'div-gpt-ad-1546353474406-0').addService(googletag.pubads());
+        googletag.defineSlot('/1090369/C2', [468, 60], 'div-gpt-ad-1539008685004-0').addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+  });
+</script>
+<div id="cnblogs_c1" class="c_ad_block"></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>相关博文：</b><br>·  <a href="https://www.cnblogs.com/ahitbo/p/7400257.html" target="_blank" onclick="clickRecomItmem(7400257)">k8s images shell</a><br>·  <a href="https://www.cnblogs.com/windy-love/p/9182212.html" target="_blank" onclick="clickRecomItmem(9182212)">centos7用kubeadm安装k8sv1.10.0</a><br>·  <a href="https://www.cnblogs.com/amoyzhu/p/6654823.html" target="_blank" onclick="clickRecomItmem(6654823)">kubeadm 安装1.6.0版本出错 未解决</a><br>·  <a href="https://www.cnblogs.com/hixiaowei/p/9948162.html" target="_blank" onclick="clickRecomItmem(9948162)">Kubernetes1.10.4镜像版本</a><br>·  <a href="https://www.cnblogs.com/mushou/p/9613365.html" target="_blank" onclick="clickRecomItmem(9613365)">用kubeadm构建k8s集群部署</a><br></div></div>
+<div id="cnblogs_c2" class="c_ad_block" style="display: none;">
+    <div id="div-gpt-ad-1539008685004-0" style="height:60px; width:468px;"></div>
+</div>
+<div id="under_post_kb"><div class="itnews c_ad_block"><b>最新新闻</b>：<br> ·  <a href="https://news.cnblogs.com/n/625898/" target="_blank">微软停止与华为合作：Windows 暂停供应新订单</a><br> ·  <a href="https://news.cnblogs.com/n/625897/" target="_blank">易到用车服务器遭到连续攻击：攻击者索要巨额比特币</a><br> ·  <a href="https://news.cnblogs.com/n/625894/" target="_blank">一部精彩绝伦的战争大片：人类抗癌持久战</a><br> ·  <a href="https://news.cnblogs.com/n/625896/" target="_blank">一加手机为什么选钢铁侠做代言人？刘作虎：气质相符</a><br> ·  <a href="https://news.cnblogs.com/n/625895/" target="_blank">微软宣布在荷兰展开新风电交易：买下90兆瓦风能</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+ if(enablePostBottom()) {
+    codeHighlight();
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverT2();
+    deliverC1();
+    deliverC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);  
+}
+</script>
+</div>
+
+    
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><div id="profile_block">昵称：<a href="https://home.cnblogs.com/u/fengjian2016/">fengjian1585</a><br>园龄：<a href="https://home.cnblogs.com/u/fengjian2016/" title="入园时间：2016-01-23">3年4个月</a><br>粉丝：<a href="https://home.cnblogs.com/u/fengjian2016/followers/">37</a><br>关注：<a href="https://home.cnblogs.com/u/fengjian2016/followees/">6</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;daef403a-aac1-e511-9fc1-ac853d9f53cc&#39;)">+加关注</a></div><script>getFollowStatus('daef403a-aac1-e511-9fc1-ac853d9f53cc')</script></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="calendar"><div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/04/01&#39;);return false;">&lt;</a></td><td align="center">2019年5月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/06/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td align="center">1</td><td align="center">2</td><td align="center">3</td><td class="CalWeekendDay" align="center">4</td></tr><tr><td class="CalWeekendDay" align="center">5</td><td align="center">6</td><td align="center">7</td><td align="center">8</td><td align="center">9</td><td align="center">10</td><td class="CalWeekendDay" align="center">11</td></tr><tr><td class="CalWeekendDay" align="center">12</td><td align="center">13</td><td align="center">14</td><td align="center">15</td><td align="center"><a href="https://www.cnblogs.com/fengjian2016/archive/2019/05/16.html"><u>16</u></a></td><td align="center">17</td><td class="CalWeekendDay" align="center">18</td></tr><tr><td class="CalWeekendDay" align="center">19</td><td align="center">20</td><td align="center">21</td><td align="center">22</td><td align="center">23</td><td align="center">24</td><td class="CalWeekendDay" align="center">25</td></tr><tr><td class="CalTodayDay" align="center">26</td><td align="center">27</td><td align="center">28</td><td align="center">29</td><td align="center">30</td><td align="center">31</td><td class="CalOtherMonthDay" align="center">1</td></tr><tr><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td><td class="CalOtherMonthDay" align="center">8</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script></div>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="https://www.cnblogs.com/fengjian2016/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="https://www.cnblogs.com/fengjian2016/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="https://www.cnblogs.com/fengjian2016/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="https://www.cnblogs.com/fengjian2016/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="https://www.cnblogs.com/fengjian2016/tag/" title="我的博客的标签列表">我的标签</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_toptags" class="sidebar-block"></div><div id="sidebar_categories">
+<div class="catListPostCategory">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="https://www.cnblogs.com/fengjian2016/category/871049.html">ansible/puppet(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="https://www.cnblogs.com/fengjian2016/category/1134879.html">DevOps(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="https://www.cnblogs.com/fengjian2016/category/877906.html">ELK(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="https://www.cnblogs.com/fengjian2016/category/885648.html">git(8)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="https://www.cnblogs.com/fengjian2016/category/876248.html">hadoop(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="https://www.cnblogs.com/fengjian2016/category/797367.html">http(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="https://www.cnblogs.com/fengjian2016/category/888384.html">jenkins(14)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="https://www.cnblogs.com/fengjian2016/category/869527.html">k8s-docker(67)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="https://www.cnblogs.com/fengjian2016/category/797368.html">linux(48)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="https://www.cnblogs.com/fengjian2016/category/874269.html">mongodb(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_10" href="https://www.cnblogs.com/fengjian2016/category/885651.html">MQ(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_11" href="https://www.cnblogs.com/fengjian2016/category/879309.html">nginx+lua 高并发(7)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_12" href="https://www.cnblogs.com/fengjian2016/category/829075.html">openfalcon 监控(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_13" href="https://www.cnblogs.com/fengjian2016/category/867746.html">php框架yii2 配置(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_14" href="https://www.cnblogs.com/fengjian2016/category/795998.html">python(46)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_15" href="https://www.cnblogs.com/fengjian2016/category/847929.html">redis(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_16" href="https://www.cnblogs.com/fengjian2016/category/880412.html">solr(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_17" href="https://www.cnblogs.com/fengjian2016/category/886871.html">varnish(4)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_18" href="https://www.cnblogs.com/fengjian2016/category/892406.html">zookeeper(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_19" href="https://www.cnblogs.com/fengjian2016/category/1033662.html">分布式文件系统(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_20" href="https://www.cnblogs.com/fengjian2016/category/1029383.html">数据库(4)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_21" href="https://www.cnblogs.com/fengjian2016/category/926167.html">网络交换(3)</a> </li>
+
+</ul>
+
+</div>
+
+<div class="catListPostArchive">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="https://www.cnblogs.com/fengjian2016/archive/2019/05.html">2019年5月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="https://www.cnblogs.com/fengjian2016/archive/2019/04.html">2019年4月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="https://www.cnblogs.com/fengjian2016/archive/2019/03.html">2019年3月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="https://www.cnblogs.com/fengjian2016/archive/2019/02.html">2019年2月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="https://www.cnblogs.com/fengjian2016/archive/2019/01.html">2019年1月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="https://www.cnblogs.com/fengjian2016/archive/2018/12.html">2018年12月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="https://www.cnblogs.com/fengjian2016/archive/2018/11.html">2018年11月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="https://www.cnblogs.com/fengjian2016/archive/2018/10.html">2018年10月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="https://www.cnblogs.com/fengjian2016/archive/2018/09.html">2018年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="https://www.cnblogs.com/fengjian2016/archive/2018/08.html">2018年8月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="https://www.cnblogs.com/fengjian2016/archive/2018/07.html">2018年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="https://www.cnblogs.com/fengjian2016/archive/2018/06.html">2018年6月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="https://www.cnblogs.com/fengjian2016/archive/2018/05.html">2018年5月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="https://www.cnblogs.com/fengjian2016/archive/2018/04.html">2018年4月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="https://www.cnblogs.com/fengjian2016/archive/2018/03.html">2018年3月 (10)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="https://www.cnblogs.com/fengjian2016/archive/2018/02.html">2018年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="https://www.cnblogs.com/fengjian2016/archive/2018/01.html">2018年1月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="https://www.cnblogs.com/fengjian2016/archive/2017/12.html">2017年12月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="https://www.cnblogs.com/fengjian2016/archive/2017/11.html">2017年11月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="https://www.cnblogs.com/fengjian2016/archive/2017/10.html">2017年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="https://www.cnblogs.com/fengjian2016/archive/2017/09.html">2017年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="https://www.cnblogs.com/fengjian2016/archive/2017/08.html">2017年8月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="https://www.cnblogs.com/fengjian2016/archive/2017/07.html">2017年7月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="https://www.cnblogs.com/fengjian2016/archive/2017/06.html">2017年6月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="https://www.cnblogs.com/fengjian2016/archive/2017/05.html">2017年5月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="https://www.cnblogs.com/fengjian2016/archive/2017/04.html">2017年4月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="https://www.cnblogs.com/fengjian2016/archive/2017/03.html">2017年3月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="https://www.cnblogs.com/fengjian2016/archive/2017/02.html">2017年2月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="https://www.cnblogs.com/fengjian2016/archive/2017/01.html">2017年1月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="https://www.cnblogs.com/fengjian2016/archive/2016/12.html">2016年12月 (10)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="https://www.cnblogs.com/fengjian2016/archive/2016/11.html">2016年11月 (16)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="https://www.cnblogs.com/fengjian2016/archive/2016/10.html">2016年10月 (10)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="https://www.cnblogs.com/fengjian2016/archive/2016/09.html">2016年9月 (13)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="https://www.cnblogs.com/fengjian2016/archive/2016/08.html">2016年8月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="https://www.cnblogs.com/fengjian2016/archive/2016/07.html">2016年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="https://www.cnblogs.com/fengjian2016/archive/2016/06.html">2016年6月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="https://www.cnblogs.com/fengjian2016/archive/2016/05.html">2016年5月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_37" href="https://www.cnblogs.com/fengjian2016/archive/2016/04.html">2016年4月 (13)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_38" href="https://www.cnblogs.com/fengjian2016/archive/2016/03.html">2016年3月 (31)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_39" href="https://www.cnblogs.com/fengjian2016/archive/2016/01.html">2016年1月 (2)</a> </li>
+
+</ul>
+
+</div>
+
+<div class="catListArticleCategory">
+<h3 class="catListTitle">文章分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="https://www.cnblogs.com/fengjian2016/category/1033660.html">glusterfs\fastdfs</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="https://www.cnblogs.com/fengjian2016/category/795997.html">linux(2)</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/fengjian2016/p/5812196.html#4199999">1. Re:GitLab + Jenkins + Docker + Kubernetes。</a></li>
+        <li class="recent_comment_body">你好，有相关的部署文档可以借鉴吗</li>
+        <li class="recent_comment_author">--Maclean</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/fengjian2016/p/6392900.html#4183301">2. Re:kubernetes 安装学习</a></li>
+        <li class="recent_comment_body">@fengjian1585有没有新的，发我份我学习学习，求大神带飞~...</li>
+        <li class="recent_comment_author">--JameGeng</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/fengjian2016/p/6392900.html#4183292">3. Re:kubernetes 安装学习</a></li>
+        <li class="recent_comment_body">@JameGeng老文档的， 参考意义不大了...</li>
+        <li class="recent_comment_author">--fengjian1585</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/fengjian2016/p/6392900.html#4183291">4. Re:kubernetes 安装学习</a></li>
+        <li class="recent_comment_body">[root@docker223 kubernetes]# systemctl start kube-kubelet.service<br>多了个kube字母</li>
+        <li class="recent_comment_author">--JameGeng</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/fengjian2016/p/5261986.html#4106331">5. Re:Paramiko 模块使用</a></li>
+        <li class="recent_comment_body">为什么远程Linux系统会报如下的错误：Traceback (most recent call last): File "d:\File\python\connect2.py", line 8, i.......</li>
+        <li class="recent_comment_author">--leileilei2011</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="https://www.cnblogs.com/fengjian2016/p/6392900.html">1. kubernetes 安装学习(31253)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/5841556.html">2. ELK+kafka构建日志收集系统(11119)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/6253039.html">3. docker Dockerfile 创建镜像(9032)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/8227532.html">4. Jenkins pipeline：pipeline 语法详解(7204)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/6689212.html">5. kukubeadm 1.6.1 + docker1.2.6 安装问题(6618)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="https://www.cnblogs.com/fengjian2016/p/6392900.html">1. kubernetes 安装学习(9)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/5812196.html">2. GitLab + Jenkins + Docker + Kubernetes。(1)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/8318449.html">3. docker 不同版本 添加--insecure-registry(1)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/8227532.html">4. Jenkins pipeline：pipeline 语法详解(1)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/5261986.html">5. Paramiko 模块使用(1)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="https://www.cnblogs.com/fengjian2016/p/6392900.html">1. kubernetes 安装学习(4)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/5841556.html">2. ELK+kafka构建日志收集系统(2)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/7508745.html">3. Kubernetes 详解(1)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/5979020.html">4. 监控redis python脚本(1)</a></li><li><a href="https://www.cnblogs.com/fengjian2016/p/5944926.html">5. hadoop_elk架构图(1)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2019 fengjian1585
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+
+<script src="chrome-extension://hhojmcideegachlhfgfdhailpfhgknjm/web_accessible_resources/index.js"></script></body></html>

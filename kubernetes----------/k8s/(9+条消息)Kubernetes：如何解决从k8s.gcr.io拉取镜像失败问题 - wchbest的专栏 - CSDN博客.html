@@ -1,0 +1,2645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://blog.csdn.net/wchbest/article/details/88873965"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit"/>
+    <meta name="force-rendering" content="webkit"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="referrer" content="always">
+    <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+    <meta name="shenma-site-verification" content="5a59773ab8077d4a62bf469ab966a63b_1497598848">
+        <meta name="csdn-baidu-search"  content='{"autorun":true,"install":true,"keyword":"Kubernetes：如何解决从k8s.gcr.io拉取镜像失败问题 - wchbest的专栏"}'>
+    
+    <link href="https://csdnimg.cn/public/favicon.ico" rel="SHORTCUT ICON">
+    <title>Kubernetes：如何解决从k8s.gcr.io拉取镜像失败问题 - wchbest的专栏 - CSDN博客</title>
+
+        
+                    <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/detail-f26d3d5291.min.css">
+            
+        
+            <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/themes/skin3-template/skin3-template-9b39979775.min.css">
+        <script type="text/javascript">
+        var username = "wchbest";
+        var blog_address = "https://blog.csdn.net/wchbest";
+        var static_host = "https://csdnimg.cn/release/phoenix/";
+        var currentUserName = "paincupid";
+        var isShowAds = true;
+        var isOwner = false;
+        var loginUrl = "http://passport.csdn.net/account/login?from=https://blog.csdn.net/wchbest/article/details/88873965"
+        var blogUrl = "https://blog.csdn.net/";
+
+        var curSkin = "skin3-template";
+        // 第四范式所需数据
+        var articleTitles = "Kubernetes：如何解决从k8s.gcr.io拉取镜像失败问题 - wchbest的专栏";
+        
+        var nickName = "wchbest";
+        var isCorporate = false;
+        var subDomainBlogUrl = "https://blog.csdn.net/"
+        var digg_base_url = "https://blog.csdn.net/wchbest/phoenix/comment";
+        var articleDetailUrl = "https://blog.csdn.net/wchbest/article/details/88873965";
+    </script>
+    <script src="https://csdnimg.cn/public/common/libs/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="https://csdnimg.cn/rabbit/exposure-click/main-1.0.6.js"></script>
+    <script src="//g.csdnimg.cn/??fixed-sidebar/1.1.3/fixed-sidebar.js,track/1.2.6/track.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://csdnimg.cn/public/sandalstrap/1.4/css/sandalstrap.min.css">
+    <style>
+        .MathJax, .MathJax_Message, .MathJax_Preview{
+            display: none
+        }
+    </style>
+</head>
+<body class="nodata " > 
+    <link rel="stylesheet" href="https://csdnimg.cn/public/common/toolbar/content_toolbar_css/content_toolbar.css">
+    <script id="toolbar-tpl-scriptId" src="https://csdnimg.cn/public/common/toolbar/js/content_toolbar.js" type="text/javascript" domain="https://blog.csdn.net/"></script>
+<div id="kp_box_476" data-pid="476" data-track-view='{"mod":"kp_popu_476-845","con":",,"}' data-track-click='{"mod":"kp_popu_476-845","con":",,"}'><script src="//csdnimg.cn/public/common/indexSuperise/1.0.7/indexSuperise.js?20190508180304"></script>
+<script>
+window.csdn.indexSuperise({
+zIndex:11000,
+      smallMoveImg: '//img-ads.csdn.net/2019/201905051104247931.png',
+      bigMoveImg: '//img-ads.csdn.net/2019/201905051104104645.png',
+     link:'//edu.csdn.net/topic/python115?utm_source=blogpopup',
+boxStyle:140,
+trackSuperId:476,
+smallMove:'notMove',  
+trackSId:845
+    });
+</script></div><link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/blog_code-c3a0c33d5c.css">
+<link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/vendor/pagination/paging.css">
+<script type="text/javascript">
+	var NEWS_FEED = function(){}
+</script>
+
+<link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/chart-3456820cac.css" />
+<div class="container clearfix" id="mainBox">
+			<div class="recommend-right">
+  <ul class="recommend-fixed-box">
+    
+  </ul>
+</div>	    <main>
+        <div class="blog-content-box">
+  <div class="article-header-box">
+    <div class="article-header">
+      <div class="article-title-box">
+        <span class="article-type type-1 float-left">原</span>        <h1 class="title-article">Kubernetes：如何解决从k8s.gcr.io拉取镜像失败问题</h1>
+      </div>
+      <div class="article-info-box">
+        <div class="article-bar-top">
+                                                  <span class="time">2019年03月28日 17:34:39</span>
+          <a class="follow-nickName" href="https://me.csdn.net/wchbest" target="_blank">wchbest</a>
+          <span class="read-count">阅读数：1521</span>
+                  </div>
+        <div class="operating">
+                  </div>
+      </div>
+    </div>
+  </div>
+  <article class="baidu_pl">
+    <div id="article_content" class="article_content clearfix csdn-tracking-statistics" data-pid="blog" data-mod=popu_307 data-dsm="post">
+            <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/ck_htmledit_views-f57960eb32.css" />
+                              <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/ck_htmledit_views-f57960eb32.css" />
+          <div class="htmledit_views" id="content_views">
+            <p>安装k8s的时候需要从k8s.gcr.io拉取镜像</p>
+
+<p>执行kubeadm init     --pod-network-cidr=10.244.0.0/16   --apiserver-advertise-address=172.18.2.132 --ignore-preflight-errors=Swap</p>
+
+<p>初始化的时候出现这个报错</p>
+
+<p>[preflight] Running pre-flight checks<br />
+    [WARNING Swap]: running with swap on is not supported. Please disable swap<br />
+[preflight] Pulling images required for setting up a Kubernetes cluster<br />
+[preflight] This might take a minute or two, depending on the speed of your internet connection<br />
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'<br />
+error execution phase preflight: [preflight] Some fatal errors occurred:<br />
+    [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-apiserver:v1.14.0: output: Trying to pull repository k8s.gcr.io/kube-apiserver ...<br />
+Get https://k8s.gcr.io/v1/_ping: dial tcp 64.233.189.82:443: i/o timeout<br />
+, error: exit status 1<br />
+    [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-controller-manager:v1.14.0: output: Trying to pull repository k8s.gcr.io/kube-controller-manager ...<br />
+Get https://k8s.gcr.io/v1/_ping: dial tcp 64.233.189.82:443: i/o timeout<br />
+, error: exit status 1<br />
+    [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-scheduler:v1.14.0: output: Trying to pull repository k8s.gcr.io/kube-scheduler ...<br />
+Get https://k8s.gcr.io/v1/_ping: dial tcp 64.233.189.82:443: i/o timeout<br />
+, error: exit status 1<br />
+    [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-proxy:v1.14.0: output: Trying to pull repository k8s.gcr.io/kube-proxy ...<br />
+Get https://k8s.gcr.io/v1/_ping: dial tcp 64.233.189.82:443: i/o timeout<br />
+, error: exit status 1<br />
+    [ERROR ImagePull]: failed to pull image k8s.gcr.io/pause:3.1: output: Trying to pull repository k8s.gcr.io/pause ...<br />
+Get https://k8s.gcr.io/v1/_ping: dial tcp 64.233.189.82:443: i/o timeout<br />
+, error: exit status 1<br />
+    [ERROR ImagePull]: failed to pull image k8s.gcr.io/etcd:3.3.10: output: Trying to pull repository k8s.gcr.io/etcd ...<br />
+Get https://k8s.gcr.io/v1/_ping: dial tcp 64.233.189.82:443: i/o timeout<br />
+, error: exit status 1<br />
+    [ERROR ImagePull]: failed to pull image k8s.gcr.io/coredns:1.3.1: output: Trying to pull repository k8s.gcr.io/coredns ...<br />
+Get https://k8s.gcr.io/v1/_ping: dial tcp 64.233.189.82:443: i/o timeout<br />
+, error: exit status 1</p>
+
+<p> </p>
+
+<p> </p>
+
+<p>安装这些需要翻墙</p>
+
+<p>k8s.gcr.io/kube-apiserver:v1.14.0<br />
+k8s.gcr.io/kube-controller-manager:v1.14.0<br />
+k8s.gcr.io/kube-scheduler:v1.14.0<br />
+k8s.gcr.io/kube-proxy:v1.14.0<br />
+k8s.gcr.io/pause:3.1<br />
+k8s.gcr.io/etcd:3.3.10<br />
+k8s.gcr.io/coredns:1.3.1</p>
+
+<p>不能翻墙换个方法变通处理一下</p>
+
+<p>docker pull mirrorgooglecontainers/kube-apiserver:v1.14.0<br />
+docker pull mirrorgooglecontainers/kube-controller-manager:v1.14.0<br />
+docker pull mirrorgooglecontainers/kube-scheduler:v1.14.0<br />
+docker pull mirrorgooglecontainers/kube-proxy:v1.14.0<br />
+docker pull mirrorgooglecontainers/pause:3.1<br />
+docker pull mirrorgooglecontainers/etcd:3.3.10<br />
+docker pull coredns/coredns:1.3.1</p>
+
+<p> </p>
+
+<p>在重新给下载的打个tag</p>
+
+<p>docker tag docker.io/mirrorgooglecontainers/kube-apiserver:v1.14.0 k8s.gcr.io/kube-apiserver:v1.14.0<br />
+docker tag docker.io/mirrorgooglecontainers/kube-controller-manager:v1.14.0 k8s.gcr.io/kube-controller-manager:v1.14.0<br />
+docker tag docker.io/mirrorgooglecontainers/kube-scheduler:v1.14.0 k8s.gcr.io/kube-scheduler:v1.14.0<br />
+docker tag docker.io/mirrorgooglecontainers/kube-proxy:v1.14.0 k8s.gcr.io/kube-proxy:v1.14.0<br />
+docker tag docker.io/mirrorgooglecontainers/pause:3.1 k8s.gcr.io/pause:3.1<br />
+docker tag docker.io/mirrorgooglecontainers/etcd:3.3.10 k8s.gcr.io/etcd:3.3.10<br />
+docker tag docker.io/coredns/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1</p>
+
+<p> </p>
+
+<p>这样就不需要翻墙下载了。</p>
+
+<p> </p>
+          </div>
+                  </div>
+  </article>
+</div>
+
+<div class="hide-article-box hide-article-pos text-center">
+      <a class="" id="btn-readmore" data-track-view='{"mod":"popu_376","con":",https://blog.csdn.net/wchbest/article/details/88873965,"}' data-track-click='{"mod":"popu_376","con":",https://blog.csdn.net/wchbest/article/details/88873965,"}'>
+    展开阅读全文
+    <svg class="icon chevrondown" aria-hidden="true">
+        <use xlink:href="#csdnc-chevrondown"></use>
+      </svg>
+    </a>
+    </div>
+<script>
+  $(".MathJax").remove();
+  if ($('div.markdown_views pre.prettyprint code.hljs').length > 0) {
+    $('div.markdown_views')[0].className = 'markdown_views';
+  }
+</script>        <div id="dmp_ad_58"><div id="kp_box_58" data-pid="58" data-track-view='{"mod":"kp_popu_58-386","con":",,"}' data-track-click='{"mod":"kp_popu_58-386","con":",,"}'><div style="width:100%;background:#fff;">
+<script type="text/javascript" src="//rabc1.iteye.com/production/resource/web/6xwm4l.js?lg=ydmpioh"></script>
+</div></div></div>        <a id="commentBox"></a>
+<div class="comment-box">
+	
+	<div class="comment-edit-box d-flex">
+		<a id="commentsedit"></a>
+		<div class="user-img">
+			<a href="//me.csdn.net/paincupid" target="_blank">
+				<img class="" src="https://avatar.csdn.net/B/5/2/3_paincupid.jpg">
+			</a>
+		</div>
+		<form id="commentform">
+			<input type="hidden" id="comment_replyId">
+			<textarea class="comment-content" name="comment_content" id="comment_content" placeholder="想对作者说点什么"></textarea>
+			<div class="opt-box"> <!-- d-flex -->
+				<div id="ubbtools" class="add_code">
+					<a href="#insertcode" code="code" target="_self"><i class="icon iconfont icon-daima"></i></a>
+				</div>
+				<input type="hidden" id="comment_replyId" name="comment_replyId">
+				<input type="hidden" id="article_id" name="article_id" value="88873965">
+				<input type="hidden" id="comment_userId" name="comment_userId" value="">
+				<input type="hidden" id="commentId" name="commentId" value="">
+				<div style="display: none;" class="csdn-tracking-statistics tracking-click" data-mod="popu_384"><a href="#" target="_blank" class="comment_area_btn">发表评论</a></div>
+				<div class="dropdown" id="myDrap">
+					<a class="dropdown-face d-flex align-items-center" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+					<div class="txt-selected text-truncate">添加代码片</div>
+					<svg class="icon d-block" aria-hidden="true">
+						<use xlink:href="#csdnc-triangledown"></use>
+					</svg>
+					</a>
+					<ul class="dropdown-menu" id="commentCode" aria-labelledby="drop4">
+						<li><a data-code="html">HTML/XML</a></li>
+						<li><a data-code="objc">objective-c</a></li>
+						<li><a data-code="ruby">Ruby</a></li>
+						<li><a data-code="php">PHP</a></li>
+						<li><a data-code="csharp">C</a></li>
+						<li><a data-code="cpp">C++</a></li>
+						<li><a data-code="javascript">JavaScript</a></li>
+						<li><a data-code="python">Python</a></li>
+						<li><a data-code="java">Java</a></li>
+						<li><a data-code="css">CSS</a></li>
+						<li><a data-code="sql">SQL</a></li>
+						<li><a data-code="plain">其它</a></li>
+					</ul>
+				</div>  
+				<div class="right-box">
+					<span id="tip_comment" class="tip">还能输入<em>1000</em>个字符</span>
+					<input type="submit" class="btn btn-sm btn-red btn-comment" value="发表评论">
+				</div>
+			</div>
+		</form>
+	</div>
+
+		<div class="comment-list-container">
+		<a id="comments"></a>
+		<div class="comment-list-box">
+		</div>
+		<div id="commentPage" class="pagination-box d-none"></div>
+		<div class="opt-box text-center">
+			<div class="btn btn-sm btn-link-blue" id="btnMoreComment"></div>
+		</div>
+	</div>
+</div>
+        <div class="recommend-box">
+                            <div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/h952520296/article/details/86981343,BlogCommendFromThirdService_0"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/h952520296/article/details/86981343,BlogCommendFromThirdService_0"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/h952520296/article/details/86981343" target="_blank" title="K8S 报 ErrImagePull  k8s.gcr.io国内无法连接解决方法">
+		<h4 class="text-truncate oneline">
+				K8S 报 ErrImagePull  <em>k8s.gcr.io</em>国内无法连接<em>解决</em>方法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">02-11</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1864</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/h952520296/article/details/86981343" target="_blank" title="K8S 报 ErrImagePull  k8s.gcr.io国内无法连接解决方法">
+				<span class="desc oneline">k8s.gcr.io连接不上之后，会报如下的错误：[ERRORImagePull]:failedtopullimagek8s.gcr.io/kube-apiserver:v1.12.2:output:...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/h952520296">来自：	<span class="blog_title"> h952520296的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/nklinsirui/article/details/80581286,BlogCommendFromThirdService_1"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/nklinsirui/article/details/80581286,BlogCommendFromThirdService_1"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/nklinsirui/article/details/80581286" target="_blank" title="Kubernetes国内镜像、下载安装包和拉取gcr.io镜像">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>国内<em>镜像</em>、下载安装包和拉取gcr.io<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">06-05</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/nklinsirui/article/details/80581286" target="_blank" title="Kubernetes国内镜像、下载安装包和拉取gcr.io镜像">
+				<span class="desc oneline">Debian/UbuntuCentOS/RHEL/Fedora阿里云提供了Kubernetes国内镜像来安装kubelet、kubectl和kubeadm。登陆阿里云镜像网站：https://opsx...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/nklinsirui">来自：	<span class="blog_title"> 锐意工作室</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq_24923725/article/details/82910793,BlogCommendFromThirdService_2"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq_24923725/article/details/82910793,BlogCommendFromThirdService_2"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq_24923725/article/details/82910793" target="_blank" title="Kubernetes从k8s.gcr.io拉取镜像失败问题，pause-amd64:3.1、pause:3.1、kube相关的基础镜像">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>从<em>k8s.gcr.io</em>拉取<em>镜像</em><em>失败</em><em>问题</em>，pause-amd64:3.1、pause:3.1、kube相关的基础<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">09-30</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2209</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq_24923725/article/details/82910793" target="_blank" title="Kubernetes从k8s.gcr.io拉取镜像失败问题，pause-amd64:3.1、pause:3.1、kube相关的基础镜像">
+				<span class="desc oneline">Kubernetes从k8s.gcr.io拉取镜像失败问题，pause-amd64:3.1、pause:3.1、kube相关的基础镜像在国内，通过Docker的pull和push命令访问hub.doc...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq_24923725">来自：	<span class="blog_title"> 丑货程序员的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/kaidi_php/article/details/86672150,BlogCommendFromThirdService_3"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/kaidi_php/article/details/86672150,BlogCommendFromThirdService_3"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/kaidi_php/article/details/86672150" target="_blank" title="解决k8s.gcr.io问题">
+		<h4 class="text-truncate oneline">
+				<em>解决</em><em>k8s.gcr.io</em><em>问题</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">01-28</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1179</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/kaidi_php/article/details/86672150" target="_blank" title="解决k8s.gcr.io问题">
+				<span class="desc oneline">kubeadm安装新版本的Kubernetes过程中，需要从k8s.grc.io仓库中拉取所需镜像文件，但由于G-F-W导致无法正常拉取，本文将介绍如何绕过此问题，来完成业务的部署。[ERRORIma...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/kaidi_php">来自：	<span class="blog_title"> kaidi_php的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_59" data-pid="59" data-track-view='{"mod":"kp_popu_59-78","con":",,"}' data-track-click='{"mod":"kp_popu_59-78","con":",,"}'><script type="text/javascript">
+    (function() {
+        var s = "_" + Math.random().toString(36).slice(2);
+        document.write('<div style="" id="' + s + '"></div>');
+        (window.slotbydup = window.slotbydup || []).push({
+            id: "u3491668",
+            container:  s
+        });
+    })();
+</script>
+<!-- 多条广告如下脚本只需引入一次 -->
+<script type="text/javascript" src="//cpro.baidustatic.com/cpro/ui/c.js" async="async" defer="defer" ></script></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/stonexmx/article/details/72673392,BlogCommendFromThirdService_4"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/stonexmx/article/details/72673392,BlogCommendFromThirdService_4"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/stonexmx/article/details/72673392" target="_blank" title="Kubernetes从Private Registry中拉取容器镜像的方法">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>从Private Registry中拉取容器<em>镜像</em>的方法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">05-24</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					4550</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/stonexmx/article/details/72673392" target="_blank" title="Kubernetes从Private Registry中拉取容器镜像的方法">
+				<span class="desc oneline">原文：http://www.tui8.com/articles/news/41010.html一、环境由于Kubernetes和Docker都在ActiveDevelop的过程中，两个项目的变动都很快...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/stonexmx">来自：	<span class="blog_title"> 泽佑兄弟 ZYbros</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/yamanda/article/details/89741336,BlogCommendFromBaidu_5"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/yamanda/article/details/89741336,BlogCommendFromBaidu_5"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/yamanda/article/details/89741336" target="_blank" title="failed to pull image k8s.gcr.io/kube-apiserver:v1.14.1: output: Error response from daemon:">
+		<h4 class="text-truncate oneline">
+				failed to pull image <em>k8s.gcr.io</em>/kube-apiserver:v1.14.1: output: Error response from daemon:		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">05-01</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					123</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/yamanda/article/details/89741336" target="_blank" title="failed to pull image k8s.gcr.io/kube-apiserver:v1.14.1: output: Error response from daemon:">
+				<span class="desc oneline">背景：kubeadaminit出错，这也是因为某种神秘的力量导致的k8s.gcr.io连接不上，呵呵解决办法：从dockerhub上收集宝石。。。。对于v1.14.1版本的，本人已经收集完毕，传送门：...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/yamanda">来自：	<span class="blog_title"> yamanda的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box recommend-box-ident recommend-other-item-box" data-track-view='{"mod":"popu_387","con":",https://bbs.csdn.net/topics/392504535,BlogCommendFromBaidu_6"}' data-track-click='{"mod":"popu_387","con":",https://bbs.csdn.net/topics/392504535,BlogCommendFromBaidu_6"}'>
+	<a href="https://bbs.csdn.net/topics/392504535" target="_blank">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>初始化时始终从国外拉取<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+				<span class="date">01-04</span>
+		</div>
+		<p class="content oneline">
+			<span class="desc oneline">本地安装k8s时，自己先拉取了kubeadm启动时需要的镜像，但是执行kubeadm init时仍然从远程仓库拉取镜像，求解，下面是我的操作步骤 ---------------------------</span>
+							<span class="type-show type-show-bbs">论坛</span>
+					</p>
+	</a>
+
+</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/yushanjin0767/article/details/79990858,BlogCommendFromBaidu_7"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/yushanjin0767/article/details/79990858,BlogCommendFromBaidu_7"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/yushanjin0767/article/details/79990858" target="_blank" title="在国内如何巧妙获取kubernetes各镜像？">
+		<h4 class="text-truncate oneline">
+				在国内<em>如何</em>巧妙获取<em>kubernetes</em>各<em>镜像</em>？		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">04-18</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					9464</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/yushanjin0767/article/details/79990858" target="_blank" title="在国内如何巧妙获取kubernetes各镜像？">
+				<span class="desc oneline">我们知道无论手动安装kubernetes还是使用kubeadm安装kubernetes，都需要以下各模块的docker镜像。kube-proxy-amd64kube-scheduler-amd64ku...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/yushanjin0767">来自：	<span class="blog_title"> Coding家园！</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/YoungAngelGirl/article/details/80031845,BlogCommendFromBaidu_8"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/YoungAngelGirl/article/details/80031845,BlogCommendFromBaidu_8"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/YoungAngelGirl/article/details/80031845" target="_blank" title="k8s实战之从私有仓库拉取镜像 - kubernetes">
+		<h4 class="text-truncate oneline">
+				k8s实战之从私有仓库拉取<em>镜像</em> - <em>kubernetes</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">04-21</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					6015</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/YoungAngelGirl/article/details/80031845" target="_blank" title="k8s实战之从私有仓库拉取镜像 - kubernetes">
+				<span class="desc oneline">1、实战目的从私有docker仓库拉取镜像，部署pod。上一篇中，我们搭建了私有的镜像仓库，这一篇我们将与k8s结合实战使用私有仓库。2、登录docker为了完成本次实战，需要登录docker，如下：...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/YoungAngelGirl">来自：	<span class="blog_title"> YoungAngelGirl的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_60" data-pid="60" data-track-view='{"mod":"kp_popu_60-894","con":"1389721245641526331,https://edu.csdn.net/course/detail/9167,"}' data-track-click='{"mod":"kp_popu_60-894","con":"1389721245641526331,https://edu.csdn.net/course/detail/9167,"}'><link rel="stylesheet" href="https://www.csdn.net/company/css/edu-recommend-1.0.1.css">
+  <div class="edu-ad-list">
+    <div class="recommend-item-box type_blog clearfix">
+      <div class="content">
+        <a href="https://edu.csdn.net/course/detail/9167?utm_source=baidutj" target="_blank" title="docker 18.x  <em>kubernetes</em> 基础篇">
+          <h4 class="text-truncate oneline">docker 18.x  <em>kubernetes</em> 基础篇</h4>
+        </a>
+        <p class="content">
+          <a href="https://edu.csdn.net/course/detail/9167?utm_source=baidutj" target="_blank" title="docker 18.x  <em>kubernetes</em> 基础篇">
+            <span class="desc oneline">1. kubernetes的架构，让大家对kubernetes的各个组件的功用有个详细的掌握 。rn2. Master的几个组件组成部分.rn3. woker的几个组件组成部分rn4. kubernetes中用到的专业术语和它们是如何使用的，如pods、ReplicaSets、Deployment、Services等。rn通过kubernetes来实现不停机的情况下进行回滚更新，蓝绿部署。</span>
+          </a>
+          <span class="blog_title_box oneline ">
+            <span class="type-show type-show-edu type-show-after">学院</span>
+            讲师： <span class="blog_title"> 臧雪园</span>
+          </span>
+        </p>
+      </div>
+    </div>
+  </div></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/yjf147369/article/details/80290881,BlogCommendESEnWordWeight_9"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/yjf147369/article/details/80290881,BlogCommendESEnWordWeight_9"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/yjf147369/article/details/80290881" target="_blank" title="国内借助阿里云快速获取gcr.io上的镜像">
+		<h4 class="text-truncate oneline">
+				国内借助阿里云快速获取gcr.io上的<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">05-12</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					8720</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/yjf147369/article/details/80290881" target="_blank" title="国内借助阿里云快速获取gcr.io上的镜像">
+				<span class="desc oneline">由于GFW的存在，国内用户是无法直接获取gcr.io上的镜像的，这对于对docker，尤其是k8s感兴趣的程序猿们来说，此时对生活在和谐帝国的的心情就好比，我他么就不应该穿着特步来相亲啊。好了，言归正...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/yjf147369">来自：	<span class="blog_title"> yjf147369的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/kozazyh/article/details/79427119,BlogCommendESEnWordWeight_10"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/kozazyh/article/details/79427119,BlogCommendESEnWordWeight_10"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/kozazyh/article/details/79427119" target="_blank" title="kubernetes拉取私有仓库image方法">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em>拉取私有仓库image方法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">03-02</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					4705</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/kozazyh/article/details/79427119" target="_blank" title="kubernetes拉取私有仓库image方法">
+				<span class="desc oneline">一般公司开发的image一般放在私有仓库，不对外开放。1.在阿里云创建一个私有镜像库,并构建一个image：registry.cn-shenzhen.aliyuncs.com/koza/test:la...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/kozazyh">来自：	<span class="blog_title"> kozazyh的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+			<div class="recommend-item-box blog-expert-recommend-box">
+			<div class="d-flex">
+				<div class="blog-expert-recommend">
+					<div class="blog-expert">
+						<div class="blog-expert-flexbox"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/xukangkang1hao/article/details/80839834,BlogCommendESEnWordWeight_11"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/xukangkang1hao/article/details/80839834,BlogCommendESEnWordWeight_11"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/xukangkang1hao/article/details/80839834" target="_blank" title="kubernetes从harbor拉取镜像没有权限解决方法">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em>从harbor拉取<em>镜像</em>没有权限<em>解决</em>方法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">06-28</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1096</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/xukangkang1hao/article/details/80839834" target="_blank" title="kubernetes从harbor拉取镜像没有权限解决方法">
+				<span class="desc oneline">1，先用docker登录harbor，登录的用户名密码为在harbor上注册的用户名密码，并且登录用户需要有对应仓库的拉取权限，否则不能访问仓库。登录示例：dockerloginhub.yxtc.co...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/xukangkang1hao">来自：	<span class="blog_title"> xukangkang1hao的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/hxpjava1/article/details/80318438,BlogCommendFromQuerySearch_12"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/hxpjava1/article/details/80318438,BlogCommendFromQuerySearch_12"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/hxpjava1/article/details/80318438" target="_blank" title="kubernetes配置secret拉取私仓镜像">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em>配置secret拉取私仓<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">05-15</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					730</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/hxpjava1/article/details/80318438" target="_blank" title="kubernetes配置secret拉取私仓镜像">
+				<span class="desc oneline">对于公司内部的项目,我们不可能使用公有开放的镜像仓库,一般情况可能会花钱买docker私仓服务,或者说自己在服务器上搭建自己的私仓,但不管怎样,我们如何让k8s能够拉取私有仓库的镜像1.登录docke...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/hxpjava1">来自：	<span class="blog_title"> mark's technic world</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/mofiu/article/details/77101169,BlogCommendFromQuerySearch_13"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/mofiu/article/details/77101169,BlogCommendFromQuerySearch_13"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/mofiu/article/details/77101169" target="_blank" title="kubernetes 拉取私有镜像的测试">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em> 拉取私有<em>镜像</em>的测试		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">08-11</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					4796</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/mofiu/article/details/77101169" target="_blank" title="kubernetes 拉取私有镜像的测试">
+				<span class="desc oneline">k8s拉取私有镜像测试k8s在创建pod时拉取私有镜像的方式1、创建secret(创建方式有两钟，一种使用命令，第二种使用文件)2、利用Node上的配置访问PrivateRegistry先测试第二种1...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/mofiu">来自：	<span class="blog_title"> mofiu的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><script type="text/javascript" src="//rabc1.iteye.com/production/res/rxjg.js?pkcgstj=jm"></script></div>
+	
+	<div class="recommend-item-box recommend-box-ident recommend-download-box clearfix" data-track-view='{"mod":"popu_387","con":",https://download.csdn.net/download/z294155673/10156987,BlogCommendFromQuerySearch_14"}' data-track-click='{"mod":"popu_387","con":",https://download.csdn.net/download/z294155673/10156987,BlogCommendFromQuerySearch_14"}'>
+		<a href="https://download.csdn.net/download/z294155673/10156987" target="_blank">
+			<div class="content clearfix">
+				<div class="">
+					<h4 class="text-truncate oneline clearfix">
+						k8s 组件<em>镜像</em>					</h4>
+					<span class="data float-right">12-13</span>
+				</div>
+				<div class="desc oneline">
+						kube-apiserver-amd64_v1.7.2
+        kube-controller-manager-amd64_v1.7.2
+        kube-scheduler-amd64_v1.7.2
+        k8...				</div>
+				<span class="type-show type-show-download">下载</span>
+			</div>
+		</a>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/weixin_33778544/article/details/87514516,BlogCommendFromQuerySearch_15"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/weixin_33778544/article/details/87514516,BlogCommendFromQuerySearch_15"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/weixin_33778544/article/details/87514516" target="_blank" title="如何拉取k8s镜像">
+		<h4 class="text-truncate oneline">
+				<em>如何</em>拉取k8s<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">10-08</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					143</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/weixin_33778544/article/details/87514516" target="_blank" title="如何拉取k8s镜像">
+				<span class="desc oneline">&amp;amp;lt;center&amp;amp;gt;如何拉取国外镜像&amp;amp;lt;/center&amp;amp;gt;参考文献如下:https://blog.csdn.net/shida_csdn/article...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/weixin_33778544">来自：	<span class="blog_title"> weixin_33778544的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+	<div class="recommend-item-box recommend-box-ident recommend-download-box clearfix" data-track-view='{"mod":"popu_387","con":",https://download.csdn.net/download/wenwst/10757512,BlogCommendFromQuerySearch_16"}' data-track-click='{"mod":"popu_387","con":",https://download.csdn.net/download/wenwst/10757512,BlogCommendFromQuerySearch_16"}'>
+		<a href="https://download.csdn.net/download/wenwst/10757512" target="_blank">
+			<div class="content clearfix">
+				<div class="">
+					<h4 class="text-truncate oneline clearfix">
+						<em>k8s.gcr.io</em>/pause:3.1					</h4>
+					<span class="data float-right">11-01</span>
+				</div>
+				<div class="desc oneline">
+						使用方法请关注blog: https://blog.csdn.net/wenwst 导入命令： #docker load &lt; pause.3.1.tar  # docker tag da86e6ba6ca1 k8s.gcr.io/p...				</div>
+				<span class="type-show type-show-download">下载</span>
+			</div>
+		</a>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/wxb880114/article/details/86598771,BlogCommendFromThirdService_17"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/wxb880114/article/details/86598771,BlogCommendFromThirdService_17"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/wxb880114/article/details/86598771" target="_blank" title="Failed to pull image &quot;k8s.gcr.io/fluentd-elasticsearch:v2.0.4&quot;">
+		<h4 class="text-truncate oneline">
+				Failed to pull image &quot;<em>k8s.gcr.io</em>/fluentd-elasticsearch:v2.0.4&quot;		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">01-22</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					348</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/wxb880114/article/details/86598771" target="_blank" title="Failed to pull image &quot;k8s.gcr.io/fluentd-elasticsearch:v2.0.4&quot;">
+				<span class="desc oneline">Failedtopullimage&amp;quot;k8s.gcr.io/fluentd-elasticsearch:v2.0.4&amp;quot;:rpcerror:code=Unknowndesc=Error...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/wxb880114">来自：	<span class="blog_title"> wxb880114的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/luckytanggu/article/details/68926330,BlogCommendFromThirdService_18"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/luckytanggu/article/details/68926330,BlogCommendFromThirdService_18"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/luckytanggu/article/details/68926330" target="_blank" title="学习kubernetes中遇见的一些坑（持续更新）">
+		<h4 class="text-truncate oneline">
+				学习<em>kubernetes</em>中遇见的一些坑（持续更新）		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">03-31</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/luckytanggu/article/details/68926330" target="_blank" title="学习kubernetes中遇见的一些坑（持续更新）">
+				<span class="desc oneline">一、权限问题通过rc配置文件起pod，rc中配置了privileged为true，发现pod状态一直Running不起来，查看pod详情发现[root@dockertmp]#kubectldescri...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/luckytanggu">来自：	<span class="blog_title"> 每天的表现，未来的必然！</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_62" data-pid="62" data-track-view='{"mod":"kp_popu_62-1062","con":",,"}' data-track-click='{"mod":"kp_popu_62-1062","con":",,"}'><iframe  src="https://kunpeng-sc.csdnimg.cn/#/preview/237?positionId=62&queryWord=" frameborder="0" width= "100%"  height= "75px" scrolling="no" ></iframe></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/lfm940624/article/details/86629147,BlogCommendFromBaidu_19"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/lfm940624/article/details/86629147,BlogCommendFromBaidu_19"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/lfm940624/article/details/86629147" target="_blank" title="解决k8s集群kubeadm init初始化镜像pull不下来的问题">
+		<h4 class="text-truncate oneline">
+				<em>解决</em>k8s集群kubeadm init初始化<em>镜像</em>pull不下来的<em>问题</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">01-24</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					615</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/lfm940624/article/details/86629147" target="_blank" title="解决k8s集群kubeadm init初始化镜像pull不下来的问题">
+				<span class="desc oneline">新版本的Kubernetes在安装部署中，需要从k8s.grc.io仓库中拉取所需镜像文件，但由于国内网络防火墙问题导致无法正常拉取。kubeadminit所出现的问题：[preflight]Some...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/lfm940624">来自：	<span class="blog_title"> 醉生梦死一笑惊魂</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/u012516524/article/details/80236593,BlogCommendFromBaidu_20"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/u012516524/article/details/80236593,BlogCommendFromBaidu_20"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/u012516524/article/details/80236593" target="_blank" title="k8s镜像中心私有项目没法pull问题解决办法">
+		<h4 class="text-truncate oneline">
+				k8s<em>镜像</em>中心私有项目没法pull<em>问题</em><em>解决</em>办法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">05-08</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					830</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/u012516524/article/details/80236593" target="_blank" title="k8s镜像中心私有项目没法pull问题解决办法">
+				<span class="desc oneline">1.用镜像中心上自己的用户名、密码、邮箱创建一个Secret： kubectlcreatesecretdocker-registryregistrysecret--docker-server=xxx....</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/u012516524">来自：	<span class="blog_title"> 问天丶天问</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/tiancen2001/article/details/84905419,BlogCommendFromBaidu_21"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/tiancen2001/article/details/84905419,BlogCommendFromBaidu_21"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/tiancen2001/article/details/84905419" target="_blank" title="曲线救国: gcr.io的kubernetes镜像备份">
+		<h4 class="text-truncate oneline">
+				曲线救国: gcr.io的<em>kubernetes</em><em>镜像</em>备份		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">07-31</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					255</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/tiancen2001/article/details/84905419" target="_blank" title="曲线救国: gcr.io的kubernetes镜像备份">
+				<span class="desc oneline">gcr.io被墙,kubernetes镜像无法下载,你懂的. 这个是针对1.6.4版本的镜像,放在笔者自己的dockerhub空间.images=(kube-apiserver-amd64:v1.6....</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/tiancen2001">来自：	<span class="blog_title"> tiancen2001的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/jerryhu1234/article/details/82848282,BlogCommendFromBaidu_22"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/jerryhu1234/article/details/82848282,BlogCommendFromBaidu_22"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/jerryhu1234/article/details/82848282" target="_blank" title="Kubernetes部署istio时，拉取gcr.io源超时解决方案">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>部署istio时，拉取gcr.io源超时<em>解决</em>方案		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">09-26</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					416</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/jerryhu1234/article/details/82848282" target="_blank" title="Kubernetes部署istio时，拉取gcr.io源超时解决方案">
+				<span class="desc oneline">首先注册一个阿里云帐号，登录到阿里云的容器镜像服务：https://cr.console.aliyun.com/1）创建一个命名空间；2）根据命名空间创建一个镜像仓库，如是私有仓库可以设置Regist...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/jerryhu1234">来自：	<span class="blog_title"> jerryhu1234的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/u010884123/article/details/59122600,BlogCommendFromQuerySearch_23"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/u010884123/article/details/59122600,BlogCommendFromQuerySearch_23"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/u010884123/article/details/59122600" target="_blank" title="Kubernetes如何使用Harbor作为私有镜像仓库">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em><em>如何</em>使用Harbor作为私有<em>镜像</em>仓库		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">03-01</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					3618</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/u010884123/article/details/59122600" target="_blank" title="Kubernetes如何使用Harbor作为私有镜像仓库">
+				<span class="desc oneline">文中创建serviceAccount的截图有错，阅读时注意概述　　Harbor使用了基于角色的访问控制策略，当从Harbor中拉去镜像的时候，首先要进行身份认证，认证通过后才可以拉取镜像。在命令行模式...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/u010884123">来自：	<span class="blog_title"> 督门提酒的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_63" data-pid="63" data-track-view='{"mod":"kp_popu_63-1059","con":",,"}' data-track-click='{"mod":"kp_popu_63-1059","con":",,"}'><iframe  src="https://kunpeng-sc.csdnimg.cn/#/preview/234?positionId=63&queryWord=" frameborder="0" width= "100%"  height= "75px" scrolling="no" ></iframe></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/lusyoe/article/details/79587914,BlogCommendFromQuerySearch_24"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/lusyoe/article/details/79587914,BlogCommendFromQuerySearch_24"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/lusyoe/article/details/79587914" target="_blank" title="kubernetes拉取私有仓库镜像">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em>拉取私有仓库<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">03-16</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					3460</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/lusyoe/article/details/79587914" target="_blank" title="kubernetes拉取私有仓库镜像">
+				<span class="desc oneline">这里介绍通过secret配置来拉取私有仓库镜像。如果不进行设置的话，创建RC拉取镜像时就会提示找不到镜像，报以下错误：Events:FirstSeenLastSeenCountFromSubObjec...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/lusyoe">来自：	<span class="blog_title"> 风起于青萍之末</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/wyxz126/article/details/81835867,BlogCommendFromQuerySearch_25"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/wyxz126/article/details/81835867,BlogCommendFromQuerySearch_25"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/wyxz126/article/details/81835867" target="_blank" title="kubernetes kubeadm 阿里云镜像安装方法">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em> kubeadm 阿里云<em>镜像</em>安装方法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">08-19</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					4086</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/wyxz126/article/details/81835867" target="_blank" title="kubernetes kubeadm 阿里云镜像安装方法">
+				<span class="desc oneline">使用kubeadm创建一个kubernetes集群https://yq.aliyun.com/articles/431059深入玩转K8S之使用kubeadm安装Kubernetesv1.10以及常见...</span>
+			</a>
+			<span class="blog_title_box oneline no-title">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/u013201439/article/details/79688738,BlogCommendFromQuerySearch_26"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/u013201439/article/details/79688738,BlogCommendFromQuerySearch_26"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/u013201439/article/details/79688738" target="_blank" title="【kubernetes】无法使用本地镜像">
+		<h4 class="text-truncate oneline">
+				【<em>kubernetes</em>】无法使用本地<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">03-25</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2606</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/u013201439/article/details/79688738" target="_blank" title="【kubernetes】无法使用本地镜像">
+				<span class="desc oneline">问题描述  为了节省创建deployment的时间，提前在Node本地拉取了镜像，但是deployment在创建pod时，总是报错：can'tpullimage  这个错误表明，pod在创建的时候还是...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/u013201439">来自：	<span class="blog_title"> Just do it!</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq_21816375/article/details/79171292,BlogCommendFromQuerySearch_27"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq_21816375/article/details/79171292,BlogCommendFromQuerySearch_27"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq_21816375/article/details/79171292" target="_blank" title="新增kubernetes node 镜像pull 不下来的解决办法">
+		<h4 class="text-truncate oneline">
+				新增<em>kubernetes</em> node <em>镜像</em>pull 不下来的<em>解决</em>办法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">01-26</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					985</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq_21816375/article/details/79171292" target="_blank" title="新增kubernetes node 镜像pull 不下来的解决办法">
+				<span class="desc oneline">遇到了个问题，打了label的nodeselect的时候，老是pull不下镜像，因而引起新增节点采集日志失败现象如下:fluentd搜集不到日志错误现象解决办法重新执行:dockerloginxxxx...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq_21816375">来自：	<span class="blog_title"> 纵横四海的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/kozazyh/article/details/80684556,BlogCommendFromBaidu_28"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/kozazyh/article/details/80684556,BlogCommendFromBaidu_28"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/kozazyh/article/details/80684556" target="_blank" title="kubernetes-docker hub 中gcr.io仓库的image下载">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em>-docker hub 中gcr.io仓库的image下载		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">06-13</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1618</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/kozazyh/article/details/80684556" target="_blank" title="kubernetes-docker hub 中gcr.io仓库的image下载">
+				<span class="desc oneline">由于防火墙的问题，google的image仓库基本不能下载，你可以在这里基本可以找到在gcr.io的同步镜像： https://hub.docker.com/r/ibmcom/例如：gcr.io/go...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/kozazyh">来自：	<span class="blog_title"> kozazyh的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_64" data-pid="64" data-track-view='{"mod":"kp_popu_64-1060","con":",,"}' data-track-click='{"mod":"kp_popu_64-1060","con":",,"}'><iframe  src="https://kunpeng-sc.csdnimg.cn/#/preview/235?positionId=64&queryWord=" frameborder="0" width= "100%"  height= "75px" scrolling="no" ></iframe></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/zwqjoy/article/details/89310835,BlogCommendFromBaidu_29"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/zwqjoy/article/details/89310835,BlogCommendFromBaidu_29"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/zwqjoy/article/details/89310835" target="_blank" title="[kubernetes] 解决k8s.gcr.io Image 导入导出 等问题">
+		<h4 class="text-truncate oneline">
+				[<em>kubernetes</em>] <em>解决</em><em>k8s.gcr.io</em> Image 导入导出 等<em>问题</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">04-15</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					88</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/zwqjoy/article/details/89310835" target="_blank" title="[kubernetes] 解决k8s.gcr.io Image 导入导出 等问题">
+				<span class="desc oneline">k8s.gcr.ioPull失败安装新版本的Kubernetes过程中，需要从k8s.grc.io仓库中拉取所需镜像文件，但由于GFW导致无法正常拉取本文将介绍如何绕过此问题，来完成业务的部署。[ER...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/zwqjoy">来自：	<span class="blog_title"> 努力奋斗的小墨鱼专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq_27028561/article/details/79064414,BlogCommendFromBaidu_30"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq_27028561/article/details/79064414,BlogCommendFromBaidu_30"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq_27028561/article/details/79064414" target="_blank" title="如何获取gcr.io上的镜像">
+		<h4 class="text-truncate oneline">
+				<em>如何</em>获取gcr.io上的<em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">01-15</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					8491</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq_27028561/article/details/79064414" target="_blank" title="如何获取gcr.io上的镜像">
+				<span class="desc oneline">如何获取gcr.io上的镜像好久没更新了，今天来更新一篇。相信许多新手使用kubernetes时最大的一个阻碍就是如何下载示例中的镜像，因为kubernetes官方示例中的镜像都在gcr.io上，而该...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq_27028561">来自：	<span class="blog_title"> 哆啦A没有梦</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/Hehailiang_Dream/article/details/79984519,BlogCommendFromBaidu_31"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/Hehailiang_Dream/article/details/79984519,BlogCommendFromBaidu_31"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/Hehailiang_Dream/article/details/79984519" target="_blank" title="gcr.io谷歌kubernetes相关docker镜像无法下载解决方法">
+		<h4 class="text-truncate oneline">
+				gcr.io谷歌<em>kubernetes</em>相关docker<em>镜像</em>无法下载<em>解决</em>方法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">04-18</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2074</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/Hehailiang_Dream/article/details/79984519" target="_blank" title="gcr.io谷歌kubernetes相关docker镜像无法下载解决方法">
+				<span class="desc oneline">仅限gcr.io/kubernetes/路径下的哦，别的我随便测试了下，有的不行。例如：gcr.io/kubernetes/kubernetes-dashboard-amd64:v1.8.1将路径gc...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/Hehailiang_Dream">来自：	<span class="blog_title"> Door's Dream Blog</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/jack_rose_l/article/details/85243300,BlogCommendFromBaidu_32"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/jack_rose_l/article/details/85243300,BlogCommendFromBaidu_32"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/jack_rose_l/article/details/85243300" target="_blank" title="k8s集群搭建">
+		<h4 class="text-truncate oneline">
+				k8s集群搭建		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">12-25</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2104</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/jack_rose_l/article/details/85243300" target="_blank" title="k8s集群搭建">
+				<span class="desc oneline"> 上来装centos7集群敲着命令呢，突然网断了，我以为我哪里命令搞错了，弄崩了系统，重装，之前因为已经zhua装好一个centos7并且多装了个vmtools,后面查明cd/etc/sysconfi...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/jack_rose_l">来自：	<span class="blog_title"> wishli的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/crystonesc/article/details/80588716,BlogCommendFromQuerySearch_33"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/crystonesc/article/details/80588716,BlogCommendFromQuerySearch_33"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/crystonesc/article/details/80588716" target="_blank" title="Kubernetes基础学习笔记--基于kubeadm的部署(避坑大全)">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>基础学习笔记--基于kubeadm的部署(避坑大全)		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">06-07</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2205</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/crystonesc/article/details/80588716" target="_blank" title="Kubernetes基础学习笔记--基于kubeadm的部署(避坑大全)">
+				<span class="desc oneline"> 本文详细介绍了通过kubeadm来部署一个简单的k8s集群，集群只有一个master和3个node节点，这种部署方式应该只适用于测试环境，本文是依据k8s的官方文档而来，有兴趣的同学可以参考，本人因...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/crystonesc">来自：	<span class="blog_title"> crystonesc的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_65" data-pid="65" data-track-view='{"mod":"kp_popu_65-1061","con":",,"}' data-track-click='{"mod":"kp_popu_65-1061","con":",,"}'><iframe  src="https://kunpeng-sc.csdnimg.cn/#/preview/236?positionId=65&queryWord=" frameborder="0" width= "100%"  height= "75px" scrolling="no" ></iframe></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/bbwangj/article/details/82558033,BlogCommendFromQuerySearch_34"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/bbwangj/article/details/82558033,BlogCommendFromQuerySearch_34"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/bbwangj/article/details/82558033" target="_blank" title="minikube本地部署运行 kubernetes 实例">
+		<h4 class="text-truncate oneline">
+				minikube本地部署运行 <em>kubernetes</em> 实例		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">09-09</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					707</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/bbwangj/article/details/82558033" target="_blank" title="minikube本地部署运行 kubernetes 实例">
+				<span class="desc oneline">1、kubernetes介绍Kubernetes是Google开源的容器集群管理系统，它构建在目前流行的Docker技术之上，为容器化的应用提供资源调度、部署运行、服务发现、扩容缩容等一整套功能。而就...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/bbwangj">来自：	<span class="blog_title"> 菲宇运维</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/san_gh/article/details/80913013,BlogCommendFromQuerySearch_35"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/san_gh/article/details/80913013,BlogCommendFromQuerySearch_35"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/san_gh/article/details/80913013" target="_blank" title="深入玩转K8S之Kubernetes1.10中部署dashboard以及常见问题解析">
+		<h4 class="text-truncate oneline">
+				深入玩转K8S之<em>Kubernetes</em>1.10中部署dashboard以及常见<em>问题</em>解析		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">07-04</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1591</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/san_gh/article/details/80913013" target="_blank" title="深入玩转K8S之Kubernetes1.10中部署dashboard以及常见问题解析">
+				<span class="desc oneline">上篇文章中介绍了用kubeadm安装Kubernetes1.10，本篇我们来一睹KubernetesDashboard风采。老规矩，先介绍下环境：Kubernetes1.10，Dashboard1.8...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/san_gh">来自：	<span class="blog_title"> san_gh的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq_24923725/article/details/84063900,BlogCommendFromQuerySearch_36"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq_24923725/article/details/84063900,BlogCommendFromQuerySearch_36"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq_24923725/article/details/84063900" target="_blank" title="kubeadm 安装kubernetes 1.10，内附所有镜像信息">
+		<h4 class="text-truncate oneline">
+				kubeadm 安装<em>kubernetes</em> 1.10，内附所有<em>镜像</em>信息		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-14</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					320</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq_24923725/article/details/84063900" target="_blank" title="kubeadm 安装kubernetes 1.10，内附所有镜像信息">
+				<span class="desc oneline">Kubeadm安装k8s集群1.安装版本及环境环境信息master节点：192.168.72.3node节点：192.168.72.4版本信息kubernetesv1.10.0(包括kubectl、k...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq_24923725">来自：	<span class="blog_title"> 丑货程序员的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/networken/article/details/84571373,BlogCommendFromQuerySearch_37"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/networken/article/details/84571373,BlogCommendFromQuerySearch_37"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/networken/article/details/84571373" target="_blank" title="国内拉取google kubernetes镜像">
+		<h4 class="text-truncate oneline">
+				国内拉取google <em>kubernetes</em><em>镜像</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">04-19</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2627</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/networken/article/details/84571373" target="_blank" title="国内拉取google kubernetes镜像">
+				<span class="desc oneline">#查看kubernetesv1.12.2需要哪些镜像：[root@k8s-master~]#kubeadmconfigimageslist--kubernetes-versionv1.12.2k8s....</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/networken">来自：	<span class="blog_title"> willblog</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/judyjie/article/details/85008996,BlogCommendFromBaidu_38"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/judyjie/article/details/85008996,BlogCommendFromBaidu_38"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/judyjie/article/details/85008996" target="_blank" title="centos7环境下kubeadm方式安装kubernates1.13">
+		<h4 class="text-truncate oneline">
+				centos7环境下kubeadm方式安装kubernates1.13		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">12-14</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1171</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/judyjie/article/details/85008996" target="_blank" title="centos7环境下kubeadm方式安装kubernates1.13">
+				<span class="desc oneline">安装说明：kubadm1，master,node:安装kubelet，kubeadm，docker2，master：kubeadminit3，nodes：kubeadmjoin1、kubernate通...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/judyjie">来自：	<span class="blog_title"> 三月泡生长在阳春三月天，把鲜红的美味奉献给世人</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_66" data-pid="66" data-track-view='{"mod":"kp_popu_66-881","con":",,"}' data-track-click='{"mod":"kp_popu_66-881","con":",,"}'><script src="https://nbrecsys.4paradigm.com/resource/cus/csdn/sdk-csdn-render.js"></script>
+<div
+  id="_4paradigm_T38_render"
+  class="_paradigm_T_ads_render _4paradigm_box recommend-item-box clearfix"
+></div>
+<script>
+  //  渲染T38  传入 渲染位置的id和渲染位置的标记
+  p4CSDNRender_T("_4paradigm_T38_render", "T38");
+</script></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/zhuchuangang/article/details/76093887,BlogCommendFromBaidu_39"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/zhuchuangang/article/details/76093887,BlogCommendFromBaidu_39"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/zhuchuangang/article/details/76093887" target="_blank" title="kubernetes:kubedns安装">
+		<h4 class="text-truncate oneline">
+				<em>kubernetes</em>:kubedns安装		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">07-25</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					6945</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/zhuchuangang/article/details/76093887" target="_blank" title="kubernetes:kubedns安装">
+				<span class="desc oneline">下载kubernetes安装包https://github.com/kubernetes/kubernetes/releases/download/v1.6.7/kubernetes.tar.gz，在...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/zhuchuangang">来自：	<span class="blog_title"> zhuchuangang的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/bbwangj/article/details/85017765,BlogCommendFromQuerySearch_40"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/bbwangj/article/details/85017765,BlogCommendFromQuerySearch_40"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/bbwangj/article/details/85017765" target="_blank" title="解决kubeadm部署kubernetes集群镜像问题">
+		<h4 class="text-truncate oneline">
+				<em>解决</em>kubeadm部署<em>kubernetes</em>集群<em>镜像</em><em>问题</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">12-15</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1257</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/bbwangj/article/details/85017765" target="_blank" title="解决kubeadm部署kubernetes集群镜像问题">
+				<span class="desc oneline">kubeadm是kubernetes的集群安装工具，能够快速安装kubernetes集群。kubeadminit命令默认使用的docker镜像仓库为k8s.gcr.io，国内无法直接访问，需要中转一下...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/bbwangj">来自：	<span class="blog_title"> 菲宇运维</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/iouczp/article/details/80300130,BlogCommendFromQuerySearch_41"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/iouczp/article/details/80300130,BlogCommendFromQuerySearch_41"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/iouczp/article/details/80300130" target="_blank" title="Kubernetes通过yaml配置文件创建实例时不使用本地镜像的原因">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>通过yaml配置文件创建实例时不使用本地<em>镜像</em>的原因		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">05-13</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1291</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/iouczp/article/details/80300130" target="_blank" title="Kubernetes通过yaml配置文件创建实例时不使用本地镜像的原因">
+				<span class="desc oneline">原文：https://www.58jb.com/html/154.html 在笔记本上做实验的时候，没有把Docker的内网仓库主机启动，导致了Kubernetes在创建pod实例时失败。状态为Ima...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/iouczp">来自：	<span class="blog_title"> iouczp的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/weixin_37417954/article/details/83657788,BlogCommendFromQuerySearch_42"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/weixin_37417954/article/details/83657788,BlogCommendFromQuerySearch_42"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/weixin_37417954/article/details/83657788" target="_blank" title="Kubernetes遇上Spring Cloud | 服务无法从配置中心拉取配置">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em>遇上Spring Cloud | 服务无法从配置中心拉取配置		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-02</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					303</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/weixin_37417954/article/details/83657788" target="_blank" title="Kubernetes遇上Spring Cloud | 服务无法从配置中心拉取配置">
+				<span class="desc oneline">                      --昨夜西风凋碧树，独上高楼，望尽天涯路	问题	当我们config的配置如下时（eureka的配置和应用服务的配置参照https://mp.csdn.net...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/weixin_37417954">来自：	<span class="blog_title"> weixin_37417954的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/iouczp/article/details/80300904,BlogCommendFromQuerySearch_43"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/iouczp/article/details/80300904,BlogCommendFromQuerySearch_43"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/iouczp/article/details/80300904" target="_blank" title="Kubernetes 部署失败的 10 个最普遍原因（Part 2）">
+		<h4 class="text-truncate oneline">
+				<em>Kubernetes</em> 部署<em>失败</em>的 10 个最普遍原因（Part 2）		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">05-14</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					526</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/iouczp/article/details/80300904" target="_blank" title="Kubernetes 部署失败的 10 个最普遍原因（Part 2）">
+				<span class="desc oneline">【编者的话】本文作者通过和客户联合开发，从实践中总结了Kubernetes部署失败的10大普遍原因，本文阐述了剩下的5大原因。作者在实践中，尽量把繁琐工作自动化，授人以鱼的同时也授人以渔，小编觉得这是...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/iouczp">来自：	<span class="blog_title"> iouczp的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_67" data-pid="67" data-track-view='{"mod":"kp_popu_67-882","con":",,"}' data-track-click='{"mod":"kp_popu_67-882","con":",,"}'><script src="https://nbrecsys.4paradigm.com/resource/cus/csdn/sdk-csdn-render.js"></script>
+<div
+  id="_4paradigm_T43_render"
+  class="_paradigm_T_ads_render _4paradigm_box recommend-item-box clearfix"
+></div>
+<script>
+  //  渲染T43  传入 渲染位置的id和渲染位置的标记
+  p4CSDNRender_T("_4paradigm_T43_render", "T43");
+</script></div></div>
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/u012588542/article/details/86386100,BlogCommendFromQuerySearch_44"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/u012588542/article/details/86386100,BlogCommendFromQuerySearch_44"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/u012588542/article/details/86386100" target="_blank" title="docker无法从dockerhub拉取容器镜像问题">
+		<h4 class="text-truncate oneline">
+				docker无法从dockerhub拉取容器<em>镜像</em><em>问题</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">01-13</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					794</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/u012588542/article/details/86386100" target="_blank" title="docker无法从dockerhub拉取容器镜像问题">
+				<span class="desc oneline">Errorresponsefromdaemon:Gethttps://registry-1.docker.io/v2/:net/http:requestcanceledwhilewaitingforc...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/u012588542">来自：	<span class="blog_title"> AlanNote的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/weixin_36794678/article/details/81434487,BlogCommendFromQuerySearch_45"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/weixin_36794678/article/details/81434487,BlogCommendFromQuerySearch_45"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/weixin_36794678/article/details/81434487" target="_blank" title="【docker】解决docker pull镜像 拉取镜像龟速的问题,docker拉取镜像使用阿里云docker镜像加速器">
+		<h4 class="text-truncate oneline">
+				【docker】<em>解决</em>docker pull<em>镜像</em> 拉取<em>镜像</em>龟速的<em>问题</em>,docker拉取<em>镜像</em>使用阿里云docker<em>镜像</em>加速器		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">08-05</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2534</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/weixin_36794678/article/details/81434487" target="_blank" title="【docker】解决docker pull镜像 拉取镜像龟速的问题,docker拉取镜像使用阿里云docker镜像加速器">
+				<span class="desc oneline">在docker拉取mysql镜像过程中，出现龟速的问题，解决这个问题的方法： 这个页面停留了好久好久，依旧没有下载完成。碰上这种情况1.先退出Ctrl+C2.在浏览器上进入阿里云docker库地址：h...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/weixin_36794678">来自：	<span class="blog_title"> weixin_36794678的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/shida_csdn/article/details/78480241,BlogCommendFromQuerySearch_46"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/shida_csdn/article/details/78480241,BlogCommendFromQuerySearch_46"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/shida_csdn/article/details/78480241" target="_blank" title="[Kubernetes] 国内获取 Kubernetes 镜像的方法">
+		<h4 class="text-truncate oneline">
+				[<em>Kubernetes</em>] 国内获取 <em>Kubernetes</em> <em>镜像</em>的方法		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-08</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/shida_csdn/article/details/78480241" target="_blank" title="[Kubernetes] 国内获取 Kubernetes 镜像的方法">
+				<span class="desc oneline">一、 背景介绍      众所周知，由于国内网络原因，在搭建Kubernetes环境时，经常遇到必须的镜像找不到的情况。      到DockerHub捡垃圾毕竟不是个好办法，本文就教大家在Docke...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/shida_csdn">来自：	<span class="blog_title"> shida's blog</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq604248682/article/details/83109216,BlogCommendFromQuerySearch_47"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq604248682/article/details/83109216,BlogCommendFromQuerySearch_47"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq604248682/article/details/83109216" target="_blank" title="DOCKER学习（二）--Kubernetes(v1.12.1)集群安装">
+		<h4 class="text-truncate oneline">
+				DOCKER学习（二）--<em>Kubernetes</em>(v1.12.1)集群安装		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">10-19</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					548</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq604248682/article/details/83109216" target="_blank" title="DOCKER学习（二）--Kubernetes(v1.12.1)集群安装">
+				<span class="desc oneline"> 本文使用Kubeadm安装Kuberneteskubeadm是Kubernetes官方提供的用于快速安装Kubernetes集群的工具，伴随Kubernetes每个版本的发布都会同步更新，kubea...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq604248682">来自：	<span class="blog_title"> 蓝枫的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/xinianzhongliu/article/details/79071753,BlogCommendFromQuerySearch_48"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/xinianzhongliu/article/details/79071753,BlogCommendFromQuerySearch_48"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/xinianzhongliu/article/details/79071753" target="_blank" title="关于docker 拉取文件出错问题的解决">
+		<h4 class="text-truncate oneline">
+				关于docker 拉取文件出错<em>问题</em>的<em>解决</em>		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">01-16</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					831</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/xinianzhongliu/article/details/79071753" target="_blank" title="关于docker 拉取文件出错问题的解决">
+				<span class="desc oneline">关闭服务  systemctlstopdocker修改配置echo&quot;DOCKER_OPTS=\&quot;\$DOCKER_OPTS--registry-mirror=http://f2d6cb40.m.dao...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/xinianzhongliu">来自：	<span class="blog_title"> xinianzhongliu的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	<div class="recommend-item-box recommend-ad-box"><div id="kp_box_68" data-pid="68" data-track-view='{"mod":"kp_popu_68-883","con":",,"}' data-track-click='{"mod":"kp_popu_68-883","con":",,"}'><!-- T48 位置 -->
+<script src="https://nbrecsys.4paradigm.com/resource/cus/csdn/sdk-csdn-render.js"></script>
+<div
+  id="_4paradigm_T48_render"
+  class="_paradigm_T_ads_render _4paradigm_box recommend-item-box clearfix"
+></div>
+<script>
+  //  渲染T48  传入 渲染位置的id和渲染位置的标记
+  p4CSDNRender_T("_4paradigm_T48_render", "T48");
+</script></div></div>
+	
+	<div class="recommend-item-box recommend-box-ident recommend-download-box clearfix" data-track-view='{"mod":"popu_387","con":",https://download.csdn.net/download/wengjixi/10689762,BlogCommendFromQuerySearch_49"}' data-track-click='{"mod":"popu_387","con":",https://download.csdn.net/download/wengjixi/10689762,BlogCommendFromQuerySearch_49"}'>
+		<a href="https://download.csdn.net/download/wengjixi/10689762" target="_blank">
+			<div class="content clearfix">
+				<div class="">
+					<h4 class="text-truncate oneline clearfix">
+						k8s pause-3.1					</h4>
+					<span class="data float-right">09-27</span>
+				</div>
+				<div class="desc oneline">
+						pause-3.1镜像，镜像使用方法：
+docker load -i pause-3.1.tar.gz				</div>
+				<span class="type-show type-show-download">下载</span>
+			</div>
+		</a>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/meng564764406/article/details/52444644,BlogCommendHotData_0"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/meng564764406/article/details/52444644,BlogCommendHotData_0"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/meng564764406/article/details/52444644" target="_blank" title="将Excel文件导入数据库（POI+Excel+MySQL+jsp页面导入）第一次优化">
+		<h4 class="text-truncate oneline">
+				将Excel文件导入数据库（POI+Excel+MySQL+jsp页面导入）第一次优化		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">09-05</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					5万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/meng564764406/article/details/52444644" target="_blank" title="将Excel文件导入数据库（POI+Excel+MySQL+jsp页面导入）第一次优化">
+				<span class="desc oneline">本篇文章是根据我的上篇博客，给出的改进版，由于时间有限，仅做了一个简单的优化。相关文章：将excel导入数据库2018年4月1日，新增下载地址链接：点击打开源码下载地址十分抱歉，这个链接地址没有在这篇...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/meng564764406">来自：	<span class="blog_title"> Lynn_Blog</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/Main_Stage/article/details/41989499,BlogCommendHotData_1"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/Main_Stage/article/details/41989499,BlogCommendHotData_1"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/Main_Stage/article/details/41989499" target="_blank" title="Android圆形图片--自定义控件">
+		<h4 class="text-truncate oneline">
+				Android圆形图片--自定义控件		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">12-17</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					1万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/Main_Stage/article/details/41989499" target="_blank" title="Android圆形图片--自定义控件">
+				<span class="desc oneline">Android圆形图片--自定义控件</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/Main_Stage">来自：	<span class="blog_title"> Main_Stage的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/silentpebble/article/details/41279285,BlogCommendHotData_2"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/silentpebble/article/details/41279285,BlogCommendHotData_2"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/silentpebble/article/details/41279285" target="_blank" title="centos 查看命令源码">
+		<h4 class="text-truncate oneline">
+				centos 查看命令源码		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-19</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					12万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/silentpebble/article/details/41279285" target="_blank" title="centos 查看命令源码">
+				<span class="desc oneline"># yum install yum-utils
+
+
+设置源:
+[base-src]
+name=CentOS-5.4 - Base src -
+baseurl=http://vault.ce...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/silentpebble">来自：	<span class="blog_title"> linux/unix</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq_36892341/article/details/73918672,BlogCommendHotData_3"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq_36892341/article/details/73918672,BlogCommendHotData_3"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq_36892341/article/details/73918672" target="_blank" title="linux上安装Docker(非常简单的安装方法)">
+		<h4 class="text-truncate oneline">
+				linux上安装Docker(非常简单的安装方法)		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">06-29</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					27万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq_36892341/article/details/73918672" target="_blank" title="linux上安装Docker(非常简单的安装方法)">
+				<span class="desc oneline">最近比较有空，大四出来实习几个月了，作为实习狗的我，被叫去研究Docker了，汗汗！
+
+Docker的三大核心概念：镜像、容器、仓库
+镜像：类似虚拟机的镜像、用俗话说就是安装文件。
+容器：类似一个轻量...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq_36892341">来自：	<span class="blog_title"> 我走小路的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq_14959801/article/details/52988861,BlogCommendHotData_4"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq_14959801/article/details/52988861,BlogCommendHotData_4"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq_14959801/article/details/52988861" target="_blank" title="单链表-Python操作">
+		<h4 class="text-truncate oneline">
+				单链表-Python操作		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-04</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					8266</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq_14959801/article/details/52988861" target="_blank" title="单链表-Python操作">
+				<span class="desc oneline">链表是数据结构中最基本常用的，C++语言中单链表是利用指针操作实现的，python作为面向对象编程的，可以使用创建一个Node类来实现链表，利用类的属性引用来代替指针操作。
+    下面我们创建了一个...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq_14959801">来自：	<span class="blog_title"> 令狐公子的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/oJianZhiTianYa1/article/details/45393217,BlogCommendHotData_5"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/oJianZhiTianYa1/article/details/45393217,BlogCommendHotData_5"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/oJianZhiTianYa1/article/details/45393217" target="_blank" title="STM32读写flash保存用户数据">
+		<h4 class="text-truncate oneline">
+				STM32读写flash保存用户数据		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">04-30</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					5120</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/oJianZhiTianYa1/article/details/45393217" target="_blank" title="STM32读写flash保存用户数据">
+				<span class="desc oneline">在实际的项目中，我们可能需要保存一些数据，希望下次启动的时候数据还可以使用。在这里介绍使用STM32内部flash来保存数据的方法。
+在这里我使用STM32F103C8T6这款芯片做介绍。flash大...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/oJianZhiTianYa1">来自：	<span class="blog_title"> oJianZhiTianYa1的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/themagickeyjianan/article/details/52386981,BlogCommendHotData_6"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/themagickeyjianan/article/details/52386981,BlogCommendHotData_6"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/themagickeyjianan/article/details/52386981" target="_blank" title="python图片处理类之~PIL.Image模块(ios android icon图标自动生成处理)">
+		<h4 class="text-truncate oneline">
+				python图片处理类之~PIL.Image模块(ios android icon图标自动生成处理)		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">08-31</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					10万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/themagickeyjianan/article/details/52386981" target="_blank" title="python图片处理类之~PIL.Image模块(ios android icon图标自动生成处理)">
+				<span class="desc oneline">1.从pyCharm提示下载PIL包
+
+ http://www.pythonware.com/products/pil/
+
+ 
+
+2.解压后，进入到目录下
+
+
+cd /Users/jianan/Dow...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/themagickeyjianan">来自：	<span class="blog_title"> 专注于cocos+unity+服务器全栈</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/diandianxiyu/article/details/53068012,BlogCommendHotData_7"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/diandianxiyu/article/details/53068012,BlogCommendHotData_7"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/diandianxiyu/article/details/53068012" target="_blank" title="【小程序】微信小程序开发实践">
+		<h4 class="text-truncate oneline">
+				【小程序】微信小程序开发实践		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-07</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					31万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/diandianxiyu/article/details/53068012" target="_blank" title="【小程序】微信小程序开发实践">
+				<span class="desc oneline">帐号相关流程注册范围
+企业
+政府
+媒体
+其他组织换句话讲就是不让个人开发者注册。 :)填写企业信息不能使用和之前的公众号账户相同的邮箱,也就是说小程序是和微信公众号一个层级的。填写公司机构信息,对公账...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/diandianxiyu">来自：	<span class="blog_title"> 小雨同学的技术博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/yangwei282367751/article/details/52426911,BlogCommendHotData_8"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/yangwei282367751/article/details/52426911,BlogCommendHotData_8"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/yangwei282367751/article/details/52426911" target="_blank" title="关于计算时间复杂度和空间复杂度">
+		<h4 class="text-truncate oneline">
+				关于计算时间复杂度和空间复杂度		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">09-04</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					7万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/yangwei282367751/article/details/52426911" target="_blank" title="关于计算时间复杂度和空间复杂度">
+				<span class="desc oneline">相信学习编程的同学，或多或少都接触到算法的时间复杂度和空间复杂度了，那我来讲讲怎么计算。
+       常用的算法的时间复杂度和空间复杂度 一，求解算法的时间复杂度，其具体步骤是：
+
+　　⑴ 找出算法...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/yangwei282367751">来自：	<span class="blog_title"> 杨威的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/shallcheek/article/details/46998643,BlogCommendHotData_9"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/shallcheek/article/details/46998643,BlogCommendHotData_9"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/shallcheek/article/details/46998643" target="_blank" title="Android 合并生成分享图片（View截图）">
+		<h4 class="text-truncate oneline">
+				Android 合并生成分享图片（View截图）		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">07-22</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					2万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/shallcheek/article/details/46998643" target="_blank" title="Android 合并生成分享图片（View截图）">
+				<span class="desc oneline">用以前以前写过的自定义课表软件 ,Android 自定义View课程表表格 
+原生View截图合成分享的图片 
+ 
+ 
+  
+   
+  
+  
+  
+  
+ 看到的是图片只显示到11节处，下面的没有...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/shallcheek">来自：	<span class="blog_title"> ShallCheek</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/VBcom/article/details/7245186,BlogCommendHotData_10"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/VBcom/article/details/7245186,BlogCommendHotData_10"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/VBcom/article/details/7245186" target="_blank" title="DirectX修复工具增强版">
+		<h4 class="text-truncate oneline">
+				DirectX修复工具增强版		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">02-09</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					202万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/VBcom/article/details/7245186" target="_blank" title="DirectX修复工具增强版">
+				<span class="desc oneline">最后更新：2018-12-20
+
+DirectX修复工具最新版：DirectX Repair V3.8 增强版NEW!
+
+版本号：V3.8.0.11638
+
+大小: 107MB/7z格式压缩，189M...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/VBcom">来自：	<span class="blog_title"> VBcom的专栏</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/wuchengzeng/article/details/50037611,BlogCommendHotData_11"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/wuchengzeng/article/details/50037611,BlogCommendHotData_11"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/wuchengzeng/article/details/50037611" target="_blank" title="jquery/js实现一个网页同时调用多个倒计时(最新的)">
+		<h4 class="text-truncate oneline">
+				jquery/js实现一个网页同时调用多个倒计时(最新的)		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-25</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					52万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/wuchengzeng/article/details/50037611" target="_blank" title="jquery/js实现一个网页同时调用多个倒计时(最新的)">
+				<span class="desc oneline">jquery/js实现一个网页同时调用多个倒计时(最新的)
+
+最近需要网页添加多个倒计时. 查阅网络,基本上都是千遍一律的不好用. 自己按需写了个.希望对大家有用. 有用请赞一个哦!
+
+
+
+//js
+...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/wuchengzeng">来自：	<span class="blog_title"> Websites</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/qq574857122/article/details/16361033,BlogCommendHotData_12"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/qq574857122/article/details/16361033,BlogCommendHotData_12"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/qq574857122/article/details/16361033" target="_blank" title="强连通分量及缩点tarjan算法解析">
+		<h4 class="text-truncate oneline">
+				强连通分量及缩点tarjan算法解析		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">11-16</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					64万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq574857122/article/details/16361033" target="_blank" title="强连通分量及缩点tarjan算法解析">
+				<span class="desc oneline">强连通分量：
+简言之 就是找环（每条边只走一次，两两可达）
+孤立的一个点也是一个连通分量 
+ 
+使用tarjan算法 在嵌套的多个环中优先得到最大环( 最小环就是每个孤立点）
+ 
+定义：
+int Ti...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/qq574857122">来自：	<span class="blog_title"> 九野的博客</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/gefangshuai/article/details/50328451,BlogCommendHotData_13"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/gefangshuai/article/details/50328451,BlogCommendHotData_13"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/gefangshuai/article/details/50328451" target="_blank" title="关于SpringBoot bean无法注入的问题（与文件包位置有关）">
+		<h4 class="text-truncate oneline">
+				关于SpringBoot bean无法注入的问题（与文件包位置有关）		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">12-16</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					24万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/gefangshuai/article/details/50328451" target="_blank" title="关于SpringBoot bean无法注入的问题（与文件包位置有关）">
+				<span class="desc oneline">问题场景描述整个项目通过Maven构建，大致结构如下：
+核心Spring框架一个module spring-boot-base
+service和dao一个module server-core
+提供系统...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/gefangshuai">来自：	<span class="blog_title"> 开发随笔</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+<div class="recommend-item-box type_blog clearfix" data-track-view='{"mod":"popu_387","con":",https://blog.csdn.net/zd0303/article/details/7058457,BlogCommendHotData_14"}' data-track-click='{"mod":"popu_387","con":",https://blog.csdn.net/zd0303/article/details/7058457,BlogCommendHotData_14"}'>
+	<div class="content">
+		<a href="https://blog.csdn.net/zd0303/article/details/7058457" target="_blank" title="MATLAB中注释一段程序">
+		<h4 class="text-truncate oneline">
+				MATLAB中注释一段程序		</h4>
+		<div class="info-box d-flex align-content-center">
+			<p class="date-and-readNum oneline">
+				<span class="date hover-show">12-09</span>
+				<span class="read-num hover-hide">
+					阅读数 
+					4万+</span>
+				</p>
+			</div>
+		</a>
+		<p class="content">
+			<a href="https://blog.csdn.net/zd0303/article/details/7058457" target="_blank" title="MATLAB中注释一段程序">
+				<span class="desc oneline">在MATLAB中，可以注释一段程序。
+使用“%{”和“%}”。
+例如
+%{
+。。。
+%}
+即可。
+经典方法是用 if 0，但缺点是不够直观，注释掉的内容仍然保持代码的颜色。现在可以用
+...</span>
+			</a>
+			<span class="blog_title_box oneline ">
+									<span class="type-show type-show-blog type-show-after">博文</span>
+											<a target="_blank" href="https://blog.csdn.net/zd0303">来自：	<span class="blog_title"> 知识小屋</span></a>
+												</span>
+		</p>
+	</div>
+	</div>
+
+	
+	
+                <div class="recommend-item-box type_hot_word">
+                                <div class="content clearfix">
+                    <div class="word float-left">
+                                                            <span>
+                        <a href="https://edu.csdn.net/combos/o363_l0_t " target="_blank">
+                        设计制作学习                    </a></span>
+                                                                                <span>
+                        <a href="https://edu.csdn.net/courses/o5329_s5330_k " target="_blank">
+                        机器学习教程                    </a></span>
+                                                                                <span>
+                        <a href="https://edu.csdn.net/courses/o280_s351_k " target="_blank">
+                        Objective-C培训                    </a></span>
+                                                                                <span>
+                        <a href="https://edu.csdn.net/combos/o7115_s388_l0_t " target="_blank">
+                        交互设计视频教程                    </a></span>
+                                                                                <span>
+                        <a href="https://edu.csdn.net/course/play/5599/104252 " target="_blank">
+                        颜色模型                    </a></span>
+                                                            </div>
+                </div>
+                                                <div class="content clearfix">
+                    <div class="float-left">
+                                        <span>
+                        <a href="https://www.csdn.net/gather_24/MtTaEg3sMDM5MS1ibG9n.html" target="_blank">
+                        mysql关联查询两次本表</a>
+                    </span>
+                                        <span>
+                        <a href="https://www.csdn.net/gather_10/MtjaIg3sMTUzMy1kb3dubG9hZAO0O0OO0O0O.html" target="_blank">
+                        native底部 react</a>
+                    </span>
+                                        <span>
+                        <a href="https://www.csdn.net/gather_1b/Ntzagg1sOTU3LWRvd25sb2Fk.html" target="_blank">
+                        extjs glyph 图标</a>
+                    </span>
+                                        <span>
+                        <a href="https://www.csdn.net/gather_4a/NtzaggwsMTctZWR1.html" target="_blank">
+                        java的学习问题及解决</a>
+                    </span>
+                                        <span>
+                        <a href="https://www.csdn.net/gather_4a/MtTaAg2sODUtZWR1.html" target="_blank">
+                        区块链解决</a>
+                    </span>
+                                        </div>
+                </div>
+                                </div>
+                            <div class="recommend-loading-box">
+                <img src='https://csdnimg.cn/release/phoenix/images/feedLoading.gif'>
+            </div>
+            <div class="recommend-end-box">
+                <p class="text-center">没有更多推荐了，<a href="https://blog.csdn.net/" class="c-blue c-blue-hover c-blue-focus">返回首页</a></p>
+            </div>
+        </div>
+    </main>
+
+    <aside>
+		    <div id="asideProfile" class="aside-box">
+    <!-- <h3 class="aside-title">个人资料</h3> -->
+    <div class="profile-intro d-flex">
+        <div class="avatar-box d-flex justify-content-center flex-column">
+            <a href="https://blog.csdn.net/wchbest">
+              <img src="https://avatar.csdn.net/0/2/5/3_wchbest.jpg" class="avatar_pic">
+                              <img src="https://g.csdnimg.cn/static/user-reg-year/1x/11.png" class="user-years">
+                          </a>
+            
+        </div>
+        <div class="user-info d-flex justify-content-center flex-column">
+            <p class="name csdn-tracking-statistics tracking-click" data-mod="popu_379">
+                <a href="https://blog.csdn.net/wchbest" target="_blank" class="" id="uid">wchbest</a>
+            </p>
+                    </div>
+                <div class="opt-box d-flex justify-content-center flex-column">
+            <span  class="csdn-tracking-statistics tracking-click" data-mod="popu_379">
+                <a class="btn btn-sm btn-red-hollow attention" id="btnAttent">关注</a>
+            </span>
+        </div>
+            </div>
+    <div class="data-info d-flex item-tiling">
+                <dl class="text-center" title="11">
+                        <dt><a href="https://blog.csdn.net/wchbest?t=1">原创</a></dt>
+            <dd><a href="https://blog.csdn.net/wchbest?t=1"><span class="count">11</span></a></dd>
+                    </dl>
+        <dl class="text-center" id="fanBox" title="5">
+            <dt>粉丝</dt>
+            <dd><span class="count" id="fan">5</span></dd>
+        </dl>
+        <dl class="text-center" title="2">
+            <dt>喜欢</dt>
+            <dd><span class="count">2</span></dd>
+        </dl>
+        <dl class="text-center" title="7">
+            <dt>评论</dt>
+            <dd><span class="count">7</span></dd>
+        </dl>
+    </div>
+    <div class="grade-box clearfix">
+        <dl>
+            <dt>等级：</dt>
+            <dd>
+                <a href="https://blog.csdn.net/home/help.html#level" title="2级,点击查看等级说明" target="_blank">
+                    <svg class="icon icon-level" aria-hidden="true">
+                        <use xlink:href="#csdnc-bloglevel-2"></use>
+                    </svg>
+                </a>
+            </dd>
+        </dl>
+        <dl>
+            <dt>访问：</dt>
+            <dd title="9441">
+                9441            </dd>
+        </dl>
+        <dl>
+            <dt>积分：</dt>
+            <dd title="218">
+                218            </dd>
+        </dl>
+        <dl title="416008">
+            <dt>排名：</dt>
+            <dd>41万+</dd>
+        </dl>
+    </div>
+    </div>
+		    <div class="csdn-tracking-statistics mb8 box-shadow" data-pid="blog" data-mod="popu_4" style="height:250px;">
+    <div class="aside-content text-center" id="cpro_u2734133">
+      <div id="kp_box_56" data-pid="56" data-track-view='{"mod":"kp_popu_56-876","con":",,"}' data-track-click='{"mod":"kp_popu_56-876","con":",,"}'><!-- 广告位：PC-博客内页左上视窗 -->
+<script>
+(function() {
+    var s = "_" + Math.random().toString(36).slice(2);
+    document.write('<div id="' + s + '"></div>');
+    (window.slotbydup=window.slotbydup || []).push({
+        id: '6096221',
+        container: s,
+        size: '300,250',
+        display: 'inlay-fix'
+    });
+})();
+</script>
+<script src="//dup.baidustatic.com/js/os.js"></script></div>    </div>
+</div>
+		    <div id="asideNewArticle" class="aside-box">
+    <h3 class="aside-title">最新文章</h3>
+    <div class="aside-content">
+        <ul class="inf_list clearfix csdn-tracking-statistics tracking-click" data-mod="popu_382">
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wchbest/article/details/88174505" target="_blank">nginx配置生成json格式</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wchbest/article/details/88171994" target="_blank">kibana配置索引</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wchbest/article/details/88170769" target="_blank">CentOS7.5搭建Kafka2.11-1.1.0集群与简单测试</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wchbest/article/details/88170738" target="_blank">CentOS7.5搭建Zookeeper3.4.12集群与命令行操作</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wchbest/article/details/88130433" target="_blank">配置filebeat-6.6.1</a>
+            </li>
+                    </ul>
+    </div>
+</div>
+		    		    		    <div id="asideArchive" class="aside-box">
+    <h3 class="aside-title">归档</h3>
+    <div class="aside-content">
+        <ul class="archive-list">
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wchbest/article/month/2019/03">
+                    2019年3月                    <span class="count float-right">12篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wchbest/article/month/2017/04">
+                    2017年4月                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wchbest/article/month/2011/04">
+                    2011年4月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wchbest/article/month/2011/03">
+                    2011年3月                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                    </ul>
+    </div>
+    </div>
+		    <div id="asideHotArticle" class="aside-box">
+	<h3 class="aside-title">热门文章</h3>
+	<div class="aside-content">
+		<ul class="hotArticle-list csdn-tracking-statistics tracking-click" data-mod="popu_521">
+							<li>
+					<a href="https://blog.csdn.net/wchbest/article/details/88873965">Kubernetes：如何解决从k8s.gcr.io拉取镜像失败问题</a>
+					<p class="read">阅读数 <span>1500</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wchbest/article/details/70810063">centos6.6安装percona-server-5.7.17-13</a>
+					<p class="read">阅读数 <span>1455</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wchbest/article/details/88040741">MySQL 8 Cookbook（中文版）pdf 最新版下载地址</a>
+					<p class="read">阅读数 <span>915</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wchbest/article/details/88129238">ElasticsearchX-package 6.6.1破解及安装教程</a>
+					<p class="read">阅读数 <span>899</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wchbest/article/details/88171994">kibana配置索引</a>
+					<p class="read">阅读数 <span>489</span></p>
+				</li>
+					</ul>
+	</div>
+</div>
+		    <div id="asideNewComments" class="aside-box">
+    <h3 class="aside-title">最新评论</h3>
+    <div class="aside-content">
+        <ul class="newcomment-list">
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wchbest/article/details/88129238#comments">ElasticsearchX-pa...</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/oTenderness1" class="user-name" target="_blank">oTenderness1：</a>[reply]cefukai5793[/reply]
+我结合博主的文章总结了一个给你参考https://www.ipyker.com/2019/03/13/elastic-x-pack/                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wchbest/article/details/88130382#comments">配置logstash-6.6.1....</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/weixin_43746366" class="user-name" target="_blank">weixin_43746366：</a>能 再详细点吗 
+ 亲                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wchbest/article/details/88873965#comments">Kubernetes：如何解决从k...</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/cn987654" class="user-name" target="_blank">cn987654：</a>[reply]wchbest[/reply]
+首先谢谢你的回复。理论上是不用再到google去下载了，但为什么我这里还是抛出ErrImagePull的异常而不是使用我本来下载下来的呢？                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wchbest/article/details/88873965#comments">Kubernetes：如何解决从k...</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/wchbest" class="user-name" target="_blank">wchbest：</a>[reply]cn987654[/reply]
+重新打tag之后就不会拉取这个域名访问的镜像了
+你是把已经下载的镜像命名成这个，这样你就不用下载了                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wchbest/article/details/88873965#comments">Kubernetes：如何解决从k...</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/cn987654" class="user-name" target="_blank">cn987654：</a>重新打tag后kubectl run deploy_name --image=k8s.gcr.io/iamge_name 怎么还是失败呢？                </p>
+            </li>
+                    </ul>
+    </div>
+</div>
+		<div id="asideFooter">
+			
+		<div class="aside-box">
+			<div id="kp_box_57" data-pid="57" data-track-view='{"mod":"kp_popu_57-77","con":",,"}' data-track-click='{"mod":"kp_popu_57-77","con":",,"}'><script type="text/javascript">
+    (function() {
+        var s = "_" + Math.random().toString(36).slice(2);
+        document.write('<div style="" id="' + s + '"></div>');
+        (window.slotbydup = window.slotbydup || []).push({
+            id: "u3163270",
+            container:  s
+        });
+    })();
+</script>
+<!-- 多条广告如下脚本只需引入一次 -->
+<script type="text/javascript" src="//cpro.baidustatic.com/cpro/ui/c.js" async="async" defer="defer" ></script></div>		</div>
+				<div class="aside-box">
+			<div class="persion_article">
+			</div>
+		</div>
+	</div>
+</aside>
+<script src="https://csdnimg.cn/pubfooter/js/publib_footer-1.0.3.js" data-isfootertrack="false" type="text/javascript"></script>
+<script>
+	$("a.flexible-btn").click(function(){
+		$(this).parents('div.aside-box').removeClass('flexible-box');
+		$(this).remove();
+	})
+</script>
+</div>
+<div class="mask-dark"></div>
+<div class="tool-box">
+	<ul class="meau-list">
+		<li class="btn-like-box ">
+			<button class=" low-height hover-box btn-like " title="点赞">
+				<svg class="icon active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-thumbsup-ok"></use>
+				</svg>
+				<svg class="icon no-active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-thumbsup"></use>
+				</svg>
+				<span class="hover-show text-box text">
+					<span class="no-active">点赞</span>
+					<span class="active">取消点赞</span>
+				</span>
+				<p>0</p>
+			</button>
+		</li>
+		<li class="">
+						<a class="btn-comments long-height hover-box" title="写评论" href="#commentBox">
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-comments"></use>
+				</svg>
+				<span class="hover-show text">评论</span>
+				<p class="">
+						3				</p>
+			</a>
+		</li>
+		<li class="toc-container-box" id="liTocBox">
+			<button class="btn-toc low-height hover-box" title="目录">
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-contents"></use>
+				</svg>
+				<span class="hover-show text">目录</span>
+			</button>
+			<div class="toc-container">
+				<div class="pos-box">
+					<div class="icon-arrow"></div>
+					<div class="scroll-box">
+						<div class="toc-box"></div>
+					</div>
+				</div>
+				<div class="opt-box">
+					<button class="btn-opt prev nomore" title="向上">
+						<svg class="icon" aria-hidden="true">
+							<use xlink:href="#csdnc-chevronup"></use>
+						</svg>
+					</button>
+					<button class="btn-opt next">
+						<svg class="icon" aria-hidden="true">
+							<use xlink:href="#csdnc-chevrondown"></use>
+						</svg>
+					</button>
+				</div>
+			</div>
+		</li>
+		<li>
+			<button class="btn-bookmark low-height hover-box" title="收藏">
+				<svg class="icon active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-bookmark-ok"></use>
+				</svg>
+				<svg class="icon no-active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-bookmark"></use>
+				</svg>
+					<span class="hover-show text">收藏</span>
+				<!-- <span class="hover-show text-box text">
+					<span class="no-active">收藏</span>
+					<span class="active">取消收藏</span>
+				</span> -->
+			</button>
+		</li>
+		<li class="bdsharebuttonbox">
+			<div class="weixin-qr btn-comments low-height hover-box" >
+        <a href="#" class="bds_weixin clear-share-style" data-cmd="weixin" title="手机看"></a>
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-usephone"></use>
+				</svg>
+				<span class="hover-show text text3">
+					手机看
+				</span>
+			</div>
+		</li>
+							<li class="widescreen-hide">
+				<a class="btn-comments low-height hover-box" href="https://blog.csdn.net/wchbest/article/details/88174505" title="nginx配置生成json格式">
+					<svg class="icon hover-hide" aria-hidden="true">
+						<use xlink:href="#csdnc-chevronleft"></use>
+					</svg>
+					<span class="hover-show text text3">上一篇</span>
+				</a>
+			</li>
+								<!-- 宽屏更多按钮 -->
+		<li class="widescreen-more">
+			<a class="btn-comments chat-ask-button low-height hover-box" title="快问" href="#chatqa">
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-more"></use>
+				</svg>
+				<span class="hover-show text">更多</span>
+				
+			</a>
+			<ul class="widescreen-more-box">
+													<li class="widescreen-more">
+						<a class="btn-comments low-height hover-box" href="https://blog.csdn.net/wchbest/article/details/88174505" title="nginx配置生成json格式">
+							<svg class="icon hover-hide" aria-hidden="true">
+								<use xlink:href="#csdnc-chevronleft"></use>
+							</svg>
+							<span class="hover-show text text3">上一篇</span>
+						</a>
+					</li>
+											</ul>
+		</li>
+	</ul>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'https://csdnimg.cn/static/api/js/share.js?v=89860594'];</script>
+<script>
+    var recommendCount = 65;
+    recommendCount = recommendCount > 1 ? (recommendCount + (recommendCount>6 ? 2 : 1)) : recommendCount;
+    var ChannelId = 2;
+    var articleId = "88873965";
+    var commentscount = 3;
+    var islock = false;
+    var curentUrl = "https://blog.csdn.net/wchbest/article/details/88873965";
+    var myUrl = "https://my.csdn.net/";
+    //1禁止评论，2正常
+    var commentAuth = 2;
+    //百度搜索
+    var baiduKey = "Kubernetes：如何解决从k8s.gcr.io拉取镜像失败问题 - wchbest的专栏";
+    var needInsertBaidu = true;
+    // 代码段样式
+    var codeStyle = '';
+	var highlight = ["kubernetes","\u5982\u4f55","\u89e3\u51b3","k8s.gcr.io","\u955c\u50cf","\u5931\u8d25","\u95ee\u9898"];//高亮数组
+
+    var RecommendBlogExpertList = [{"user_name":"solaraceboy","nick_name":"MRIVANDU","avatar":"https:\/\/avatar.csdn.net\/5\/6\/E\/3_solaraceboy.jpg","is_expert":true,"article_count":175,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"CHENYUFENG1991","nick_name":"\u4e5e\u529b\u9a6c\u624e\u7f57\u7684\u96eaCYF","avatar":"https:\/\/avatar.csdn.net\/3\/B\/B\/3_chenyufeng1991.jpg","is_expert":true,"article_count":735,"rank":"187"},{"user_name":"freewebsys","nick_name":"freewebsys","avatar":"https:\/\/avatar.csdn.net\/6\/A\/E\/3_freewebsys.jpg","is_expert":true,"article_count":609,"rank":"554"},{"user_name":"hxpjava1","nick_name":"hxpjava1","avatar":"https:\/\/avatar.csdn.net\/B\/1\/0\/3_hxpjava1.jpg","is_expert":false,"article_count":2035,"rank":"410"},{"user_name":"mofiu","nick_name":"\u8aa0\u5bdc","avatar":"https:\/\/avatar.csdn.net\/0\/D\/3\/3_mofiu.jpg","is_expert":false,"article_count":48,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"weixin_33778544","nick_name":"weixin_33778544","avatar":"https:\/\/avatar.csdn.net\/2\/3\/1\/3_weixin_33778544.jpg","is_expert":false,"article_count":2888,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"u010884123","nick_name":"\u5218\u6d77\u6d9b\u5728\u9996\u90fd","avatar":"https:\/\/avatar.csdn.net\/3\/D\/9\/3_u010884123.jpg","is_expert":false,"article_count":85,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"lusyoe","nick_name":"\u98ce\u683clu","avatar":"https:\/\/avatar.csdn.net\/5\/3\/2\/3_lusyoe.jpg","is_expert":false,"article_count":86,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"wyxz126","nick_name":"\u738b\u5955\u7136","avatar":"https:\/\/avatar.csdn.net\/E\/F\/D\/3_wyxz126.jpg","is_expert":false,"article_count":410,"rank":"5000+"},{"user_name":"u013201439","nick_name":"Bboy-AJ-\u4efb\u6770","avatar":"https:\/\/avatar.csdn.net\/7\/9\/E\/3_u013201439.jpg","is_expert":false,"article_count":152,"rank":"1000+"}];
+	var articleType = 1;
+	var CopyrightContent = '';
+</script>
+<script src="https://csdnimg.cn/public/sandalstrap/1.4/js/sandalstrap.min.js"></script>
+<script src="https://csdnimg.cn/release/phoenix/vendor/pagination/paging.js"></script>
+<script src="https://csdnimg.cn/public/common/gotop/js/goTop-v1.0.min.js?v201904241615"></script><script>
+    GoTop({
+        right: 8,
+        hasReport: true,
+        reportFun: function() {
+            showReport(false,articleTitles);
+        }
+    })
+</script>
+<div style="display:none;">
+	<img src="" onerror='setTimeout(function(){if(!/(csdn.net|iteye.com|baiducontent.com|googleusercontent.com|360webcache.com|sogoucdn.com|bingj.com|baidu.com)$/.test(window.location.hostname)){window.location.href="\x68\x74\x74\x70\x73\x3a\x2f\x2f\x77\x77\x77\x2e\x63\x73\x64\x6e\x2e\x6e\x65\x74"}},3000);'>
+</div>
+</body>
+
+<!-- 高亮未与 markdown兼容  -->
+	<link rel="stylesheet" href="https://csdnimg.cn/release/blog_editor_html/release1.3.9/ckeditor/plugins/chart/chart.css" />
+	<script type="text/javascript" src="https://csdnimg.cn/release/blog_editor_html/release1.3.9/ckeditor/plugins/chart/lib/chart.min.js"></script>
+	<script type="text/javascript" src="https://csdnimg.cn/release/blog_editor_html/release1.3.9/ckeditor/plugins/chart/widget2chart.js"></script>
+	<link rel="stylesheet" href="https://csdnimg.cn/release/blog_editor_html/release1.3.9/ckeditor/plugins/codesnippet/lib/highlight/styles/atom-one-light.css">
+	<script type="text/javascript" src="https://csdnimg.cn/release/phoenix/production/pc_wap_common-45af74a22e.js" /></script>
+
+	<script type="text/javascript">
+
+	</script>
+
+<script src="https://csdnimg.cn/release/phoenix/template/js/common-0100d9c3da.min.js"></script>
+<script src="https://csdnimg.cn/release/phoenix/template/js/detail-a8a55c8dd3.min.js"></script>
+
+	<script src="https://csdnimg.cn/release/phoenix/themes/skin3-template/skin3-template-fc7383b956.min.js"></script>
+
+    <script src="//g.csdnimg.cn/??login-box/1.0.5/login-box.js,login-box/1.0.5/login-auto.js,copyright/1.0.3/copyright.js,baidu-search/1.0.0/baidu-search.js?t=20190307095522"  type="text/javascript"></script>
+
+<script type="text/javascript" src="https://csdnimg.cn/release/blog_mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+            "HTML-CSS": {
+                    linebreaks: { automatic: true, width: "94%container" },
+                    imageFont: null
+            },
+            tex2jax: {
+                preview: "none"
+            },
+            mml2jax: {
+                preview: 'none'
+            }
+    });
+</script>
+<script type="text/javascript">
+    </script>
+<script src="https://gh.bdstatic.com/static/gh/js/sdk/bword.min.js"></script>
+</html>
