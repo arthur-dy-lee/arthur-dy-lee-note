@@ -279,22 +279,52 @@ ansible执行卸载操作：
 ansible-playbook -i inventory/mycluster/hosts.ini reset.yml
 ```
 
-安装失败清理Kubernetes机器
+安装失败清理Kubernetes机器，在master-etcd-X 节点执行下面的脚本
 
 ```bash
-rm -rf /etc/kubernetes/
-rm -rf /var/lib/kubelet
+#!/bin/bash
+# reset.sh
+kubeadm reset
+# 停止相关服务
+systemctl stop docker kubelet etcd
+#删除所有容器
+docker rm -f $(sudo docker ps -qa)
+# 删除/var/lib/kubelet/目录，删除前先卸载，否则会删除不干净
+for m in $(sudo tac /proc/mounts | sudo awk '{print $2}'|sudo grep /var/lib/kubelet);do
+ sudo umount $m||true
+done
+rm -rf /var/lib/kubelet/
+#删除/var/lib/rancher/目录，删除前先卸载
+for m in $(sudo tac /proc/mounts | sudo awk '{print $2}'|sudo grep /var/lib/rancher);do
+ sudo umount $m||true
+done
+rm -rf /var/lib/rancher/
+#删除/run/kubernetes/ 目录
+rm -rf /run/kubernetes/
+#删除所有的数据卷
+docker volume rm $(sudo docker volume ls -q)
+#再次显示所有的容器和数据卷，确保没有残留
+docker ps -a
+docker volume ls
+# 
+yum remove -y docker* kubelet kubectl
+rm -rf /var/lib/docker
 rm -rf /var/lib/etcd
-rm -rf /usr/local/bin/kubectl
-rm -rf /etc/systemd/system/calico-node.service
-rm -rf /etc/systemd/system/kubelet.service
-systemctl stop etcd.service
-systemctl disable etcd.service
-systemctl stop calico-node.service
-systemctl disable calico-node.service
-docker stop $(docker ps -q)
-docker rm $(docker ps -a -q)
-service docker restart
+rm -rf /var/lib/kubelet
+rm -rf /var/lib/calico
+rm -rf /data/etcd
+rm -rf /opt/cni
+rm -rf /var/etcd/calico-data
+rm -rf /usr/local/bin/Documentation
+rm -rf /root/.kube
+# 这边有个坑，转发规则如果不清除，导致新的网络不通
+iptables -F
+iptables -X
+iptables -L
+find / -type f -name docker*
+find / -type f -name calico*
+find / -type f -name etcd*
+shutdown -r  now
 ```
 
 ###  Ansible ， [详情](<https://gitee.com/paincupid/kubespray>)
@@ -307,7 +337,7 @@ sudo pip install -r requirements.txt
 cp -rfp inventory/sample inventory/mycluster
 
 # Update Ansible inventory file with inventory builder
-declare -a IPS=(192.168.3.11 192.168.3.12)
+declare -a IPS=(192.168.3.12 192.168.3.13)
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 
 # Review and change parameters under ``inventory/mycluster/group_vars``
@@ -468,3 +498,17 @@ docker tag docker.io/mirrorgooglecontainers/kube-proxy:v1.14.0 k8s.gcr.io/kube-p
 docker tag docker.io/mirrorgooglecontainers/pause:3.1 k8s.gcr.io/pause:3.1
 docker tag docker.io/mirrorgooglecontainers/etcd:3.3.10 k8s.gcr.io/etcd:3.3.10
 docker tag docker.io/coredns/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
+
+
+
+
+
+
+
+
+
+
+
+----
+
+k8s-dns-node-cache
