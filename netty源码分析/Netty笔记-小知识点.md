@@ -1,4 +1,4 @@
-# Netty笔记
+# Netty笔记-小知识点
 
 
 
@@ -8,6 +8,12 @@
 private static boolean isPowerOfTwo(int val) {
   return (val & -val) == val;
 }
+```
+
+or
+
+```java
+return (n > 0) && (n & (n -1) ==0)
 ```
 
 
@@ -113,7 +119,7 @@ public abstract class Test{
 
 ### ChannelFuture
 
-![](http://pxysxbscs.bkt.clouddn.com/Future、channelFuture、Promise、ChannelPromise.png)
+![](blogpic/Future、channelFuture、Promise、ChannelPromise.png)
 
 #### channelFuture
 
@@ -184,3 +190,13 @@ private static final AtomicIntegerFieldUpdater<SingleThreadEventExecutor> STATE_
 ```java
 STATE_UPDATER.compareAndSet(this, ST_NOT_STARTED, ST_STARTED)
 ```
+
+
+
+### lambda表达式::new
+
+
+
+#### 零拷贝
+
+零拷贝（zero-copy）是一种目前只有在使用 NIO 和 Epoll 传输时才可使用的特性。它使你可以快速 高效地将数据从文件系统移动到网络接口，而不需要将其从内核空间复制到用户空间，其在像 FTP 或者 HTTP 这样的协议中可以显著地提升性能。但是，并不是所有的操作系统都支持这一特性。特别地，它对 于实现了数据加密或者压缩的文件系统是不可用的——只能传输文件的原始内容。反过来说，传输已被 加密的文件则不是问题。

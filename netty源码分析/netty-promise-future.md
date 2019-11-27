@@ -4,7 +4,7 @@
 
 ## 一、代码
 
-为更好的解理promise，下面跑一下小程序
+为更好的解理promise，下面跑一个小程序
 
 ```java
 package io.netty.example.echo;
@@ -109,7 +109,7 @@ RunnableFutureAdapter其实就是一个future和Runnable的实现类，创建Run
 
 当使用f.addListener时，RunnableFutureAdapter就是一个future；当调用Runnable#run方法时，它就是一个task。
 
-![](https://live.staticflickr.com/65535/48929567948_95414081ba_b.jpg)
+![](blogpic/RunnableFutureAdapter.png)
 
 执行`Callable`的过程：submit后，通过SingleThreadEventExecutor来执行，先将task(Callable)放到队列中，后startThread，doStartThread会启动一下新的线程，代码如下：
 
