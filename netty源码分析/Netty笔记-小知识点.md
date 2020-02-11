@@ -1,5 +1,169 @@
 # Netty笔记-小知识点
 
+### @Skip
+
+@Skip注释用来在实现了Handler的实现类中的方法上，程序运行过程中如果某个handler实现中的方法被@Skip注释了，则此方法不会被 ChannelPipeline 对象调用
+
+实现代码，以后可以直接抄来，用于判断一个方法上是否用了注解。
+
+```java
+@SuppressWarnings("rawtypes")
+private static boolean isSkippable(
+        final Class<?> handlerType, final String methodName, final Class<?>... paramTypes) throws Exception {
+    return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>) () -> {
+        Method m;
+        try {
+            m = handlerType.getMethod(methodName, paramTypes);
+        } catch (NoSuchMethodException e) {
+            logger.debug(
+                    "Class {} missing method {}, assume we can not skip execution", handlerType, methodName, e);
+            return false;
+        }
+        return m != null && m.isAnnotationPresent(Skip.class);
+    });
+}
+```
+
+调用示例：
+
+ChannelHandlerMask#mask0
+
+```java
+private static int mask0(Class<? extends ChannelHandler> handlerType) {
+        int mask = 0;
+        mask |= MASK_ALL_INBOUND;
+        mask |= MASK_ALL_OUTBOUND;
+
+        try {
+            if (isSkippable(handlerType, "exceptionCaught", ChannelHandlerContext.class, Throwable.class)) {
+                mask &= ~MASK_EXCEPTION_CAUGHT;
+            }
+
+            if (isSkippable(handlerType, "channelRegistered", ChannelHandlerContext.class)) {
+                mask &= ~MASK_CHANNEL_REGISTERED;
+            }
+            if (isSkippable(handlerType, "channelUnregistered", ChannelHandlerContext.class)) {
+                mask &= ~MASK_CHANNEL_UNREGISTERED;
+            }
+            if (isSkippable(handlerType, "channelActive", ChannelHandlerContext.class)) {
+                mask &= ~MASK_CHANNEL_ACTIVE;
+            }
+      //...
+```
+
+
+
+### writeAndFlush
+
+如添加pipelinehandler顺序是：
+>pipeline.addLast(new InboundsHandler1()); //in1
+pipeline.addLast(new InboundsHandler2()); //in2  
+pipeline.addLast(new outboundsHandler1()); //out1
+pipeline.addLast(new outboundsHandler2()); //out2
+
+在netty 的 DefaultChannelPipeline中是用了双向链表放置 ，这些 handler不管是什么handler, Inbound, outBound, Duplex双向的，都是放置在AbstractChannelHandlerContext的双向链表(DefaultChannelPipeline持有head, tail).
+
+handler添加顺序就是链表里顺序
+
+> (head)InboundsHandler1()<--->InboundsHandler2()<--->outboundsHandler1()<--->outboundsHandler2() (tail)
+
+inbound设计
+> pipeline有read到数据后，是从head往后查找有in性质的handler，in为响应型的动作，由Netty来触发，业务程序被动接收。
+>
+> pipeline有write数据是，是从 tail往前查找有out性质的handler，out为请求型的动作，由业务程序来触发。
+
+什么时候使用inbound呢？
+
+> 实现了接口后，可以看到需要实现channelRead0方法，这个方法使用者无须调用，因为是由netty调用的，此接口的其他方法也是如此，因此做业务过程中，最多的就是用inbound，而outbound需要手动去调用
+
+在InboundsHandler2里发送消息， 用 ctx.write(msg) 是不走outboundsHandler1和outboundsHandler2的
+
+因为ctx.writeAndFlush()和ctx.channel().writeAndFlush()是有区别的；ctx.writeAndFlush()从当前节点往前查找out性质的handler，而out节点注册在当前节点后边，所以查找不到，当然没走outHandler了。调用ctx.channel().writeAndFlush()从链表结尾开始往前查找out性质的handler，可以InboundsHandler2里发送改成此种方式试试。
+
+可以把添加2个InboundsHandler和2个outboundsHandler随便调换位置，分别使用ctx.writeAndFlush()和ctx.channel().writeAndFlush() 发送，帮助理解.
+
+DefaultChannelHandlerContext#fireChannelRead
+
+```java
+@Override
+public ChannelHandlerContext fireChannelRead(final Object msg) {
+    requireNonNull(msg, "msg");
+    EventExecutor executor = executor();
+    if (executor.inEventLoop()) {
+        findAndInvokeChannelRead(msg);  //<--- 看findAndInvokeChannelRead
+    } else {
+        try {
+            executor.execute(() -> findAndInvokeChannelRead(msg));
+        //....
+}
+```
+
+DefaultChannelHandlerContext#findContextInbound
+
+```java
+private DefaultChannelHandlerContext findContextInbound(int mask) {
+    DefaultChannelHandlerContext ctx = this;
+    do {
+        ctx = ctx.next;  //<--- 有read到数据后，是从head往后查找有in性质的handler
+    } while ((ctx.executionMask & mask) == 0 && ctx.isProcessInboundDirectly());
+    return ctx;
+}
+```
+
+DefaultChannelHandlerContext#writeAndFlush
+
+```java
+@Override
+public ChannelFuture writeAndFlush(Object msg, ChannelPromise promise) {
+    write(msg, true, promise);
+    return promise;
+}
+
+private void write(Object msg, boolean flush, ChannelPromise promise) {
+    //...
+    EventExecutor executor = executor();
+    if (executor.inEventLoop()) {
+        //<---  看findContextOutbound
+        final DefaultChannelHandlerContext next = findContextOutbound(flush ?
+                (MASK_WRITE | MASK_FLUSH) : MASK_WRITE);
+        if (flush) {
+            if (next.isProcessOutboundDirectly()) {
+                next.invokeWrite(msg, promise);
+                next.invokeFlush();
+              //...
+```
+
+DefaultChannelHandlerContext#findContextOutbound
+
+```java
+private DefaultChannelHandlerContext findContextOutbound(int mask) {
+    DefaultChannelHandlerContext ctx = this;
+    do {
+        ctx = ctx.prev;  //<-- 有write数据是，是从 tail往前查找 有out性质的handler
+    } while ((ctx.executionMask & mask) == 0 && ctx.isProcessOutboundDirectly());
+    return ctx;
+}
+```
+
+
+
+那么我们这里进行总结
+
+由head开始的往下传播的事件
+fireChannelActive
+fireChannelInactive
+fireExceptionCaught
+fireChannelRead
+fireChannelReadComplete
+…等等
+由tail开始的往上传播的事件
+bind
+connect
+write
+flush
+…等等
+
+
 
 
 ### 判断一个数是否为2的幂
@@ -193,13 +357,7 @@ STATE_UPDATER.compareAndSet(this, ST_NOT_STARTED, ST_STARTED)
 
 
 
-### lambda表达式::new
 
-
-
-### 零拷贝
-
-零拷贝（zero-copy）是一种目前只有在使用 NIO 和 Epoll 传输时才可使用的特性。它使你可以快速 高效地将数据从文件系统移动到网络接口，而不需要将其从内核空间复制到用户空间，其在像 FTP 或者 HTTP 这样的协议中可以显著地提升性能。但是，并不是所有的操作系统都支持这一特性。特别地，它对 于实现了数据加密或者压缩的文件系统是不可用的——只能传输文件的原始内容。反过来说，传输已被 加密的文件则不是问题。
 
 
 
@@ -229,3 +387,46 @@ Socket编程接口在设计的时候，就希望也能适应其他的网络协�
 握手过程中传送的包里，不包含数据，三次握手完毕后，客户端与服务端才正式的开始传递数据。
 TCP一旦连接起来，在客户端和服务端任何一方主动关闭连接之前，TCP连接都将被一直保持下去。
 断开连接时，服务器和客户端都可以主动发起断开TCP连接的请求，断开过程需要经过“四次握手”
+
+
+
+
+
+----
+
+## TODO
+
+### lambda表达式::new
+
+
+
+### 零拷贝
+
+零拷贝（zero-copy）是一种目前只有在使用 NIO 和 Epoll 传输时才可使用的特性。它使你可以快速 高效地将数据从文件系统移动到网络接口，而不需要将其从内核空间复制到用户空间，其在像 FTP 或者 HTTP 这样的协议中可以显著地提升性能。但是，并不是所有的操作系统都支持这一特性。特别地，它对 于实现了数据加密或者压缩的文件系统是不可用的——只能传输文件的原始内容。反过来说，传输已被 加密的文件则不是问题。
+
+
+
+### lambda apply
+
+```
+ThreadExecutorMap
+```
+
+
+
+#### new接口
+
+```
+public interface EventExecutor extends EventExecutorGroup {
+```
+
+```
+private final EventExecutor[] children;
+```
+
+```
+children = new EventExecutor[nThreads];
+```
+
+
+
