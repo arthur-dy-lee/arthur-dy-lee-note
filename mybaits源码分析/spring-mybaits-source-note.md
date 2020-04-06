@@ -14,6 +14,18 @@ mybatis整合spring的jar版本：mybatis-spring-1.3.2-sources.jar，后使用2.
 
 spring源码版本： 4.2.0.RELEASE
 
+本篇更多的是讲解spring与mybatis的整合与交互的过程，其实mybatis可以单独存在和使用的。
+
+spring-mybatis的整合，只要引入以下Jar包即可
+
+```xml
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>1.3.0</version>
+</dependency>
+```
+
 # 一、启动时注入spring
 -------
 ## 1.1 springmvc的xml配置方式
