@@ -35,16 +35,24 @@ G1收集器的设计目标是取代CMS收集器，它同CMS相比，在以下方
     指在应用程序运行周期内，应用程序运行总时间与系统总运行时间的比值。系统总运行时间=应用程序耗时+GC耗时。比如系统运行100分钟，GC耗时1分钟那么系统的吞吐量为99%。
   2. 垃圾回收负载
     与吞吐量相反，即垃圾回收耗时/系统总运行时间。
-  3. 停顿时间
+    3. 停顿时间
     指垃圾回收运行时，应用程序的暂停时间，独占式回收器停段时间会大于并发式收集器的时间，但是其总体效率可能高于并发式收集器，所以一般独占式收集器吞吐量会高于并发式收集器
-  4. 垃圾回收频率
+    4. 垃圾回收频率
     指垃圾回收多长时间执行一次，一边来讲，回收频率越低越好，通常增加堆内存可以有效降低垃圾回收频率，但是此操作可能导致停顿时间增加。
-  5. 反应时间
+    5. 反应时间
     指当一个对象成为垃圾后，多长时间内会被清理，释放内存。
-  6. 堆分配
+    6. 堆分配
     不同的垃圾回收器对对内存的分配方式不同，一个良好的垃圾回收器应该有一个合理的堆内存区间划分。
 
 通常情况下，很难让一个应用程序所有指标都达到最优，因此，只能根据自身系统的关注点，选择合理的垃圾回收器和回收策略。
+
+
+
+>To find and evaluate performance bottlenecks, we need to know some definitions of performance metrics. For JVM tuning, we need to know the three following definitions and use these metrics as our base of evaluation:
+>
+>- Throughput: It is one of the important metrics. Throughput refers to the highest possible performance that the garbage collector allows applications to achieve, without considering the pause time or memory consumption caused by garbage collection.
+>- Latency: Latency measures how much pause time resulting from garbage collection is reduced to avoid application vibrations during the running process.
+>- Memory usage: It refers to the amount of memory required for the garbage collector to run smoothly.
 
 
 
