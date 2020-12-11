@@ -102,7 +102,7 @@ HBase中，表会被划分为1…n个Region，被托管在RegionServer中。Regi
 数据表的列本身有太多唯一性的数据
 
 
-
+#### 倒排索引
 
 
 
