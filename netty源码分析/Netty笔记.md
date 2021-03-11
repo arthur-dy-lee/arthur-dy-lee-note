@@ -14,7 +14,7 @@ Netty是一个异步的事件驱动的网络应用框架，基于NIO。
 
 #### Channel
 
-Channel是Java NIO的基础。它表示一个开放的连接，进行IO操作。基本的 I/O 操作（ bind() 、 connect() 、 read() 和 write() ）依赖于底层网络传输所提 供的原语。在基于 Java 的网络编程中，其基本的构造是 class Socket 。Netty 的 Channel 接 口所提供的 API，大大地降低了直接使用 Socket 类的复杂性。
+Channel是Java NIO的基础。它表示一个开放的连接，进行IO操作。基本的 I/O 操作（ bind() 、 connect() 、 read() 和 write() ）依赖于底层网络传输所提供的原语。在基于 Java 的网络编程中，其基本的构造是 class Socket 。Netty 的 Channel 接口所提供的 API，大大地降低了直接使用 Socket 类的复杂性。
 
 #### EventLoop
 
