@@ -1,6 +1,9 @@
 # 学习笔记
 -------
 
+## 面试
+### [面试准备](interview/2020.07.24.md)
+
 ## 设计模式
 
 
@@ -19,3 +22,4 @@
 
 ## 分布式
 ### [《从Paxos到Zookeeper》-note](从Paxos到Zookeeper-note.md)
+
