@@ -255,15 +255,17 @@ AQS
 
 熔断 Hystrix原理，2种？
 
-kafka
+kafka, 和rocketMQ对比
 
+epoll
 
+Unsafe
 
+CompletionService
 
+MCS队列锁
 
-
-
-
+ThreadLocalMap
 
 
 
