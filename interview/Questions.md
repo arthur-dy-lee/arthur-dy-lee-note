@@ -248,32 +248,79 @@ mysql的事物隔离级别都有哪些吗？你能不能说一下可重复读这
 那就是说在我们的系统开发中间有没有碰到过一些什么有意思的东西？
 
 间隙锁等
-
 什么锁解决了什么读
-
 AQS
-
 熔断 Hystrix原理，2种？
-
 kafka, 和rocketMQ对比
-
 epoll
-
 Unsafe
-
 CompletionService
-
 MCS队列锁
-
 ThreadLocalMap
+“子线程”正常拿到父线程传递过来的变量
+InheritableThreadLocal TransmittableThreadLocal
+miniIO 原理
 
+springcloud是怎么通信的
+springlcoud Fegin原理
+rockmq顺序消费
 
+Java序列化为什么性能比较低
 
+netty之五责任链模式，ChannelHandler 是怎么找到下一个的？
 
+为什么ZAB崩溃后需要双向同步？
 
+为什么G1不建议32G以上
 
+算法：
 
+1、数据，下标相加等于target。例如：
+int data[] = new int[3]; data[0]=3;data[1]=5;data[2]=6; target=8,则输出0，1
 
+2、进门向左向右走，8步有多少种可能?
+
+其实就是一2叉颗树嘛，有多少条路径。
+
+LSM、MappedByteBuffer、Memory Mapped Files
+
+#### Memory Mapped Files
+
+Memory Mapped Files(后面简称mmap)也被翻译成 内存映射文件 ，在64位操作系统中一般可以表示20G的数据文件，它的工作原理是直接利用操作系统的Page来实现文件到物理内存的直接映射。完成映射之后你对物理内存的操作会被同步到硬盘上（操作系统在适当的时候）。
+
+### kakfa读取数据基于sendfile实现Zero Copy
+
+传统模式下，当需要对一个文件进行传输的时候，其具体流程细节如下：
+
+1. 调用read函数，文件数据被copy到内核缓冲区
+2. read函数返回，文件数据从内核缓冲区copy到用户缓冲区
+3. write函数调用，将文件数据从用户缓冲区copy到内核与socket相关的缓冲区。
+4. 数据从socket缓冲区copy到相关协议引擎。
+
+>硬盘—>内核buf—>用户buf—>socket相关缓冲区—>协议引擎
+
+而sendfile系统调用则提供了一种减少以上多次copy，提升文件传输性能的方法。
+在内核版本2.1中，引入了sendfile系统调用，以简化网络上和两个本地文件之间的数据传输。 sendfile的引入不仅减少了数据复制，还减少了上下文切换。
+
+```
+sendfile(socket, file, len);
+```
+
+运行流程如下：
+
+1. sendfile系统调用，文件数据被copy至内核缓冲区
+2. 再从内核缓冲区copy至内核中socket相关的缓冲区
+3. 最后再socket相关的缓冲区copy到协议引擎
+
+相较传统read/write方式，2.1版本内核引进的sendfile已经减少了内核缓冲区到user缓冲区，再由user缓冲区到socket相关缓冲区的文件copy，而在内核版本2.4之后，文件描述符结果被改变，sendfile实现了更简单的方式，再次减少了一次copy操作。
+
+#### kakfa批量压缩
+
+在很多情况下，系统的瓶颈不是CPU或磁盘，而是网络IO，对于需要在广域网上的数据中心之间发送消息的数据流水线尤其如此。进行数据压缩会消耗少量的CPU资源,不过对于kafka而言,网络IO更应该需要考虑。
+
+- 如果每个消息都压缩，但是压缩率相对很低，所以Kafka使用了批量压缩，即将多个消息一起压缩而不是单个消息压缩
+- Kafka允许使用递归的消息集合，批量的消息可以通过压缩的形式传输并且在日志中也可以保持压缩格式，直到被消费者解压缩
+- Kafka支持多种压缩协议，包括Gzip和Snappy压缩协议
 
 
 
