@@ -1,115 +1,4 @@
-### 滴普
-日志归并树LSM，和B+树区别
-LSM树最主要是用在哪些场景里面
-列存储和行存储有什么区别
-倒排索引
-raft协议、zab协议，以及它们的区别，它们的相同和不同点
-java的生产者和消费者模型，多线程模型
-jvm内存优化
-分布式锁
-mvcc
 
-### 之江实验室
-从spring到springboot，到springcloud为什么做的二次升级
-springcloud的组件有哪些，常用的组件有哪些
-和springcloud类似的框架有接触过哪些
-k8s有哪些核心组件
-对docker有了解吗
-对java涉及到的框架有没有系统的分析过它的源码
-IOC原理，注入是怎么来做的
-netty是一个高效的网络中间件，netty实现网络IO高性能的原理
-netty零拷贝
-
-
-缓存存在什么风险
-缓存你们的过期时间是怎么设置的
-如果设置缓存1分钟，同时大面积缓存过期怎么办
-缓存穿透是怎么做的？如果返回null放缓存后，访问的资源都是随机的，那岂不是请求全部都会打到后端
-你了解限流算法有哪些？令牌桶和漏斗应用在什么场景？
-你对netty了解吗
-netty为什么说是高性能的？从哪些方面保证？在数据传输过程中做发哪些优化？
-传输层是否会对数据包拆包吗？大数据多大的时候，会进行拆包？
-poll,epoll,select这3个区别？jdk有个bug，记得是什么吗？
-消息队列用在什么地方？它都有哪些应用场景？
-中奖和奖品分配分开有什么优点吗
-Java的随机算法你了解吗？底层是怎么实现的？知道伪随机吗？在选择Random和SecureRandom时是如何做选择的，以及为什么这样选择？
-有对比过Kafka和rocketMQ吗
-rabbitMQ和rocketMQ底层的实现能介绍一下吗，底层实现的对比能说一下吗。
-消费者从broker中拉取消息，如果有很多消费者，但服务器上都没有消息，这不会对服务器造成很大的压力吗？不会浪费很多的资源吗？
-rocketMQ推和拉的方式是怎么实现的?消费速度是由谁来控制？
-有这么一个情景，要做一个在线教育平台，我们希望通过一些用户的行为，比如在什么时候点击了什么东西，做了什么操作。我们希望通过用户的操作来分析出用户的行为习惯，然后基于行为习惯得到一个有推荐价值的结果，在这么一种需求下，用户数大约达到10w左右。如果要做这样一个系统，如果是由你来做的话，如何从架构、技术选型、安全性、高性能、高可用、缓存等方面做一个设计？
-数据中台和数据仓库之前有接触过吗？（上面的问题也可以从这个角度来思考下）
-创建VM在每个流程涉及到的概念能说一下么？比如安全组。安全组是做什么的？
-k8s有哪些组件，这些组件是用来干嘛的
-
-
-
-### 维灵
-spring微服务支撑什么东西？和阿里dubbo、hsf体系的区别?
-rpc这块有没有了解过
-mq中间件在这里面做什么作用
-在多写少读的场景怎么用好各种中间件
-redis有什么特色
-redis你用过集群吗？哨兵和codis集群方案对比？
-关系型数据库优化都做哪些东西
-数据库中有很多大的字段？有时候1秒种会有一千条数据，这时候我会合并1k条数据一次存储，这时候在数据库设计的时候有什么要注意的地方？怎么样在关系型数据库中把大的字段设计好
-分布式CAP能说一下么，如果是ap模型，那么数据一致性应该怎么做呢
-除了java语言外其它语言有涉及吗
-
-
-
-### 恒生
-HFS的技术特点
-hsf服务除了服务注册发现，还有什么别的能力吗
-hsf注册发现和市面上其它的注册发现框架相对有什么优势吗，比如说consol，nacos，eruka等有什么优点
-分布式事务
-对于订单支付和库存减少，如果扣款完成了，发现库存不足了，怎么通过分布式事务解决问题，怎么通过消息队列实现事务控制
-延时消息
-如果使用框架的话，如何使用分布式事务
-redis除了分布式锁，还在什么业务情况下用过它
-springboot能讲讲网关是怎么用的，网关的源代码有看过吗
-springboot configuration的实现原理有看过吗
-有用到过mysql的高级特性吗？比如json的特性。
-是怎么把应用部署的
-灰度升级
-Java本来的JVM调优有涉及到吗
-pod启动，有没有偿试过最小内存能启动起来
-k8s中，request（资源的配额声明）很多资源的话，这个资源（内存）是被占用的
-springboot 2.0以后，内存做了一些优化
-
-
-### 阿里新零售
-序列化能介绍下么？序列化的过程中要怎么写才可能序列化呢？这个序列化serialVersionUID可以不写吗？
-营销活动来的时候，你怎么快速支撑营销？
-公有云和私有云平台架构是什么样的？趋势是什么样的？
-平台多租户是怎么处理的？数据库的资源是怎么通过多租户隔离开？应用程序如何进行多租房的识别和隔离？
-IASS、PASS、SAAS
-平台计费是怎么做？如果一个主机的规格是8U32G，用的时候突然流量上来了；有的是CPU密集型，有的是内存或IO密集型，会通过不同的组合生成不同的订单吗？
-监控是怎么做的
-openstack和k8s，他们都可以做资源隔离，是怎么做的
-
-### 数梦工厂子公司
-对开发计划、进度、质量是怎么进行管控的
-redis有降级吗？
-线程、线程池接触多不多
-mybatis用的多吗？深度怎么样？一级缓存和二级缓存了解吗？
-mybatis分页是怎么做的？
-spring事务的隔离级别
-jdk源码会不会看，比如并发包
-线上调优，是初始的参数去优化，还是有问题后再去调优？
-springcloud和hsf架构选型，你会怎么选，理由是什么
-配置中心有没有用Nacos（Nacos也是服务注册中心）
-ES有没有接触过
-NoSql的数据库了解吗
-
-
-### coupon
-算法
-1, 输入：数字字符串：input；个数：n，从input中删除n个数字，留下的数字最小。例如：142293, 2 -> 1223;241293, 2 -> 2123;
-
-2, Given a grid m*n ,(m > 0 & n > 0); each cell has integer value, and two points A(0, 0), B(a, b) (m>a>0,n>b>0); Write an executable program to calculate the shortest path from A to B; you can only route down or right(Program language: Any anguag) 
-
-3, Give a link, A->B->C->D->E->F->-G->H_; Write a program to check whether the link has a loop ...
 
 分布式事务的一致性是如何解决的
 TCC、Sagas、二阶段、三阶段提交优缺点
@@ -247,31 +136,7 @@ mysql的事物隔离级别都有哪些吗？你能不能说一下可重复读这
 在最近说两三年中有没有什么觉得可以分享的一些项目中碰到的问题，经验，比如说解决了一个什么难点，或者是做了觉得可以分享一下东西。
 那就是说在我们的系统开发中间有没有碰到过一些什么有意思的东西？
 
-间隙锁等
-什么锁解决了什么读
-AQS
-熔断 Hystrix原理，2种？
-kafka, 和rocketMQ对比
-epoll
-Unsafe
-CompletionService
-MCS队列锁
-ThreadLocalMap
-“子线程”正常拿到父线程传递过来的变量
-InheritableThreadLocal TransmittableThreadLocal
-miniIO 原理
 
-springcloud是怎么通信的
-springlcoud Fegin原理
-rockmq顺序消费
-
-Java序列化为什么性能比较低
-
-netty之五责任链模式，ChannelHandler 是怎么找到下一个的？
-
-为什么ZAB崩溃后需要双向同步？
-
-为什么G1不建议32G以上
 
 算法：
 
@@ -289,6 +154,10 @@ LSM、MappedByteBuffer、Memory Mapped Files
 Memory Mapped Files(后面简称mmap)也被翻译成 内存映射文件 ，在64位操作系统中一般可以表示20G的数据文件，它的工作原理是直接利用操作系统的Page来实现文件到物理内存的直接映射。完成映射之后你对物理内存的操作会被同步到硬盘上（操作系统在适当的时候）。
 
 ### kakfa读取数据基于sendfile实现Zero Copy
+
+ 所谓零拷贝，指的是应用内存与内核内存不存在拷贝。 对应零拷贝技术有mmap及sendfile。
+
+
 
 传统模式下，当需要对一个文件进行传输的时候，其具体流程细节如下：
 
@@ -321,6 +190,121 @@ sendfile(socket, file, len);
 - 如果每个消息都压缩，但是压缩率相对很低，所以Kafka使用了批量压缩，即将多个消息一起压缩而不是单个消息压缩
 - Kafka允许使用递归的消息集合，批量的消息可以通过压缩的形式传输并且在日志中也可以保持压缩格式，直到被消费者解压缩
 - Kafka支持多种压缩协议，包括Gzip和Snappy压缩协议
+
+# 合并两个有序链表
+
+https://leetcode-cn.com/problems/merge-two-sorted-lists/solution/he-bing-liang-ge-you-xu-lian-biao-by-leetcode-solu/
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if (l1 == null) {
+            return l2;
+        } else if (l2 == null) {
+            return l1;
+        } else if (l1.val < l2.val) {
+            l1.next = mergeTwoLists(l1.next, l2);
+            return l1;
+        } else {
+            l2.next = mergeTwoLists(l1, l2.next);
+            return l2;
+        }
+    }
+}
+
+```
+
+
+
+
+
+间隙锁等
+什么锁解决了什么读
+AQS
+熔断 Hystrix原理，2种？
+kafka, 和rocketMQ对比
+epoll
+Unsafe
+CompletionService
+MCS队列锁
+ThreadLocalMap
+“子线程”正常拿到父线程传递过来的变量
+InheritableThreadLocal TransmittableThreadLocal
+miniIO 原理
+
+springcloud是怎么通信的
+springlcoud Fegin原理
+rockmq顺序消费
+Java序列化为什么性能比较低
+netty之五责任链模式，ChannelHandler 是怎么找到下一个的？
+为什么ZAB崩溃后需要双向同步？
+为什么G1不建议32G以上
+为什么https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/solution/shan-chu-lian-biao-de-dao-shu-di-nge-jie-dian-b-61/，它的时间复杂度：O(L)
+Java线程死锁
+https://blog.csdn.net/hchaoh/article/details/103903410
+规则引擎
+线程池线程存活？
+reentrantlock公平锁和非公平锁
+serializable,hessian,protobuf， serializable为什么慢
+2个千万级大表怎么关联取数https://zhuanlan.zhihu.com/p/147371283
+epoll原理 https://blog.csdn.net/armlinuxww/article/details/92803381
+explain命令关注哪些字段
+socket和websocket的区别？
+银行事务补偿机制
+springboot怎么向k8s注册中心
+
+jdk代理和CGLIB代理区别
+
+
+
+#### caffeine 
+
+createExpensiveGraph
+同时配置了expireAfterWrite和expireAfterAccess
+
+localcache和分布式缓存使用法测，多热的key？
+
+Jackson、hession2、protobuf序列化反序列化应用场景和区别？
+
+
+
+
+
+
+>@Cacheable(cacheNames="foos", sync="true")
+在多线程环境下，某些操作可能使用相同参数同步调用。默认情况下，缓存不锁定任何资源，可能导致多次计算，而违反了缓存的目的。对于这些特定的情况，属性 sync 可以指示底层将缓存锁住，使只有一个线程可以进入计算，而其他线程堵塞，直到返回结果更新到缓存中。 
+
+
+
+
+
+RocketMQ的高性能在于顺序写盘(CommitLog)、零拷贝和跳跃读(尽量命中PageCache)
+
+数据库死锁排查？
+
+如果下面的list中有10个item，删除后，会剩下几个？这种情况还可以用于分页吗？缓存分页是怎么做的？
+
+```java
+@CacheConfig(cacheNames = { "userFocus" })
+public interface UserFocusMapper {
+
+@CacheEvict(value="userFocusList",key = "#p0.userCode")
+int insert(UserFocus userFocus);
+
+@Cacheable(key = "#p0.userCode+'_'+#p0.focusName+'_'+#p0.focusType",unless="#result == null")
+UserFocus findFocus(UserFocus userFocus);
+
+@Cacheable(value="userFocusList",key = "#p0.userCode",unless="#result == null||#result.size() == 0")
+List<UserFocus> findFocusList(UserFocus userCode);
+//利用@Caching中evict指定两个value下的不同key删除。
+@Caching(evict = {@CacheEvict(value="userFocusList",key = "#p0.userCode"),
+@CacheEvict(value="userFocus",key = "#p0.userCode+'_'+#p0.focusName+'_'+#p0.focusType")})
+void updateUserFocus(UserFocus userFocus);
+
+}
+```
+
+
 
 
 
