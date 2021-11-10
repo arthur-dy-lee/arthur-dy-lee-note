@@ -255,9 +255,33 @@ springboot怎么向k8s注册中心
 
 jdk代理和CGLIB代理区别
 
+redis怎么做热点监控
+
+怎么做一个大型的网络设计？k8s的，公云和私有云网络如何结合？
+
+RPC 与HTTP2区别
+
+JVM调优通用方法论
+
+perf热力图
+
+Hbase布隆过滤器设置的多大？
+
+netty为什么快？
+
+netty中channel是怎么知道被响应的？
+
+rocketMQ如何顺序消费？有没有其它顺序消费的解决方案？
+
+Http和RPC区别和关系？gRPC如何封装http2的？https://www.zhihu.com/question/41609070
+
+布隆过滤器大小如何设置？HBase是设置的多少？
+
 
 
 #### caffeine 
+
+[caffeine官网说明](https://github.com/ben-manes/caffeine/wiki/Design-zh-CN)
 
 createExpensiveGraph
 同时配置了expireAfterWrite和expireAfterAccess
@@ -266,9 +290,19 @@ localcache和分布式缓存使用法测，多热的key？
 
 Jackson、hession2、protobuf序列化反序列化应用场景和区别？
 
+FIFO，LRU和LFU存储的数据结构？
 
+Count-Min Sketch？
 
+Guava cache是LRU吗？Caffeine是使用w-tinylfu 算法，有使用到LRU吗？
 
+Guava cache优秀在哪里？
+
+Guava cache和Caffeine的数据结构分别是什么？
+
+Guava cache为什么定义类的key为WeakReference，values为WeakReference or SoftReference soft 【https://blog.csdn.net/lijunhuayc/article/details/48714015】
+
+Guava cache和ConcurrentHashMap区别，或者比较大的区别？
 
 
 >@Cacheable(cacheNames="foos", sync="true")
@@ -281,6 +315,18 @@ Jackson、hession2、protobuf序列化反序列化应用场景和区别？
 RocketMQ的高性能在于顺序写盘(CommitLog)、零拷贝和跳跃读(尽量命中PageCache)
 
 数据库死锁排查？
+
+redis更新失败/删除失败怎么办？
+
+如果是删除方法如evict和clear等，需要先删掉二级缓存的数据，再去删掉一级缓存的数据，否则有并发问题。
+
+在写入缓存前先比较数据的版本号或者修改时间，禁止向缓存中写入更旧的版本。
+
+采用这种同步淘汰策略，吞吐量降低怎么办？改为异步。
+
+
+
+
 
 如果下面的list中有10个item，删除后，会剩下几个？这种情况还可以用于分页吗？缓存分页是怎么做的？
 
@@ -307,4 +353,22 @@ void updateUserFocus(UserFocus userFocus);
 
 
 
+
+### 待整理
+
+guava 的单线程回源
+
+```java
+LoadingCache<String, String> cache = CacheBuilder
+           .newBuilder()
+           .refreshAfterWrite(4L, TimeUnit.SECONDS)
+           .expireAfterWrite(5L, TimeUnit.SECONDS)
+           .build(loader);
+```
+
+
+
+guava 后台异步刷新
+
+https://www.dazhuanlan.com/li_xl/topics/986612
 
