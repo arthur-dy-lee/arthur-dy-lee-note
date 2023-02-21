@@ -277,6 +277,10 @@ Http和RPC区别和关系？gRPC如何封装http2的？https://www.zhihu.com/que
 
 布隆过滤器大小如何设置？HBase是设置的多少？
 
+类加载器如何卸载字节码？
+
+Google开源工具包Guava提供了限流工具类RateLimiter，该类基于令牌桶算法来完成限流。有空看看啊。
+
 
 
 #### caffeine 

@@ -6,7 +6,7 @@ HashMap是Java程序员使用频率最高的用于映射(键值对)处理的数�
 
 Java为数据结构中的映射定义了一个接口java.util.Map，此接口主要有四个常用的实现类，分别是HashMap、Hashtable、LinkedHashMap和TreeMap，类继承关系如下图所示：
 
-![](blogpic/Map-extend-relationship.png)
+![](pics/Map-extend-relationship.png)
 
 下面针对各个实现类的特点做一些说明：
 
@@ -28,7 +28,7 @@ Java为数据结构中的映射定义了一个接口java.util.Map，此接口主
 
 从结构实现来讲，HashMap是数组+链表+红黑树（JDK1.8增加了红黑树部分）实现的，如下如所示。
 
-![](blogpic/table.png)
+![](pics/table.png)
 
 这里需要讲明白两个问题：数据底层具体存储的是什么？这样的存储方式有什么优点呢？
 
@@ -118,13 +118,13 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 
 下面举例说明下，n为table的长度。
 
-![](blogpic/hash1.png)
+![](pics/hash1.png)
 
 ### 2. 分析HashMap的put方法
 
 HashMap的put方法执行过程可以通过下图来理解，自己有兴趣可以去对比源码更清楚地研究学习。
 
-![](blogpic/put.png)
+![](pics/put.png)
 
 ①.判断键值对数组table[i]是否为空或为null，否则执行resize()进行扩容；
 
@@ -256,19 +256,19 @@ newTable[i]的引用赋给了e.next，也就是使用了单链表的头插入方
 
 下面举个例子说明下扩容过程。假设了我们的hash算法就是简单的用key mod 一下表的大小（也就是数组的长度）。其中的哈希桶数组table的size=2， 所以key = 3、7、5，put顺序依次为 5、7、3。在mod 2以后都冲突在table[1]这里了。这里假设负载因子 loadFactor=1，即当键值对的实际大小size 大于 table的实际大小时进行扩容。接下来的三个步骤是哈希桶数组 resize成4，然后所有的Node重新rehash的过程。
 
-![](blogpic/resize1.png)
+![](pics/resize1.png)
 
 下面我们讲解下JDK1.8做了哪些优化。经过观测可以发现，我们使用的是2次幂的扩展(指长度扩为原来2倍)，所以，元素的位置要么是在原位置，要么是在原位置再移动2次幂的位置。看下图可以明白这句话的意思，n为table的长度，图（a）表示扩容前的key1和key2两种key确定索引位置的示例，图（b）表示扩容后key1和key2两种key确定索引位置的示例，其中hash1是key1对应的哈希与高位运算结果。
 
-![](blogpic/resize2.png)
+![](pics/resize2.png)
 
 元素在重新计算hash之后，因为n变为2倍，那么n-1的mask范围在高位多1bit(红色)，因此新的index就会发生这样的变化：
 
-![](blogpic/resize3.png)
+![](pics/resize3.png)
 
 因此，我们在扩充HashMap的时候，不需要像JDK1.7的实现那样重新计算hash，只需要看看原来的hash值新增的那个bit是1还是0就好了，是0的话索引没变，是1的话索引变成“原索引+oldCap”，可以看看下图为16扩充为32的resize示意图：
 
-![](blogpic/resize4.png)
+![](pics/resize4.png)
 
 这个设计确实非常的巧妙，既省去了重新计算hash值的时间，而且同时，由于新增的1bit是0还是1可以认为是随机的，因此resize的过程，均匀的把之前的冲突的节点分散到新的bucket了。这一块就是JDK1.8新增的优化点。有一点注意区别，JDK1.7中rehash的时候，旧链表迁移新链表的时候，如果在新表的数组索引位置相同，则链表元素会倒置，但是从上图可以看出，JDK1.8不会倒置。有兴趣的同学可以研究下JDK1.8的resize源码，写的很赞，如下:
 
@@ -389,25 +389,25 @@ public class HashMapInfiniteLoop {
 
 通过设置断点让线程1和线程2同时debug到transfer方法(3.3小节代码块)的首行。注意此时两个线程已经成功添加数据。放开thread1的断点至transfer方法的“Entry next = e.next;” 这一行；然后放开线程2的的断点，让线程2进行resize。结果如下图。
 
-![](blogpic/resize5.png)
+![](pics/resize5.png)
 
 注意，Thread1的 e 指向了key(3)，而next指向了key(7)，其在线程二rehash后，指向了线程二重组后的链表。
 
 线程一被调度回来执行，先是执行 newTalbe[i] = e， 然后是e = next，导致了e指向了key(7)，而下一次循环的next = e.next导致了next指向了key(3)。
 
-![](blogpic/resize6.png)
+![](pics/resize6.png)
 
 
 
 
 
-![](blogpic/resize7.png)
+![](pics/resize7.png)
 
 e.next = newTable[i] 导致 key(3).next 指向了 key(7)。注意：此时的key(7).next 已经指向了key(3)， 环形链表就这样出现了。
 
 
 
-![](blogpic/resize8.png)
+![](pics/resize8.png)
 
 于是，当我们用线程一调用map.get(11)时，悲剧就出现了——Infinite Loop。
 
@@ -493,7 +493,7 @@ public static void main(String[] args) {
 
 在测试中会查找不同的值，然后度量花费的时间，为了计算getKey的平均时间，我们遍历所有的get方法，计算总的时间，除以key的数量，计算一个平均值，主要用来比较，绝对值可能会受很多环境因素的影响。结果如下：
 
-![](blogpic/compare.png)
+![](pics/compare.png)
 
 
 
@@ -518,7 +518,7 @@ class Key implements Comparable<Key> {
 
 仍然执行main方法，得出的结果如下表所示：
 
-![](blogpic/compare2.png)
+![](pics/compare2.png)
 
 从表中结果中可知，随着size的变大，JDK1.7的花费时间是增长的趋势，而JDK1.8是明显的降低趋势，并且呈现对数增长稳定。当一个链表太长的时候，HashMap会动态的将它替换成一个红黑树，这话的话会将时间复杂度从O(n)降为O(logn)。hash算法均匀和不均匀所花费的时间明显也不相同，这两种情况的相对比较，可以说明一个好的hash算法的重要性。
 
