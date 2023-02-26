@@ -388,6 +388,10 @@ AbstractServerThread是**Acceptor**线程和**Processor**线程的抽象基类�
 
 ### 3.3 存储模型和文件系统
 
+消息的可靠性由多副本机制来保障，而不是由同步刷盘这种严重影响性能的行为来保障。
+
+国内部分银行在使用kafka时就会设置副本数为5。同时，如果能够在分配分区副本的时候引入机架信息(broker.rack参数)，那么还要应对机架整体宕机的风险。
+
 #### 3.3.1 副本同步
 
 我们知道,kafka每个topic的partition会有N个副本，kafka通过多副本机制实现故障自动转移，当kafka集群中一个broker失效情况下，会在N个副本中重新选出一个broker作为leader提供服务，从而做到高可用。N个副本中，其中一个为leader，其他的都为follower，**leader处理partition的所有读写请求**，follower会定期地复制leader上的数据。
