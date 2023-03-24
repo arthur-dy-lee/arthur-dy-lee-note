@@ -23,27 +23,63 @@
 
 [设计模式](设计模式/设计模式.md)
 
-## 1. 分布式
-### 分布式协议
+## 四、 分布式
+
 #### 
 
 
-## 2. 中间件和框架
-### 2.1 Kafka
+## 五、中间件和框架
+### 5.1 Kafka
 [Kafka笔记](kafka/kafka_note.md)
-### 2.2 netty
+
+### 5.2 netty
 [netty笔记](netty/Netty_note.md)
-### 2.3 spring
-#### [spring-reference](spring-ref.md)
-#### [spring源码设计模式分析-单例模式](spring源码设计模式分析-单例模式.md)
+
+### 5.3 spring
+#### [spring](spring/-spring.md)
+
+#### 5.3.1 IOC
+[spring-IOC-Bean-Life-Cycle](spring/spring-IOC/spring-IOC-Bean-Life-Cycle.md)
+[spring-IOC#finishBeanFactoryInitialization](spring/spring-IOC/spring-IOC#finishBeanFactoryInitialization&getBean.md)
+[spring-IOC#invokeBeanFactoryPostProcessors](spring/spring-IOC/spring-IOC#invokeBeanFactoryPostProcessors.md)
+[spring-IOC#obtainFreshBeanFactory](spring/spring-IOC/spring-IOC#obtainFreshBeanFactory.md)
+
+#### 5.3.2 AOP
+[1.spring-AOP-IOC的启动](spring/spring-AOP/1.spring-AOP-IOC的启动.md)
+[2.spring-AOP-ConfigBeanDefinitionParser解析器](spring/spring-AOP/2.spring-AOP-ConfigBeanDefinitionParser解析器.md)
+[3.AspectJAwareAdvisorAutoProxyCreator创建代理对象](spring/spring-AOP/3.AspectJAwareAdvisorAutoProxyCreator创建代理对象.md)
+[4.spring-AOP-invoke调用](spring/spring-AOP/4.spring-AOP-invoke调用.md)
+[AspectJAwareAdvisorAutoProxyCreator](spring/spring-AOP/AspectJAwareAdvisorAutoProxyCreator.md)
+[AOP相关.md](spring/spring-AOP/AOP相关.md)
+
+#### 5.3.3 springmvc
+[spring](spring/spring-mvc/spring-mvc-note.md)
+[简述Spring容器与SpringMVC的容器的联系与区别](简述Spring容器与SpringMVC的容器的联系与区别 - CSDN博客.mhtml)
+
+#### 5.3.4 spring-transaction
+[spring-transaction](spring/spring-transaction/spring-transaction)
+
+#### 5.3.5 spring-boot
+[springboot使用笔记](spring/spring-boot/springboot使用笔记.md)
+[简单摘要记录](spring/spring-boot/简单摘要记录.md)
+
+#### 5.3.6 spring-design-patterns
+
+[spring源码设计模式分析-单例模式](spring/spring-design-patterns/spring源码设计模式分析-单例模式.md)
+[Spring-Design-Patterns](spring/spring-design-patterns/Spring-Design-Patterns.md)
+[学以致用之NamespaceHandlerSupports](spring/spring-design-patterns/学以致用之NamespaceHandlerSupport.md)
+
+#### 5.3.7 spring其它
+[Spring-Aware接口](spring/Spring-Aware接口.md)
 
 
+## 六、数据库
+### Mysql
+[Mysql](Mysql/-Mysql.md)
+[mysql锁](Mysql/mysql锁.md)
+[MySQL索引背后的数据结构及算法原理](Mysql/MySQL索引背后的数据结构及算法原理.md)
 
-## 3. 设计模式
-
-创建型模式(原工单抽建)
-结构型模式(享代装适组外桥/享元装饰外观，代理桥接适配组合)
-行为型模式(中访观模状解策命责迭备)
+## 七、
 
 ## 4. 性能优化
 
@@ -54,7 +90,8 @@
 
 1. [面试准备](interview/2020.07.24.md)
 2. [-分布式与中间件](interview/-分布式与中间件.md)
-3. [-秒杀](interview/-秒杀.md)
+3. 应用
+   [-秒杀](biz/秒杀.md)
 4. [-数据库](interview/-数据库.md)
 5. [-算法](interview/-算法.md)
 6. [-网络](interview/-网络.md)

@@ -131,7 +131,7 @@ BeanPostProcessor：bean后置处理器，bean创建对象初始化前后进行�
 
 #### Spring框架是怎么解决Bean之间的循环依赖的
 
-![](/Users/lidongyue/codes/GitHub/arthur-dy-lee-note/interview/pics/Spring中Bean的管理.png)
+![](pics/Spring中Bean的管理.png)
 
 先调用构造函数进行实例化，然后填充属性，再接着进行其他附加操作和初始化，正是这样的生命周期，才有了Spring的解决循环依赖，这样的解决机制是根据Spring框架内定义的三级缓存来实现的，也就是说：三级缓存解决了Bean之间的循环依赖。我们从源码中来说明。
 
@@ -312,7 +312,7 @@ EventPublishingRunListener 类实现了SpringApplicationRunListener接口，那�
 第一步，准备环境environment
 environment包括application.properties和servletContextInitParams
 
-![](/Users/lidongyue/codes/GitHub/arthur-dy-lee-note/interview/pics/environment.png)
+![](pics/environment.png)
 
 第二步，创建IOC容器：org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext
 createApplicationContext方法,创建AnnotationConfigServletWebServerApplicationContext类
