@@ -13,9 +13,15 @@
 
 [《Java性能优化》笔记](读书笔记/《Java性能优化》笔记.md)
 
-## 二、软件方法论
+## 二、软件方法
 
-[软件方法论](DDD.md)
+### 2.1 管理和软技能
+
+- [软技能](软件方法/-软技能.md)
+
+### 2.2 软件过程
+
+ - [DDD](DDD.md)
 
 更多待完善
 
@@ -25,20 +31,27 @@
 
 ## 四、 分布式
 
-#### 
+- [分布式](distributed/-分布式.md)
+- [raft](raft/raft.md)
 
 
 ## 五、中间件和框架
 ### 5.1 Kafka
-[Kafka笔记](kafka/kafka_note.md)
+- [Kafka笔记](kafka/kafka_note.md)
+
+### 5.2 redis
+
+- [redis](redis/redis.md)
 
 ### 5.2 netty
-[netty笔记](netty/Netty_note.md)
+- [netty笔记](netty/-netty.md)
+- [netty-promise-future](netty/netty-promise-future.md)
 
 ### 5.3 spring
 #### [spring](spring/-spring.md)
 
 #### 5.3.1 IOC
+
  - [spring-IOC-Bean-Life-Cycle](spring/spring-IOC/spring-IOC-Bean-Life-Cycle.md)
  - [spring-IOC#finishBeanFactoryInitialization](spring/spring-IOC/spring-IOC#finishBeanFactoryInitialization&getBean.md)
  - [spring-IOC#invokeBeanFactoryPostProcessors](spring/spring-IOC/spring-IOC#invokeBeanFactoryPostProcessors.md)
@@ -75,34 +88,65 @@
 #### 5.3.7 spring其它
  - [Spring-Aware接口](spring/Spring-Aware接口.md)
 
+### 5.4 Mybatis
+
+- [mybatis](mybatis/mybatis源码分析以及整合spring过程.md)
+
+### 5.5 kubernetes
+
+### 5.6 hbase
+
+- [hbase](hbase/-hbase.md)
 
 ## 六、数据库
+
 ### Mysql
  - [Mysql](Mysql/-Mysql.md)
  - [mysql锁](Mysql/mysql锁.md)
  - [MySQL索引背后的数据结构及算法原理](Mysql/MySQL索引背后的数据结构及算法原理.md)
 
-## 七、
+## 七、Linux
 
-## 4. 性能优化
+[Linux](Linux/-Linux.md)
 
-[Java性能优化笔记](Java性能优化笔记.md)
+## 八、coreJava
 
+- [coreJava](coreJava-coreJava.md)
+- [JVM](JVM/JVM调优.md)
+- [JVM调优参数](JVM/JVM参数.xlsx)
 
-## 5. 面试
+## 九、业务相关
+
+- [秒杀](biz/秒杀.md)
+
+## 十、面试
 
 1. [面试准备](interview/2020.07.24.md)
-2. [-分布式与中间件](interview/-分布式与中间件.md)
-3. 应用
+2. [-分布式](distributed/-分布式.md)
+3. 中间件
+   - [Kafka笔记](kafka/kafka_note.md)
+   - [netty笔记](netty/Netty_note.md)
+   - [mybatis](mybatis/mybatis源码分析以及整合spring过程.md)
+   - [中间件](interview/-中间件.md)
+4. coreJava
+   - [coreJava](coreJava/-coreJava.md)
+   - [Java线程池实现原理及其在美团业务中的实践](coreJava/Java线程池实现原理及其在美团业务中的实践.md)
+   - [java多线程系列_让主线程等待子任务执行的各种方式](coreJava/java多线程系列_让主线程等待子任务执行的各种方式.md)
+   - [IO - 同步，异步，阻塞，非阻塞](coreJava/IO - 同步，异步，阻塞，非阻塞.md)
+5. [spring](spring/-spring.md)
+6. 应用
    [-秒杀](biz/秒杀.md)
-4. [-数据库](interview/-数据库.md)
-5. [-算法](interview/-算法.md)
-6. [-网络](interview/-网络.md)
-7. [-线上问题定位](interview/-线上问题定位.md)
-8. [-coreJava](interview/-coreJava.md)
-9. [-JVM](interview/-JVM.md)
-10. [-Linux](interview/-Linux.md)
-11. [-spring](interview/-spring.md)
+7. 数据库
+   - [Mysql](Mysql/-Mysql.md)
+   - [Mysql锁原理](Mysql/mysql锁.md)
+   - [MySQL索引背后的数据结构及算法原理](Mysql/MySQL索引背后的数据结构及算法原理.md)
+8. [-线上问题定位](interview/-线上问题定位.md)
+9. [-JVM](JVM/-JVM.md)
+10. [-Linux](Linux/-Linux.md)
+11. [-网络](interview/-网络.md)
+12. 其它
+    - [客户端发起一次请求都经历了什么](interview/客户端发起一次请求都经历了什么.xmind)
+13. [-算法](interview/-算法.md)
 
 
 
