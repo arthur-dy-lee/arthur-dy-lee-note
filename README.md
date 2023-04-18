@@ -38,7 +38,7 @@
 - [raft](raft/raft.md)
 - [raft原论文中文翻译](raft/raft-zh_cn/raft-zh_cn.md)
 - [raft英文(小)论文](https://ramcloud.atlassian.net/wiki/download/attachments/6586375/raft.pdf)
-- [raft英文(大)论文: raft_In Search of an Understandable Consensus Algorithm](raft/raft-zh_cn/raft_In Search of an Understandable Consensus Algorithm.pdf)
+- [raft英文(大)论文: raft_In Search of an Understandable Consensus Algorithm](raft/raft_In Search of an Understandable Consensus Algorithm.pdf)
 
 
 ## 五、中间件和框架
