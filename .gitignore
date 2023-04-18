@@ -85,3 +85,6 @@ buildNumber.properties
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
 
+
+#如果你添加.gitignore的时候，git里面已经上传了很多不需要的文件，则使用下面命令删除他们，如删除.DS_Store文件
+#find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch
