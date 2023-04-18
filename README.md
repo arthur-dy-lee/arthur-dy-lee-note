@@ -31,8 +31,13 @@
 
 ## 四、 分布式
 
+### 4.1 分布式理论
 - [分布式](distributed/-分布式.md)
+
+### 4.2 raft
 - [raft](raft/raft.md)
+- [raft原论文中文翻译](raft/raft-zh_cn/raft-zh_cn.md)
+- [英文论文地址](https://ramcloud.atlassian.net/wiki/download/attachments/6586375/raft.pdf)
 
 
 ## 五、中间件和框架
