@@ -21,3 +21,70 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+.DS_Store
+*/.DS_Store
+
+*.sar
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.iso
+*.dmg
+*.rpm
+
+# Eclipse project files
+.classpath
+.project
+.settings/
+
+
+# Intellij project files
+*.iml
+.idea/
+
+# project
+application-local.properties
+build/
+
+# Mobile Tools for Java
+.mtj.tmp/
+
+# BlueJ files
+*.ctxt
+
+# virtual machine crash logs
+hs_err_pid*
+
+# tmp
+tmp/
+temp/
+
+#OS generated files
+.DS_Store
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+## maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
+!/.mvn/wrapper/maven-wrapper.jar
+
+
+#如果你添加.gitignore的时候，git里面已经上传了很多不需要的文件，则使用下面命令删除他们，如删除.DS_Store文件
+#find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch
