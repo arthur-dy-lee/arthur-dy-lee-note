@@ -157,15 +157,11 @@ ObjectMonitor() {
 
 多个线程访问同一个类的synchronized方法时, 都是串行执行的 ! 就算有多个cpu也不例外 ! synchronized方法使用了类java的内置锁, 即锁住的是方法所属对象本身. 同一个锁某个时刻只能被一个执行线程所获取, 因此其他线程都得等待锁的释放. 因此就算你有多余的cpu可以执行, 但是你没有锁, 所以你还是不能进入synchronized方法执行, CPU因此而空闲. 如果某个线程长期持有一个竞争激烈的锁, 那么将导致其他线程都因等待所的释放而被挂起, 从而导致CPU无法得到利用, 系统吞吐量低下. 因此要尽量避免某个线程对锁的长期占有 ! 
 
-
-
 ####  一个类的static构造方法加上synchronized之后的锁的影响。 
 
 synchronized是一般对类的**当前实例（当前对象）**进行加锁，防止其他线程同时访问该类的该实例的所有synchronized块，注意这里是“类的当前实例”， 类的两个不同实例就没有这种约束了。
 
-那么static synchronized恰好就是要控制类的所有实例的并发访问，static synchronized是限制多线程中该类的所有实例同时访问jvm中该类所对应的代码块。实际上，在类中如果某方法或某代码块中有 synchronized，那么在生成一个该类实例后，该实例也就有一个监视块，防止线程并发访问该实例的synchronized保护块，而static synchronized则是所有该类的所有实例公用得一个监视块，这就是他们两个的区别。也就是说synchronized相当于 this.synchronized，而static synchronized相当于AClass.synchronized.
-
-
+那 么static synchronized恰好就是要控制类的所有实例的并发访问，static synchronized是限制多线程中该类的所有实例同时访问jvm中该类所对应的代码块。实际上，在类中如果某方法或某代码块中有 synchronized，那么在生成一个该类实例后，该实例也就有一个监视块，防止线程并发访问该实例的synchronized保护块，而static synchronized则是所有该类的所有实例公用得一个监视块，这就是他们两个的区别。也就是说synchronized相当于 this.synchronized，而static synchronized相当于AClass.synchronized.
 
 ### 1.3 AQS（AbstractQueuedSynchronizer）
 
@@ -276,15 +272,10 @@ ReentrantLock的基本实现可以概括为：先通过CAS尝试获取锁。如�
 4. 非公平锁就是当前线程每次获取锁，获取不到在排队。
 5. 公平锁就是都是获取锁的顺序按队伍的顺序来，当前线程不会去获取锁，直接取排队。
 6. ReentrantLock是利用AQS实现，AQS就是定义了一个依赖于先进先出队列来实现阻塞锁和同步器的框架。
-7. 
-
-
-
-
 
 ##### API: reentrantLock#lockInterruptibly
 
-lockInterruptibly()方法比较特殊，当通过这个方法去获取锁时，如果其他线程正在等待获取锁，则这个线程能够响应中断，即中断线程的等待状态。也就使说，当两个线程同时通过lock.lockInterruptibly()想获取某个锁时，假若此时线程A获取到了锁，而线程B只有等待，那么对线程B调用threadB.interrupt()方法能够中断线程B的等待过程，线程B想不等等的时候就可以不等。
+lockInterruptibly()方法比较特殊，当通过这个方法去获取锁时，如果其他线程正在等待获取锁，则这个线程能够响应中断，即中断线程的等待状态。也就使说，当两个线程同时通过lock.lockInterruptibly()想获取某个锁时，假若此时线程A获取到了锁，而线程B只有等待，那么对线程B调用threadB.interrupt()方法能够中断线程B的等待过程，线程B想不等的时候就可以不等。
 
 lock.lock()和lock.lockInterruptibly()在等待获取锁的时候，线程的interrupt()无法打断lock.lock()，但是可以打断lock.lockInterruptibly()。 
 

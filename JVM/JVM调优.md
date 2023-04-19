@@ -12,17 +12,17 @@
 
 ### 3.1 JDK的垃圾回收大家庭
 
-![](blogpic/JDK的垃圾回收大家庭.jpg)
+![](pics/JDK的垃圾回收大家庭.jpg)
 
  不同类型垃圾回收器比较
 
-![](blogpic/不同类型垃圾回收器比较.png)
+![](pics/不同类型垃圾回收器比较.png)
 
 
 
 ###  3.2 串行收集器Serial
 
-![](blogpic/串行收集器.jpg)
+![](pics/串行收集器.jpg)
 
 
 
@@ -44,7 +44,7 @@
 
 ### 3.3 并行回收Parallel
 
-![](blogpic/并行收集器.jpg)
+![](pics/并行收集器.jpg)
 
 并行收集器是以关注吞吐量为目标的垃圾收集器，也是server模式下的默认收集器配置，对吞吐量的关注主要体现在年轻代Parallel Scavenge收集器上。
 
@@ -66,7 +66,7 @@
 
 ### 3.4 并发标记回收Concurrent-Mark-Sweep
 
-![](blogpic/并发标记清除收集器.jpg)
+![](pics/并发标记清除收集器.jpg)
 
 并发标记清除(CMS)是以关注延迟为目标，开启后，年轻代使用STW式的并行收集，老年代回收采用CMS进行垃圾回收，对延迟的关注也主要体现在老年代CMS上。
 
@@ -101,7 +101,7 @@
 
 ### 3.5 垃圾优先回收G1
 
-![](blogpic/G1.jpg)
+![](pics/G1.jpg)
 
 G1 GC，全称Garbage-First Garbage Collector，通过-XX:+UseG1GC参数来启用，作为体验版随着JDK 6u14版本面世，在JDK 7u4版本发行时被正式推出，相信熟悉JVM的同学们都不会对它感到陌生。在JDK 9中，G1被提议设置为默认垃圾收集器（JEP 248）。在官网中，是这样描述G1的：
 
@@ -153,13 +153,13 @@ G1收集器的设计目标是取代CMS收集器，它同CMS相比，在以下方
 Region
 传统的GC收集器将连续的内存空间划分为新生代、老年代和永久代（JDK 8去除了永久代，引入了元空间Metaspace），这种划分的特点是各代的存储地址（逻辑地址，下同）是连续的。如下图所示：传统GC内存布局
 
-![](/Users/lidongyue/codes/arthur-dy-lee-note/JVM调优/blogpic/传统GC内存布局.png)
+![](pics/传统GC内存布局.png)
 
 传统GC内存布局
 
 而G1的各代存储地址是不连续的，每一代都使用了n个不连续的大小相同的Region，每个Region占有一块连续的虚拟内存地址。如下图所示：g1 GC内存布局
 
-![](/Users/lidongyue/codes/arthur-dy-lee-note/JVM调优/blogpic/g1 GC内存布局.png)
+![](pics/g1 GC内存布局.png)
 
 g1 GC内存布局
 
@@ -187,7 +187,7 @@ g1 GC内存布局
 
 #### 4.2.3 CSet
 
-![](blogpic/CSet.jpg)
+![](pics/CSet.jpg)
 
 收集集合(CSet)代表每次GC暂停时回收的一系列目标分区。在任意一次收集暂停中，CSet所有分区都会被释放，内部存活的对象都会被转移到分配的空闲分区中。因此无论是年轻代收集，还是混合收集，工作的机制都是一致的。年轻代收集CSet只容纳年轻代分区，而混合收集会通过启发式算法，在老年代候选回收分区中，筛选出回收收益最高的分区添加到CSet中。
 
@@ -215,7 +215,7 @@ g1 GC内存布局
 
 
 
-![](/Users/lidongyue/codes/arthur-dy-lee-note/JVM调优/blogpic/虚拟机使用Rembered Set来避免全堆扫描.png)
+![](pics/虚拟机使用Rembered Set来避免全堆扫描.png)
 
 #### 4.2.5 Per Region Table (PRT)
 
@@ -255,7 +255,7 @@ TLAB空间的内存非常小，缺省情况下仅占有整个Eden空间的1%，�
 
 #### 4.2.8 LAB(Local allocation buffer )
 
-![](blogpic/LAB.jpg)
+![](pics/LAB.jpg)
 
 本地分配缓冲 Local allocation buffer (Lab)
 
@@ -286,7 +286,7 @@ TLAB空间的内存非常小，缺省情况下仅占有整个Eden空间的1%，�
 
 G1垃圾收集活动汇总
 
-![](blogpic/G1垃圾收集活动汇总.jpg)
+![](pics/G1垃圾收集活动汇总.jpg)
 
 
 
@@ -298,7 +298,7 @@ G1垃圾收集活动汇总
 
 
 
-![](blogpic/Write-Barrrier.jpg)
+![](pics/Write-Barrrier.jpg)
 
 栅栏 Barrier
 
@@ -346,7 +346,7 @@ G1中使用基于Urs Hölzle的快速写栅栏，将栅栏开销缩减到2个额
 
 ##### 并发标记线程 Concurrent Marking Threads
 
-![](blogpic/Concurrent Marking Threads.jpg)
+![](pics/Concurrent Marking Threads.jpg)
 
 要标记存活的对象，每个分区都需要创建位图(Bitmap)信息来存储标记数据，来确定标记周期内被分配的对象。G1采用了两个位图Previous Bitmap、Next Bitmap，来存储标记数据，Previous位图存储上次的标记数据，Next位图在标记周期内不断变化更新，同时Previous位图的标记数据也越来越过时，当标记周期结束后Next位图便替换Previous位图，成为上次标记的位图。同时，每个分区通过顶部开始标记(TAMS top-at-mark-start)，来记录已标记过的内存范围。同样的，G1使用了两个顶部开始标记Previous TAMS(PTAMS)、Next TAMS(NTAMS)，记录已标记的范围。
 

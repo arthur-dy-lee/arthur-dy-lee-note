@@ -1,5 +1,23 @@
 ## 一、JVM组成
 
+### JVM组成
+
+![](pics/JVM-compose.png)
+
+  JVM由4部分组成
+
+  1、Class Loader 类加载器类加载器的作用是加载类文件到内存，Class Loader只管加载，只要符合文件结构就加载，至于说能不能运行，则不是它负责的，那是由Execution Engine负责的。
+
+  2、Runtime Data Area 运行时数据区
+
+  3、Execution Engine 执行引擎执行引擎也叫做解释器(Interpreter)，负责解释命令，提交操作系统执行。
+
+  4、Native Interface本地接口本地接口的作用是融合不同的编程语言为Java所用。在内存中专门开辟了一块区域处理标记为native的代码，它的具体做法是Native Method Stack中登记native方法，在Execution Engine执行时加载native libraies。
+
+### JVM内存区域划分
+
+![](pics/memo-area.png)
+
 
 
 ### 堆外内存
@@ -119,9 +137,6 @@ Parallel Scavenge收集器的特点是它的关注点与其他收集器不同，
 Parallel Scavenge收集器百也经常称为“吞吐量优先”收集器
 Parallel Scavenge收集器提供了两度个参数用于精确控制吞吐量; -XX:MaxGCPauseMillis：控制最大垃圾收专集停顿时间; -XX:GCTimeRatio：设置吞吐量大小
 自适应调节策略也是Parallel Scavenge收集器与属ParNew收集器的一个重要区别
-
-
-#### 
 
 
 
@@ -375,8 +390,6 @@ byte[] buffer = new byte[300];
 
 
 ## 五、JVM调优实例
-
-### 
 
 [一步步优化JVM五：优化延迟或者响应时间(1)](https://blog.csdn.net/zhoutao198712/article/details/7791969)
 
