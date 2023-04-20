@@ -225,6 +225,12 @@ Kafka采取拉取模型(poll)，由自己控制消费速度，以及消费的进
 >
 >所以kafka推出这一个功能，就是帮助类似这种场景，节约流量资源。
 
+**再平衡触发三种情况**
+
+- consumer group中的新增或删除某个consumer，导致其所消费的分区需要分配到组内其他的consumer上；
+- consumer订阅的topic发生变化，比如订阅的topic采用的是正则表达式的形式，如`test-*`此时如果有一个新建了一个topic `test-user`，那么这个topic的所有分区也是会自动分配给当前的consumer的，此时就会发生再平衡；
+- consumer所订阅的topic发生了新增分区的行为，那么新增的分区就会分配给当前的consumer，此时就会触发再平衡。
+
 #### 3.1.8 消费者组
 
 Consumer Grep (CG)： 消费者组，有多个consumer组成，形成一个消费者组的条件是所有的消费者的groupid相同
@@ -245,7 +251,13 @@ Consumer Grep (CG)： 消费者组，有多个consumer组成，形成一个消�
 
   如果想完成consumer端的精准一次性消费，那么需要 **kafka消费端将消费过程和提交offset过程做原子绑定。** 此时我们需要将kafka的offset保存到支持事务的自定义介质如MySQL中。
 
-#### 3.2.0 Kraft
+#### 3.1.10 Coordinator
+
+coordinator专门为 Consumer Group 服务，负责**Group Rebalance** 以及提供**位移管理**和**组成员管理**等。
+
+每个consumer group都会选择一个broker作为自己的coordinator，他是负责监控这个消费组里的各个消费者的心跳，以及判断是否宕机，然后开启rebalance。Kafka总会把你的各个消费组均匀分配给各个Broker作为coordinator来进行管理的。
+
+#### 3.1.11 Kraft
 
 替代zk
 
@@ -1178,7 +1190,36 @@ rocketMq中，所有的队列都存储在一个文件中，每个队列的存储
 
 ![](pics/delete_topic.png)
 
+#### 6.29 consumer 再平衡步骤
 
+**coordinator**:协调者，负责消费者组内成员的leader选举、组内再平衡、组offset提交等功能。
+
+**再平衡触发三种情况**
+
+- 组成员发生变更(新consumer加入组、已有consumer主动离开组或已有consumer崩溃了）
+- 订阅主题数发生变更——这当然是可能的，如果你使用了正则表达式的方式进行订阅，那么新建匹配正则表达式的topic就会触发rebalance
+- 订阅主题的分区数发生变更
+
+![](pics/consumer_rebalance.png)
+
+**consumer 再平衡步骤**
+
+1. 每个consumer都发送JoinGroup请求
+2. coordinator选出一个 consumer作为 leader。如果消费组内没有leader，那么第一个加入消费组的消费者就是消费者 leader，如果这个时候leader消费者退出了消费组，那么重新选举一个
+3. 把要消费的 topic 情况 发送给leader 消费者
+4. leader会负责制定消费方案
+5. 把消费方案发给 coordinator
+6. Coordinator 就把消费方案下发给各个consumer
+7. 每个消费者都会和 coordinator 保持心跳（ 默认 3s ），一旦超时 session.timeout.ms= 45s ），该消费者会被移除，并触发再平衡；或者消费者处理消息的过长（max.poll.interval.ms 5 分钟），也会触发再 平衡
+
+**分区分配策略的选择**
+
+每个消费者都可以设置自己的分区分配策略，消费组内的各个消费者会通过投票来决定
+
+1. 在joingroup阶段，每个consumer都会把自己支持的分区分配策略发送到coordinator
+2.  coordinator收集到所有消费者的分配策略，组成一个候选集
+3.  每个消费者需要从候选集里找出一个自己支持的策略，并且为这个策略投票
+4.  最终计算候选集中各个策略的选票数，票数最多的就是当前消费组的分配策略 
 
 
 
