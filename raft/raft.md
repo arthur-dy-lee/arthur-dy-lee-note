@@ -442,6 +442,32 @@ zab 的解决方法就是当recovery 的时候, 将leader 上面的所有日志�
 
 在 "Vive La Diffe ́rence:Paxos vs. Viewstamped Replication vs. Zab" 这个论文里面, state machine replication 也称作active replication, 而primary-backup system 也称作passive replication, 这样更加的形象, 也就是 state machine replication 是主动去同步数据, 通过达成一致性协议来返回给client, 而primary-backup system 是primary 做了所有了事情, 只是通过一致性协议把数据保存在backups 里面
 
+### 7.6 提交流程
+
+#### Zab提交流程
+
+**原子广播是一个两阶段提交，流程**：
+
+1. 节点A接到任何客户端写入请求都要转发到leader
+2. leader生成zxid，封装请求为proposal发给所有followers的FIFO队列
+3. follower接到后proposal，先写transactionlog事务日志，然后回复leader ack（3.7.0版本此处新增了异步发送特性zookeeper.learner.asyncSending[[1\]](https://zhuanlan.zhihu.com/p/438010804#ref_1)）。
+4. leader接到半数以上ack后commit，再向所有follower发commit、所有observer发proposal。具体源码：Leader#processAck中，**leader先判断上个zxid是否还存在，只有不存在才继续**，之后再利用SyncedLearnerTracker#hasAllQuorums判断是否达到半数以上ack，判断半数以上ack有两种实现，一种是分组得分制（QuorumHierarchical）、一种是ack计数制。
+5. follower接到并执行commit后回复leader ack，这里有一点，如果提交的zxid不是follower最近pending的那个（存储于pendingTxns），也就是可能网络丢包或绕路了，那**follower直接退出**。
+6. 节点A执行后，向客户端返回response
+
+#### raft日志复制完整流程
+
+1. leader append log entry
+2. leader issue AppendEntries RPC in parallel
+3. leader wait for majority response  //应该已经commited了 todo
+4. leader apply entry to state machine
+5. leader reply to client    // <-- **获得半数回复后，就会追加到状态机中了，后面就开始回复client了**
+6. leader notify follower apply log   //**不需要等follower apply log后再返回客户端**
+
+原子广播2PC中，第一步leader会发送proposal到follower，半数节点以上ack才进行commit，如果没有半数节点ack呢？或者半数以上节点拒绝了呢？传统数据库2PC会进行回滚，ZooKeeper的话，leader会下台，如果选举后新的leader内存中存在这个未commit的proposal，才会再次尝试提交。raft如果无法获取半数以上，则无法使日志变成committed状态，无法追回日志。
+
+
+
 ## 八 QA
 
 ### 8.1 Q：每个 Follower 都在其磁盘上存储了 3 个信息：当前任期（currentTerm）、最近的投票（votedFor）、以及所有接受的日志记录（log[]）。 
