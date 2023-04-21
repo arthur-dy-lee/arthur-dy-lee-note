@@ -408,6 +408,8 @@ protected void applyInitializers(ConfigurableApplicationContext context) {
 **refreshContext刷新容器,ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）。扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）**
 调用AbstractApplicationContext#refresh方法，和传统的spring初始化容器是一样的。
 
+`invokeBeanFactoryPostProcessors(beanFactory); 这一步读springboot stater下`resoucres/META-INF/spring.factorie`的自定义的EnableAutoConfiguration
+
 ```java
 @Override
 public void refresh() throws BeansException, IllegalStateException {
@@ -423,7 +425,7 @@ public void refresh() throws BeansException, IllegalStateException {
 			postProcessBeanFactory(beanFactory);
 			// Invoke factory processors registered as beans in the context.
       //starter初始化过程
-			invokeBeanFactoryPostProcessors(beanFactory);
+			invokeBeanFactoryPostProcessors(beanFactory);  //<-- 这一步读springboot stater下META-INF/spring.factories的自定义的EnableAutoConfiguration
 			// Register bean processors that intercept bean creation.
 			registerBeanPostProcessors(beanFactory);
 			// Initialize message source for this context.
@@ -480,7 +482,9 @@ start包解析的过程是依赖springboot初始化的过程
 
 #### 自定义的starter类是什么时候加载的？
 
-`@SpringBootApplication`注解中包含了`@EnableAutoConfiguration`，而`@EnableAutoConfiguration`注解中又包含了`@Import(AutoConfigurationImportSelector.class)`注解。
+在SpringBoot的启动类，我们都会加上`@SpringBootApplication`注解。这个注解默认会引入`@EnableAutoConfiguration`注解。然后`@EnableAutoConfiguration`会`@Import(AutoConfigurationImportSelector.class)`。
+
+`AutoConfigurationImportSelector.class`的selectImports方法最终会通过`SpringFactoriesLoader.loadFactoryNames`，加载`META-INF/spring.factories`里的`EnableAutoConfiguration`配置值，也就是我们上文中设置的资源文件。
 
 下图是从StringbootApplication#run开始的调用顺序
 
@@ -498,15 +502,30 @@ protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
 }
 //
 protected Class<?> getSpringFactoriesLoaderFactoryClass() {
-  return EnableAutoConfiguration.class;
+  return EnableAutoConfiguration.class; //这个就是META-INF/spring.factories文件中的EnableAutoConfiguration
 }
+```
+
+从资源文件META-INF/spring.factories文件中，加截EnableAutoConfiguration的value，`List<String> configurations`值list为以下内容
+
+```java
+0 = "org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration"
+1 = "org.springframework.boot.autoconfigure.aop.AopAutoConfiguration"
+......
+6 = "org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration"
+7 = "org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration"
+8 = "org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration"
+9 = "org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration"
+... ...
+130 = "com.taobao.hellostarter.HelloStarterEnableAutoConfiguration" //<-- EnableAutoConfiguration的value
+131 = "cn.hutool.extra.spring.SpringUtil"
 ```
 
 自定义的starter: hello-spring-boot-starter
 
 META-INF/spring.factories中的值为
 
-```xml
+```factories
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.taobao.hellostarter.HelloStarterEnableAutoConfiguration
 ```
 
