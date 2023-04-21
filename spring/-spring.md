@@ -58,7 +58,7 @@ beanFactory主要是面对与 spring 框架的基础设施，面对 spring 自�
 
 ### 2.3 spring框架中需要引用哪些jar包，以及这些jar包的用途  
 
-#### 
+
 
 ## 三、spring原理
 
@@ -93,9 +93,9 @@ Java变量的初始化顺序为：静态变量或静态语句块（按声明顺�
 
 #### BeanFactoryPostProcessor
 
-BeanPostProcessor：bean后置处理器，bean创建对象初始化前后进行拦截工作的
+BeanPostProcessor：**bean后置处理器，bean创建对象初始化前后进行拦截工作的**
 而BeanFactoryPostProcessor：是beanFactory的后置处理器；
-调用时机：在BeanFactory标准初始化之后调用，这时所有的bean定义已经保存加载到beanFactory，但是bean的实例还未创建
+调用时机：在BeanFactory标准初始化之后调用，这时**所有的bean定义已经保存加载到beanFactory，但是bean的实例还未创建**
 能干什么：来定制和修改BeanFactory的内容，如覆盖或添加属性
 
 #### 等待所有的bean都装载完后，去做一些事情，这种一般采用什么方式
@@ -125,7 +125,7 @@ BeanPostProcessor：bean后置处理器，bean创建对象初始化前后进行�
    - 如果工程中有多个实现接口SmartLifecycle的类，则这些类的start的执行顺序按getPhase方法返回值从小到大执行。
 
 在数据初始化层面，不推荐@PostConstruct和ApplicationListener，原因是两者都会影响程序的启动，如果执行逻辑耗时很长，启动服务时间就很长。
-建议使用CommandLintRunner、ApplicationRunner的方式，不会影响服务的启动速度，处理起来也比较简单。
+建议使用CommandLineRunner、ApplicationRunner的方式，不会影响服务的启动速度，处理起来也比较简单。
 `SmartLifecycle` is available for any Spring application, not just Boot applications.
 
 
@@ -158,7 +158,7 @@ BeanPostProcessor：bean后置处理器，bean创建对象初始化前后进行�
 `new SpringApplication(primarySources).run(args);`
 
 这里分两部分：
-#### 4.1.1 创建SpringApplication对象。
+#### 4.1.1 创建SpringApplication对象
 Class<?>[] primarySources内容就是当前项目的springboot启动类。
 
 ```java
@@ -179,7 +179,7 @@ public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySourc
 
 创建SpringApplication主要是看两步：
 setInitializers和setListeners
-第一步，从类路径下找到META-INF/spring.factories配置的所有ApplicationContextInitializer，并实例化他们。
+##### 第一步，从类路径下找到META-INF/spring.factories配置的所有ApplicationContextInitializer，并实例化他们。
 `setInitializers((Collection) getSpringFactoriesInstances(
 			ApplicationContextInitializer.class));`
 
@@ -225,15 +225,17 @@ Set<String> names的值为
 6 = "org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener"
 ```
 
->1.DelegatingApplicationContextInitializer： 委派处理ApplicationContext初始化器，其需要委派处理的初始化器来自Spring环境中的context.initializer.classes属性，该属性可以使用逗号分隔多个初始化器。
->2.ContextIdApplicationContextInitializer：为ApplicationContext设置id。根据以下的配置顺序来设置，spring.application.name、vcap.application.name、spring.config.name，如果环境配置中都没有这些配置，则默认使用“application”来表示，另外还会将profiles也加入到id中去。
->3.ConfigurationWarningsApplicationContextInitializer：输出警告日志信息。
->4.ServerPortInfoApplicationContextInitializer：添加一个EmbeddedServletContainerInitializedEvent事件监听，触发设置嵌入的WEB服务启动端口。通过属性local.[namespace].port来设置启动端口，其中namespace为ApplicationContext指定的命名空间，如果命名空间为空，则使用local.server.port属性来表示配置的端口。
->5.SharedMetadataReaderFactoryContextInitializer：和Spring Boot共享CachingMetadataReaderFactory。
->6.RSocketPortInfoApplicationContextInitializer：ApplicationContextInitializer 为 RSocketServer 服务器实际侦听的端口设置环境属性。属性“local.rsocket.server.port”可以使用@Value 直接注入测试或通过环境获取。属性会自动传播到任何父上下文。
->7.ConditionEvaluationReportLoggingListener：将 ConditionEvaluationReport 写入日志的 ApplicationContextInitializer。报告记录在 DEBUG 级别。崩溃报告会触发信息输出，建议用户在启用调试的情况下再次运行以显示报告。此初始化程序不打算在多个应用程序上下文实例之间共享。
+ApplicationContextInitializer的实现类
 
-第二步，从类路径下找到META-INF/spring.factories配置的所有ApplicationListener，过程和第一步类似。
+1. DelegatingApplicationContextInitializer：**委派处理ApplicationContext初始化器**，其需要委派处理的初始化器来自Spring环境中的context.initializer.classes属性，该属性可以使用逗号分隔多个初始化器。
+2. ContextIdApplicationContextInitializer：**为ApplicationContext设置id**。根据以下的配置顺序来设置，spring.application.name、vcap.application.name、spring.config.name，**如果环境配置中都没有这些配置，则默认使用“application”来表示**，另外还会将profiles也加入到id中去。
+3. ConfigurationWarningsApplicationContextInitializer：**输出警告日志信息**。
+4. ServerPortInfoApplicationContextInitializer：添加一个EmbeddedServletContainerInitializedEvent事件监听，触发设置嵌入的WEB服务启动端口。**通过属性local.[namespace].port来设置启动端口，其中namespace为ApplicationContext指定的命名空间**，如果命名空间为空，则使用local.server.port属性来表示配置的端口。
+5. SharedMetadataReaderFactoryContextInitializer：和Spring Boot共享CachingMetadataReaderFactory。
+6. RSocketPortInfoApplicationContextInitializer：ApplicationContextInitializer 为 RSocketServer 服务器实际侦听的端口设置环境属性。属性“local.rsocket.server.port”可以使用@Value 直接注入测试或通过环境获取。属性会自动传播到任何父上下文。
+7. ConditionEvaluationReportLoggingListener：将 ConditionEvaluationReport 写入日志的 ApplicationContextInitializer。报告记录在 DEBUG 级别。崩溃报告会触发信息输出，建议用户在启用调试的情况下再次运行以显示报告。此初始化程序不打算在多个应用程序上下文实例之间共享。
+
+##### 第二步，从类路径下找到META-INF/spring.factories配置的所有ApplicationListener，过程和第一步类似。
 Listener的列表如下
 
 ```java
@@ -250,6 +252,20 @@ Listener的列表如下
 10 = "org.springframework.boot.devtools.restart.RestartApplicationListener"
 11 = "org.springframework.boot.autoconfigure.BackgroundPreinitializer"
 ```
+
+
+| **ApplicationListener**                    | 作用                                                         |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| PropertiesMigrationListener                | **操作环境变量**                                             |
+| ClearCachesApplicationListener             | 在Spring的context容器完成refresh()方法时调用，用来清除缓存信息 |
+| ParentContextCloserApplicationListener     | 当容器关闭时发出通知，如果父容器关闭，那么子容器也一起关闭   |
+| FileEncodingApplicationListener            | 获取环境中的系统环境参数，检测file.enconding和spring.mandatory-file-encoding设置的值是否一样，不一样则抛出异常 |
+| AnsiOutputApplicationListener              | 如果终端支持ANSI，设置的彩色输出会让日志更具可读性           |
+| ConfigFileApplicationListener              | **读取加载Spring Boot的配置文件如application.properties**    |
+| DelegatingApplicationListener              | 把Listener转发给配置的class处理，这样可以支持外围代码不去改写**spring.factories中的org.springframework.context.ApplicationListener的相关配置** |
+| LiquibaseServiceLocatorApplicationListener | 如果相关的参数liquibase.servicelocator.ServiceLocator存在，则使用Spring Boot相关的版本进行代替 |
+| ClasspathLoggingApplicationListener        | **程序启动时，将classpath打印到debug日志**，启动失败时将classpath打印到info日志 |
+| LoggingApplicationListener                 | **根据配置初始化日志系统进行日志输出**                       |
 
 #### 4.1.2 SpringApplication#run。
 
@@ -309,13 +325,15 @@ public ConfigurableApplicationContext run(String... args) {
 注：
 EventPublishingRunListener 类实现了SpringApplicationRunListener接口，那么在springboot启动的过程中都会对这个类进行回调通知，那么通知什么？ 其实看源码可以看出来里面对所有通知其实都是回调了ApplicationListener接口，说白了就是他就是一个ApplicationListener的代理。springboot启动的几个主要过程的监听通知都是通过他来进行回调
 
-第一步，准备环境environment
+##### 第一步，准备环境environment
 environment包括application.properties和servletContextInitParams
 
 ![](pics/environment.png)
 
-第二步，创建IOC容器：org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext
-createApplicationContext方法,创建AnnotationConfigServletWebServerApplicationContext类
+##### 第二步，创建IOC容器
+
+创建IOC容器：org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext
+createApplicationContext方法,创建AnnotationConfigServletWebServerApplicationContext类**
 
 ```java
 protected ConfigurableApplicationContext createApplicationContext() {
@@ -342,7 +360,7 @@ DEFAULT_REACTIVE_WEB_CONTEXT_CLASS= org.springframework.boot.web.reactive.contex
 
 DEFAULT_CONTEXT_CLASS= org.springframework.context.annotation.AnnotationConfigApplicationContext
 
-第三步，prepareContext
+##### 第三步，执行ApplicationContextInitializer#initialize方法，并保存environment到IOC中
 保存environment到IOC中，并执行ApplicationContextInitializer#initialize方法（上面的7个实现类）
 
 ```java
@@ -385,8 +403,9 @@ protected void applyInitializers(ConfigurableApplicationContext context) {
 }
 ```
 
-第四步，refreshContext刷新容器,ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）
-		//扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）
+##### 第四步，ioc容器初始化
+
+**refreshContext刷新容器,ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）。扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）**
 调用AbstractApplicationContext#refresh方法，和传统的spring初始化容器是一样的。
 
 ```java
@@ -425,7 +444,7 @@ public void refresh() throws BeansException, IllegalStateException {
 }
 ```
 
-第五步，所有的SpringApplicationRunListener回调started方法、回调running方法
+##### 第五步，所有的SpringApplicationRunListener回调started方法、回调running方法
 listeners.started(context);
 listeners.running(context);
 

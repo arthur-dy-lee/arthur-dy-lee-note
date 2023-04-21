@@ -1032,7 +1032,35 @@ B -> Z(2.5)
 只有当JVM认为内存不足时，才会去试图回收软引用指向的对象。JVM会确保在抛出OutOfMemoryError之前，清理软引用指向的对象。
 当JVM进行垃圾回收时，无论内存是否充足，都会回收被弱引用关联的对象。这里所说的被弱引用关联的对象是指只有弱引用与之关联，如果存在强引用同时与之关联，则进行垃圾回收时也不会回收该对象（软引用也是如此）。
 
-### 8.7 
+### 8.7 java中JDK、JRE和JVM的之间的关系
+
+![](pics/jdk_jre_jvm.png)
+
+JDK（Java Development Kit）简单理解就是Java开发工具包，是java的核心所在；JRE(Java Runtime Enviroment)是Java的运行环境，JVM( java virtual machine)也就是常常听到Java虚拟机。JDK是面向开发者的，JRE是面向使用JAVA程序的用户，JVM是java实现跨平台和系统的媒介所在。
+
+**JDK**
+
+JDK是整个Java的核心，包括了JRE（Java运行环境），同时在jdk文件夹bin（通常我们配置jdk的环境变量的根目录）目录中包含了一些Java开发工具（例如：jconsole、javac、java、javadoc、native2ascii、jar等）。JDK=JRE+Java开发工具（编译器、反编译器、调试器等）。
+
+jdk1.8目录包含：
+bin：一堆exe文件，可执行的开发工具，最主要的是javac， 例如：jconsole、javac、java、javadoc、native2ascii、jar。
+jre：java运行环境，包括JVM+Java基础和核心类库 。
+lib：本地资源库，包含dt.jar+tools.jar的常用类库，开发依赖包。
+include：java和JVM交互用的头文件。
+
+**JRE**
+
+JRE(Java Runtime Environment)，即Java运行环境，支持Java程序运行的标准环境，包含**JVM标准实现及Java核心类库**。JRE中包含了Java virtual machine（JVM），runtime class libraries和Java application launcher，这些是运行Java程序的必要组件。
+
+jre1.8目录包含：
+bin：**有java.exe但没有javac.exe，无法编译Java程序，但可以运行Java程序，可以把这个bin目录理解成JVM**。
+lib：Java基础和核心类库，如rt.jar，也包含JVM运行时需要的类库。
+
+**JVM**
+
+JVM(Java Virtual Machine)，即Java虚拟机，运行在操作系统之上，存在于内存中，与内存打交道，与硬件没有直接交互，是Java语言实现跨平台的核心。
+
+### 8.8 
 
 
 
