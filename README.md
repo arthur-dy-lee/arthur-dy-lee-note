@@ -76,7 +76,7 @@
  - [简述Spring容器与SpringMVC的容器的联系与区别](简述Spring容器与SpringMVC的容器的联系与区别 - CSDN博客.mhtml)
 
 #### 5.3.4 spring-transaction
- - [spring-transaction](spring/spring-transaction/spring-transaction)
+ - [spring-transaction](spring/spring-transaction/spring-transaction.md)
 
 #### 5.3.5 spring-boot
  - [springboot使用笔记](spring/spring-boot/springboot使用笔记.md)

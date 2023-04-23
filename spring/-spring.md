@@ -143,16 +143,26 @@ BeanPostProcessor：**bean后置处理器，bean创建对象初始化前后进�
 
 
 
-
 ### 3.2 AOP原理
+
+几年前写的AOP原理，后面有空再整理一下
+
+ - [1.spring-AOP-IOC的启动](spring-AOP/1.spring-AOP-IOC的启动.md)
+ - [2.spring-AOP-ConfigBeanDefinitionParser解析器](spring-AOP/2.spring-AOP-ConfigBeanDefinitionParser解析器.md)
+ - [3.AspectJAwareAdvisorAutoProxyCreator创建代理对象](spring-AOP/3.AspectJAwareAdvisorAutoProxyCreator创建代理对象.md)
+ - [4.spring-AOP-invoke调用](spring-AOP/4.spring-AOP-invoke调用.md)
+ - [AspectJAwareAdvisorAutoProxyCreator](spring-AOP/AspectJAwareAdvisorAutoProxyCreator.md)
+ - [AOP相关.md](spring-AOP/AOP相关.md)
 
 ### 3.3 事务原理
 
-
+[spring-transaction](spring-transaction/spring-transaction.md)
 
 ## 四、springboot
 
 ### 4.1 springboot的SpringApplication启动过程
+
+![](pics/spring_startup_process.png)
 
 `SpringApplication.run(SpringbootApplication.class, args);`->调用
 `new SpringApplication(primarySources).run(args);`
@@ -360,8 +370,11 @@ DEFAULT_REACTIVE_WEB_CONTEXT_CLASS= org.springframework.boot.web.reactive.contex
 
 DEFAULT_CONTEXT_CLASS= org.springframework.context.annotation.AnnotationConfigApplicationContext
 
-##### 第三步，执行ApplicationContextInitializer#initialize方法，并保存environment到IOC中
-保存environment到IOC中，并执行ApplicationContextInitializer#initialize方法（上面的7个实现类）
+##### 第三步，IOC容器预处理
+
+保存environment到IOC中，并执行`ApplicationContextInitializer#initialize`方法（上面的7个实现类，可以`ContextIdApplicationContextInitializer`为例做debug），以及IOC和listener建立关系。
+
+`applyInitializers(context)` 执行ApplicationContextInitializer#initialize
 
 ```java
 private void prepareContext(ConfigurableApplicationContext context,
@@ -370,8 +383,8 @@ private void prepareContext(ConfigurableApplicationContext context,
 	context.setEnvironment(environment);
 	postProcessApplicationContext(context);
 	//执行ApplicationContextInitializer#initialize方法
-	applyInitializers(context);
-	listeners.contextPrepared(context);
+	applyInitializers(context);  // 执行ApplicationContextInitializer#initialize
+	listeners.contextPrepared(context); // IOC和listeners建立关系
 	if (this.logStartupInfo) {
 		logStartupInfo(context.getParent() == null);
 		logStartupProfileInfo(context);
@@ -405,10 +418,8 @@ protected void applyInitializers(ConfigurableApplicationContext context) {
 
 ##### 第四步，ioc容器初始化
 
-**refreshContext刷新容器,ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）。扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）**
-调用AbstractApplicationContext#refresh方法，和传统的spring初始化容器是一样的。
-
-`invokeBeanFactoryPostProcessors(beanFactory); 这一步读springboot stater下`resoucres/META-INF/spring.factorie`的自定义的EnableAutoConfiguration
+**refreshContext刷新容器,ioc容器初始化（如果是web应用，还会创建嵌入式的Tomcat）。**
+调用AbstractApplicationContext#refresh方法，和传统的spring初始化容器是一样的。这是就是**IOC管理的类的加载顺序，即类的全生命周期管理**，包括扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）
 
 ```java
 @Override
@@ -482,15 +493,19 @@ start包解析的过程是依赖springboot初始化的过程
 
 #### 自定义的starter类是什么时候加载的？
 
+`AbstractApplicationContext#refresh`，这一步在执行bean后置处理器(`invokeBeanFactoryPostProcessors`)时加载starter。
+
 在SpringBoot的启动类，我们都会加上`@SpringBootApplication`注解。这个注解默认会引入`@EnableAutoConfiguration`注解。然后`@EnableAutoConfiguration`会`@Import(AutoConfigurationImportSelector.class)`。
 
-`AutoConfigurationImportSelector.class`的selectImports方法最终会通过`SpringFactoriesLoader.loadFactoryNames`，加载`META-INF/spring.factories`里的`EnableAutoConfiguration`配置值，也就是我们上文中设置的资源文件。
+`AutoConfigurationImportSelector#selectImports`方法最终会通过`SpringFactoriesLoader.loadFactoryNames`，加载`META-INF/spring.factories`里的`EnableAutoConfiguration`配置值，也就是我们上文中设置的资源文件。
 
-下图是从StringbootApplication#run开始的调用顺序
+可以在`SpringFactoriesLoader#loadFactoryNames`处打断点调试。下图是从StringbootApplication#run开始的调用顺序。
 
 ![](pics/starter_EnableAutoConfiguration.png)
 
 当我们启动项目时,会检查`META-INF/spring.factories`中`key`为`org.springframework.boot.autoconfigure.EnableAutoConfiguration`的值。
+
+`AutoConfigurationImportSelector#getCandidateConfigurations`->`SpringFactoriesLoader#loadSpringFactories`
 
 ```java
 protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
@@ -504,6 +519,21 @@ protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
 protected Class<?> getSpringFactoriesLoaderFactoryClass() {
   return EnableAutoConfiguration.class; //这个就是META-INF/spring.factories文件中的EnableAutoConfiguration
 }
+```
+`SpringFactoriesLoader#loadSpringFactories`
+
+```java
+public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+private static Map<String, List<String>> loadSpringFactories(ClassLoader classLoader) {
+		Map<String, List<String>> result = cache.get(classLoader);
+		if (result != null) {
+			return result;
+		}
+
+		result = new HashMap<>();
+		try {
+			Enumeration<URL> urls = classLoader.getResources(FACTORIES_RESOURCE_LOCATION);
+      ....
 ```
 
 从资源文件META-INF/spring.factories文件中，加截EnableAutoConfiguration的value，`List<String> configurations`值list为以下内容
@@ -533,15 +563,15 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.taobao.hellos
 
 AbstractApplicationContext#refresh -> ServletWebServerApplicationContext#onRefresh
 
-而之前创建的web IOC容器 DEFAULT_WEB_CONTEXT_CLASS = org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext， 而它继承自 ServletWebServerApplicationContext
+而之前创建的web IOC容器 DEFAULT_WEB_CONTEXT_CLASS = org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext， 而它继承自 ServletWebServerApplicationContext, ServletWebServerApplicationContext则继承父类AbstractApplicationContext
 ServletWebServerApplicationContext#onRefresh 方法如下
 
 ```java
 @Override
 protected void onRefresh() {
-	super.onRefresh();
+	super.onRefresh(); //父类AbstractApplicationContext#onRefresh。1、先加载IOC加载类
 	try {
-		createWebServer();
+		createWebServer(); //2、再创建tomcat
 	//...
 }
 //createWebServer()就是启动web服务
