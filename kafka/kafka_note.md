@@ -1221,6 +1221,35 @@ rocketMq中，所有的队列都存储在一个文件中，每个队列的存储
 3.  每个消费者需要从候选集里找出一个自己支持的策略，并且为这个策略投票
 4.  最终计算候选集中各个策略的选票数，票数最多的就是当前消费组的分配策略 
 
+#### 6.30 何时创建TCP连接？
+
+Apache Kafka的所有通信都是基于TCP的，而不是基于HTTP或其他协议。
+
+```java
+try (Producer<String, String> producer = new KafkaProducer<>(props)) {
+            producer.send(new ProducerRecord<String, String>(……), callback);
+	……
+}
+```
+
+1. 生产者应用在创建KafkaProducer实例时是会建立与Broker的TCP连接的。其实这种表述也不是很准确，应该这样说：**在创建KafkaProducer实例时，生产者应用会在后台创建并启动一个名为Sender的线程，该Sender线程开始运行时首先会创建与Broker的连接**。
+
+   社区的官方文档中提及KafkaProducer类是线程安全的。KafkaProducer实例创建的线程和前面提到的Sender线程共享的可变数据结构只有RecordAccumulator类，故维护了RecordAccumulator类的线程安全，也就实现了KafkaProducer类的线程安全。了解RecordAccumulator类是做什么的，你只要知道它主要的数据结构是一个ConcurrentMap<TopicPartition, Deque>。TopicPartition是Kafka用来表示主题分区的Java对象，本身是不可变对象。而RecordAccumulator代码中用到Deque的地方都有锁的保护，所以基本上可以认定RecordAccumulator类是线程安全的。
+
+2. **TCP连接还可能在两个地方被创建：一个是在更新元数据后，另一个是在消息发送时**。
+
+   为什么说是可能？因为这两个地方并非总是创建TCP连接。当Producer更新了集群的元数据信息之后，如果发现与某些Broker当前没有连接，那么它就会创建一个TCP连接。同样地，当要发送消息时，Producer发现尚不存在与目标Broker的连接，也会创建一个。
+
+Producer端关闭TCP连接的方式有两种：**一种是用户主动关闭；一种是Kafka自动关闭**。
+
+Kafka帮你关闭，这与Producer端参数connections.max.idle.ms的值有关。默认情况下该参数值是9分钟，即如果在9分钟内没有任何请求“流过”某个TCP连接，那么Kafka会主动帮你把该TCP连接关闭。用户可以在Producer端设置connections.max.idle.ms=-1禁掉这种机制。一旦被设置成-1，TCP连接将成为永久长连接。
+
+在第二种方式中，TCP连接是在Broker端被关闭的，但其实这个TCP连接的发起方是客户端，因此在TCP看来，这属于被动关闭的场景，即passive close。被动关闭的后果就是会产生大量的CLOSE\_WAIT连接，因此Producer端或Client端没有机会显式地观测到此连接已被中断。如果设置该参数=-1，那么步骤1中创建的TCP连接将无法被关闭，从而成为“僵尸”连接
+
+
+
+
+
 
 
 ##  七、参考
