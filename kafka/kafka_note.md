@@ -51,8 +51,13 @@ Kafka 最初是 LinkedIn 的一个内部基础设施系统。我们发现虽然�
 - 重平衡：Rebalance。消费者组内某个消费者实例挂掉后，其他消费者实例自动重新分配订阅主题分区的过程。Rebalance 是 Kafka 消费者端实现高可用的重要手段。 
 - leader: replica 中的一个角色， producer 和 consumer 只跟 leader 交互。 
 - follower: replica 中的一个角色，从 leader 中复制数据。 
-- controller: kafka 集群中的其中一个服务器，用来进行 leader election 以及 各种 failover。 
+- controller: Kafka的核心组件。它的主要作用是在Apache ZooKeeper的帮助下管理和协调整个Kafka集群
 - ZK: kafka 通过 zookeeper 来存储集群的 meta 信息。
+- **LEO**：Log End Offset。日志末端位移值或末端偏移量，表示日志下一条待插入消息的位移值。举个例子，如果日志有10条消息，位移值从0开始，那么，第10条消息的位移值就是9。此时，LEO = 10。
+- **LSO**：Log Stable Offset。这是Kafka事务的概念。如果你没有使用到事务，那么这个值不存在（其实也不是不存在，只是设置成一个无意义的值）。该值控制了事务型消费者能够看到的消息范围。它经常与Log Start Offset，即日志起始位移值相混淆，因为有些人将后者缩写成LSO，这是不对的。在Kafka中，LSO就是指代Log Stable Offset。
+- **AR**：Assigned Replicas。AR是主题被创建后，分区创建时被分配的副本集合，副本个数由副本因子决定。
+- **ISR**：In-Sync Replicas。Kafka中特别重要的概念，指代的是AR中那些与Leader保持同步的副本集合。在AR中的副本可能不在ISR中，但Leader副本天然就包含在ISR中。关于ISR，还有一个常见的面试题目是**如何判断副本是否应该属于ISR**。目前的判断依据是：**Follower副本的LEO落后Leader LEO的时间，是否超过了Broker端参数replica.lag.time.max.ms值**。如果超过了，副本就会被从ISR中移除。
+- **HW**：高水位值（High watermark）。这是控制消费者可读取消息范围的重要字段。一个普通消费者只能“看到”Leader副本上介于Log Start Offset和HW（不含）之间的所有消息。水位以上的消息是对消费者不可见的。关于HW，问法有很多，我能想到的最高级的问法，就是让你完整地梳理下Follower副本拉取Leader副本、执行同步机制的详细步骤。这就是我们的第20道题的题目，一会儿我会给出答案和解析。
 
 
 
@@ -91,6 +96,28 @@ Kafka 最初是 LinkedIn 的一个内部基础设施系统。我们发现虽然�
 一个典型的kafka集群中包含若干个Producer，若干个Broker，若干个Consumer，以及一个zookeeper集群； kafka通过zookeeper管理集群配置，选举leader，以及在Consumer Group发生变化时进行Rebalance（负载均衡）；Producer使用push模式将消息发布到Broker；Consumer使用pull模式从Broker中订阅并消费消息。
 
 ![](pics/kafka_architecture.png)
+
+#### 3.1.1 controller
+
+ Kafka的核心组件。它的主要作用是在Apache ZooKeeper的帮助下管理和协调整个Kafka集群。controller控制器是重度依赖ZooKeeper
+
+Broker在启动时，会尝试去ZooKeeper中创建/controller节点。Kafka当前选举控制器的规则是：**第一个成功创建/controller节点的Broker会被指定为控制器**。
+
+
+
+1. 主题管理（创建、删除、增加分区）
+
+2. 分区重分配
+
+3. Preferred领导者选举
+
+   Preferred领导者选举主要是Kafka为了避免部分Broker负载过重而提供的一种换Leader的方案
+
+4. 集群成员管理（新增Broker、Broker主动关闭、Broker宕机）
+
+5. 数据服务
+
+   向其他Broker提供数据服务。控制器上保存了最全的集群元数据信息，其他所有Broker会定期接收控制器发来的元数据更新请求，从而更新其内存中的缓存数据。
 
 #### 3.1.2 broker
 
@@ -247,13 +274,27 @@ Consumer Grep (CG)： 消费者组，有多个consumer组成，形成一个消�
 >
 > 要实现真正的组内广播，需要自己保存每个消费者的offset，可以考虑通过保存本地文件、redis、数据库等试实现。
 
+**消费者组消费进度监控都怎么实现？**
+
+既然消费进度这么重要，我们应该怎么监控它呢？简单来说，有3种方法。
+
+1. 使用Kafka自带的命令行工具kafka-consumer-groups脚本。
+
+2. 使用Kafka Java Consumer API编程。
+
+3. 使用Kafka自带的JMX监控指标。
+
+   **records-lag-max和records-lead-min**，它们分别表示此消费者在测试窗口时间内曾经达到的最大的Lag值和最小的Lead值。**这里的Lead值是指消费者最新消费消息的位移与分区当前第一条消息位移的差值**。很显然，Lag和Lead是一体的两个方面：**Lag越大的话，Lead就越小，反之也是同理**。
+
+   一旦你监测到Lead越来越小，甚至是快接近于0了，你就一定要小心了，这可能预示着消费者端要丢消息了。为什么？我们知道Kafka的消息是有留存时间设置的，默认是1周，也就是说Kafka默认删除1周前的数据。倘若你的消费者程序足够慢，慢到它要消费的数据快被Kafka删除了，这时你就必须立即处理，否则一定会出现消息被删除，从而导致消费者程序重新调整位移值的情形。
+
 #### 3.1.9 消费者事务
 
   如果想完成consumer端的精准一次性消费，那么需要 **kafka消费端将消费过程和提交offset过程做原子绑定。** 此时我们需要将kafka的offset保存到支持事务的自定义介质如MySQL中。
 
 #### 3.1.10 Coordinator
 
-coordinator专门为 Consumer Group 服务，负责**Group Rebalance** 以及提供**位移管理**和**组成员管理**等。
+coordinator专门为 Consumer Group 服务，负责**Group Rebalance** 以及提供**消费者组的注册、成员管理记录等元数据管理操作**。
 
 每个consumer group都会选择一个broker作为自己的coordinator，他是负责监控这个消费组里的各个消费者的心跳，以及判断是否宕机，然后开启rebalance。Kafka总会把你的各个消费组均匀分配给各个Broker作为coordinator来进行管理的。
 
@@ -338,6 +379,20 @@ kafka是基于**主从Reactor多线程**进行设计的。Acceptor是一个继�
 MainReactor(Acceptor)只负责监听OP_ACCEPT事件, 监听到之后把SocketChannel 传递给 SubReactor(Processor), 每个Processor都有自己的Selector。SubReactor会监听并处理其他的事件,并最终把具体的请求传递给KafkaRequestHandlerPool。
 
 ![](pics/Kafka_Reactor.png)
+
+IO线程池处中的线程才是执行请求逻辑的线程。Broker端参数**num.io.threads**控制了这个线程池中的线程数。**目前该参数默认值是8，表示每台Broker启动后自动创建8个IO线程处理请求**。
+
+![](pics/Kafka_Reactor3.jpg)
+
+请求队列和响应队列的差别：**请求队列是所有网络线程共享的，而响应队列则是每个网络线程专属的**。这么设计的原因就在于，Dispatcher只是用于请求分发而不负责响应回传，因此只能让每个网络线程自己发送Response给客户端，所以这些Response也就没必要放在一个公共的地方。
+
+图中有一个叫Purgatory的组件，这是Kafka中著名的“炼狱”组件。它是用来**缓存延时请求**（Delayed Request）的。**所谓延时请求，就是那些一时未满足条件不能立刻处理的请求**。比如设置了acks=all的PRODUCE请求，一旦设置了acks=all，那么该请求就必须等待ISR中所有副本都接收了消息后才能返回，此时处理该请求的IO线程就必须等待其他Broker的写入结果。
+
+**控制类请求和数据类请求分离**
+
+社区于2.3版本把PRODUCE和FETCH这类请求称为数据类请求，把LeaderAndIsr、StopReplica这类请求称为控制类请求。为什么要分开呢？因为**控制类请求有这样一种能力：它可以直接令数据类请求失效！**
+
+如何实现呢？社区完全拷贝了这张图中的一套组件，实现了两类请求的分离。也就是说，Kafka Broker启动后，会在后台分别创建两套网络线程池和IO线程池的组合，它们分别处理数据类请求和控制类请求。至于所用的Socket端口，自然是使用不同的端口了，你需要提供不同的**listeners配置**，显式地指定哪套端口用于处理哪类请求。
 
 #### 3.2.4 关键类
 
@@ -431,13 +486,39 @@ AbstractServerThread是**Acceptor**线程和**Processor**线程的抽象基类�
 
 默认情况下，Kafka topic的replica数量为1，即每个partition都有一个唯一的leader，为了确保消息的可靠性，通常应用中将其值（由broker的参数offsets.topic.replication.factor指定）大小设定为1。所有的副本（replicas）统称为AR (Assigned Replicas）。ISR是AR的一个子集，由leader维护ISR列表，follower从Leader同步数据有一些延迟，任意一个超过阈值都会把follower踢出ISR，存入OSR（Outof-Sync Replicas）列表，新加入的follower也会先存放到OSR中。AR = ISR + OSR
 
-HW（HighWatermark）俗称**高水位，取一个partition对应的ISR中最小的LEO作为HW**，consumer最多只能消费到HW所在的位置。另外每个replica都有HW，leader和follower各自负责更新自己的HW的状态。对于leader新写入的消息，consumer不能立即消费，**leader会等待该消息被所有ISR中的replicas都同步后，才更新HW**，此时消息才能被consumer消费，这样就保证了如果Leader所在的broker失效，该消息仍可从新选举的leader中获取。对于来自内部的broker的读取请求，没有HW的限制。
+##### 3.3.1.1 高水位
+
+![](pics/HW_LEO2.jpg)
+
+HW（HighWatermark）俗称**高水位，取一个partition对应的ISR中最小的LEO作为HW**，consumer最多只能消费到HW所在的位置。
+
+在分区高水位以下的消息被认为是已提交消息，反之就是未提交消息。
+
+另外每个replica都有HW，leader和follower各自负责更新自己的HW的状态。对于leader新写入的消息，consumer不能立即消费，**leader会等待该消息被所有ISR中的replicas都同步后，才更新HW**，此时消息才能被consumer消费，这样就保证了如果Leader所在的broker失效，该消息仍可从新选举的leader中获取。对于来自内部的broker的读取请求，没有HW的限制。
 
 ![](pics/HW_LEO.png)
 
 Kafka的复制机制既不是完全的同步复制，也不是单纯的异步复制，**而是基于ISR的动态复制方案**。
 
 基于ISR的动态复制指的是ISR是由Leader动态维护的，如果Follower不能紧“跟上”Leader，它将被Leader从ISR中移除，待它又重新“跟上”Leader后，会被Leader再次加加ISR中。每次改变ISR后，Leader都会将最新的ISR持久化到Zookeeper中。而**Kafka这种使用ISR的方式则很好的均衡了确保数据不丢失以及吞吐率，实现了可用性与数据一致性的动态平衡(也可以称作可调整一致性)**
+
+高水位的作用主要有2个：
+
+1. 定义消息可见性，即用来标识分区下的哪些消息是可以被消费者消费的。
+2. 帮助Kafka完成副本同步。
+
+##### 3.3.1.2 Leader Epoch
+
+Follower副本的高水位更新需要一轮额外的拉取请求才能实现，Leader副本高水位更新和Follower副本高水位更新在时间上是存在错配的。这种错配是很多“数据丢失”或“数据不一致”问题的根源。基于此，社区在0.11版本正式引入了Leader Epoch概念。
+
+Leader Epoch，我们大致可以认为是Leader版本。它由两部分数据组成。
+
+1. Epoch。一个单调增加的版本号。每当副本领导权发生变更时，都会增加该版本号。小版本号的Leader被认为是过期Leader，不能再行使Leader权力。
+2. 起始位移（Start Offset）。Leader副本在该Epoch值上写入的首条消息的位移。
+
+##### 3.3.1.3 LSO（Log Stable Offset）
+
+注意，上面没有讨论Kafka事务，因为事务机制会影响消费者所能看到的消息的范围，它不只是简单依赖高水位来判断。它依靠一个名为LSO（Log Stable Offset）的位移值来判断事务型消费者的可见性。
 
 #### 3.3.2 ISR
 
@@ -456,6 +537,8 @@ Kafka 动态维护了一个同步状态的备份的集合 （a set of in-sync re
 > 消息从生产者写入kafka，首先写入副本leader，然后follower副本同步leader的消息。同步消息落后的副本会被踢出ISR，所以ISR的概念是，能追赶上leader的所有副本。
 >
 > replica.lag.time.max.ms参数：如果副本落后超过这个时间就判定为落后了，直到它回来。消息复制分为异步和同步，ISR是动态的，有进有出。
+
+**Broker端参数replica.lag.time.max.ms参数值**。这个参数的含义是Follower副本能够落后Leader副本的最长时间间隔，当前默认值是10秒。这就是说，只要一个Follower副本落后Leader副本的时间不连续超过10秒，那么Kafka就认为该Follower副本与Leader是同步的，即使此时Follower副本中保存的消息明显少于Leader副本中的消息。
 
 #### 3.3.3 segment文件存储
 
@@ -1020,7 +1103,14 @@ configs.setProperty(BucketPriorityConfig.ALLOCATION_CONFIG, "70%, 30%");
 
 主从的模式带来的数据延迟，从节点总是会落后主节点ms级别，甚至s级别。但是在kafka除了用做削峰，异步的中间件外，它还是流式处理中间件，比如Flink,Spark，Spark的实时性要求不高，它是一批一批处理，减少批次间的间隔来完成假的实时功能；但Flink对实时性要求比较高。在实时性要求高的场景下，如果出现秒级甚至由于网络的原因，出现了分区级别的延迟，这是不能接受的。
 
-#### 6.7 数据积压，消费者如何提高吞吐量
+#### 6.7 数据积压，如何提高吞吐量
+
+**broker端**
+
+1. 动态调整Broker参数，调整Broker端各种线程池大小。增加网络线程数和I/O线程数，快速消耗一些积压。当突发流量过去后，我们也能将线程数调整回来，减少对资源的浪费。整个过程都不需要重启Broker。你甚至可以将这套调整线程数的动作，封装进定时任务中，以实现自动扩缩容。
+2. 考虑增长partition数据
+
+**消费者**
 
 1. 如果是kafka的消费能力不足，则可以考虑**增加topic的分区数**，并且同时提升消费组的消费者数量，**消费者数=分区数**，两者缺一不可
 2. 如果是下游的数据处理不及时，**提高每批次拉取的数量。** 批次拉取数量过少(拉取数据/处理时间 < 生产速度)，使处理的数据小于生产的数据，也会造成数据积压
@@ -1204,11 +1294,11 @@ rocketMq中，所有的队列都存储在一个文件中，每个队列的存储
 
 **consumer 再平衡步骤**
 
-1. 每个consumer都发送JoinGroup请求
+1. **每个consumer都发送JoinGroup请求**
 2. coordinator选出一个 consumer作为 leader。如果消费组内没有leader，那么第一个加入消费组的消费者就是消费者 leader，如果这个时候leader消费者退出了消费组，那么重新选举一个
 3. 把要消费的 topic 情况 发送给leader 消费者
-4. leader会负责制定消费方案
-5. 把消费方案发给 coordinator
+4. 消费者leader会负责制定消费方案
+5. 把消费方案发给 coordinator，即**消费者leader向协调者发送SyncGroup请求**
 6. Coordinator 就把消费方案下发给各个consumer
 7. 每个消费者都会和 coordinator 保持心跳（ 默认 3s ），一旦超时 session.timeout.ms= 45s ），该消费者会被移除，并触发再平衡；或者消费者处理消息的过长（max.poll.interval.ms 5 分钟），也会触发再 平衡
 
@@ -1221,7 +1311,7 @@ rocketMq中，所有的队列都存储在一个文件中，每个队列的存储
 3.  每个消费者需要从候选集里找出一个自己支持的策略，并且为这个策略投票
 4.  最终计算候选集中各个策略的选票数，票数最多的就是当前消费组的分配策略 
 
-#### 6.30 何时创建TCP连接？
+#### 6.30 KafkaProducer何时创建TCP连接？
 
 Apache Kafka的所有通信都是基于TCP的，而不是基于HTTP或其他协议。
 
@@ -1246,6 +1336,93 @@ Kafka帮你关闭，这与Producer端参数connections.max.idle.ms的值有关�
 
 在第二种方式中，TCP连接是在Broker端被关闭的，但其实这个TCP连接的发起方是客户端，因此在TCP看来，这属于被动关闭的场景，即passive close。被动关闭的后果就是会产生大量的CLOSE\_WAIT连接，因此Producer端或Client端没有机会显式地观测到此连接已被中断。如果设置该参数=-1，那么步骤1中创建的TCP连接将无法被关闭，从而成为“僵尸”连接
 
+**和生产者不同的是，构建KafkaConsumer实例时是不会创建任何TCP连接的**
+
+#### 6.31 KafkaConsumer何时创建TCP连接？
+
+1. 发起FindCoordinator请求时
+
+   消费者程序会向集群中当前负载最小的那台Broker发送请求。就是看消费者连接的所有Broker中，谁的待发送请求最少。当然了，这种评估显然是消费者端的单向评估，并非是站在全局角度，因此有的时候也不一定是最优解。
+
+2. 连接协调者时
+
+3. 消费数据时
+
+   举个例子，假设消费者要消费5个分区的数据，这5个分区各自的领导者副本分布在4台Broker上，那么该消费者在消费时会创建与这4台Broker的Socket连接。
+
+**当第三类TCP连接成功创建后，消费者程序就会废弃第一类TCP连接**，之后在定期请求元数据时，它会改为使用第三类TCP连接。也就是说，最终你会发现，第一类TCP连接会在后台被默默地关闭掉。对一个运行了一段时间的消费者程序来说，只会有后面两类TCP连接存在。
+
+#### 6.32 comsumer自动提交位移的顺序
+
+一旦设置了enable.auto.commit为true，Kafka会保证在开始调用poll方法时，提交上次poll返回的所有消息。从顺序上来说，poll方法的逻辑是先提交上一批消息的位移，再处理下一批消息，因此它能保证不出现消费丢失的情况。但自动提交位移的一个问题在于，**它可能会出现重复消费**。
+
+#### 6.33 KafkaConsumer是线程安全的吗
+
+KafkaConsumer类不是线程安全的(thread-safe)。所有的网络I/O处理都是发生在用户主线程中，因此，你在使用过程中必须要确保线程安全。简单来说，就是你不能在多个线程中共享同一个KafkaConsumer实例，否则程序会抛出ConcurrentModificationException异常。
+
+#### 6.34 Leader总是-1，怎么破？
+
+在生产环境中，你一定碰到过“某个主题分区不能工作了”的情形。使用命令行查看状态的话，会发现Leader是-1，于是，你使用各种命令都无济于事，最后只能用“重启大法”。不重启集群呢？
+
+**删除ZooKeeper节点/controller，触发Controller重选举。Controller重选举能够为所有主题分区重刷分区状态，可以有效解决因不一致导致的Leader不可用问题**。
+
+#### 6.35 \_\_consumer\_offsets是做什么用的？
+
+这是一个内部主题，公开的官网资料很少涉及到。因此，我认为，此题属于面试官炫技一类的题目。你要小心这里的考点：该主题有3个重要的知识点，你一定要全部答出来，才会显得对这块知识非常熟悉。
+
+- 它是一个内部主题，无需手动干预，由Kafka自行管理。当然，我们可以创建该主题。
+- 它的主要作用是负责注册消费者以及保存位移值。可能你对保存位移值的功能很熟悉，但其实**该主题也是保存消费者元数据的地方。千万记得把这一点也回答上**。另外，这里的消费者泛指消费者组和独立消费者，而不仅仅是消费者组。
+- Kafka的GroupCoordinator组件提供对该主题完整的管理功能，包括该主题的创建、写入、读取和Leader维护等。
+
+#### 6.36 分区Leader选举策略有几种？
+
+分区的Leader副本选举对用户是完全透明的，它是由Controller独立完成的。你需要回答的是，在哪些场景下，需要执行分区Leader选举。每一种场景对应于一种选举策略。当前，Kafka有4种分区Leader选举策略。
+
+- **OfflinePartition Leader选举**：每当有分区上线时，就需要执行Leader选举。所谓的分区上线，可能是创建了新分区，也可能是之前的下线分区重新上线。这是最常见的分区Leader选举场景。
+- **ReassignPartition Leader选举**：当你手动运行kafka-reassign-partitions命令，或者是调用Admin的alterPartitionReassignments方法执行分区副本重分配时，可能触发此类选举。假设原来的AR是[1，2，3]，Leader是1，当执行副本重分配后，副本集合AR被设置成[4，5，6]，显然，Leader必须要变更，此时会发生Reassign Partition Leader选举。
+- **PreferredReplicaPartition Leader选举**：当你手动运行kafka-preferred-replica-election命令，或自动触发了Preferred Leader选举时，该类策略被激活。所谓的Preferred Leader，指的是AR中的第一个副本。比如AR是[3，2，1]，那么，Preferred Leader就是3。
+- **ControlledShutdownPartition Leader选举**：当Broker正常关闭时，该Broker上的所有Leader副本都会下线，因此，需要为受影响的分区执行相应的Leader选举。
+
+这4类选举策略的大致思想是类似的，即从AR中挑选首个在ISR中的副本，作为新Leader。当然，个别策略有些微小差异。不过，回答到这种程度，应该足以应付面试官了。毕竟，微小差别对选举Leader这件事的影响很小。
+
+#### 6.37 Kafka的哪些场景中使用了零拷贝（Zero Copy）？
+
+Zero Copy是特别容易被问到的高阶题目。在Kafka中，体现Zero Copy使用场景的地方有两处：**基于mmap的索引**和**日志文件读写所用的TransportLayer**。
+
+先说第一个。索引都是基于MappedByteBuffer的，也就是让用户态和内核态共享内核态的数据缓冲区，此时，数据不需要复制到用户态空间。不过，mmap虽然避免了不必要的拷贝，但不一定就能保证很高的性能。在不同的操作系统下，mmap的创建和销毁成本可能是不一样的。很高的创建和销毁开销会抵消Zero Copy带来的性能优势。由于这种不确定性，在Kafka中，只有索引应用了mmap，最核心的日志并未使用mmap机制。
+
+再说第二个。TransportLayer是Kafka传输层的接口。它的某个实现类使用了FileChannel的transferTo方法。该方法底层使用sendfile实现了Zero Copy。对Kafka而言，如果I/O通道使用普通的PLAINTEXT，那么，Kafka就可以利用Zero Copy特性，直接将页缓存中的数据发送到网卡的Buffer中，避免中间的多次拷贝。相反，如果I/O通道启用了SSL，那么，Kafka便无法利用Zero Copy特性了。
+
+#### 6.38 如何调优Kafka？
+
+回答任何调优问题的第一步，就是**确定优化目标，并且定量给出目标**！这点特别重要。对于Kafka而言，常见的优化目标是吞吐量、延时、持久性和可用性。每一个方向的优化思路都是不同的，甚至是相反的。
+
+确定了目标之后，还要明确优化的维度。有些调优属于通用的优化思路，比如对操作系统、JVM等的优化；有些则是有针对性的，比如要优化Kafka的TPS。我们需要从3个方向去考虑。
+
+- **Producer端**：增加batch.size、linger.ms，启用压缩，关闭重试等。
+- **Broker端**：增加num.replica.fetchers，提升Follower同步TPS，避免Broker Full GC等。
+- **Consumer**：增加fetch.min.bytes等
+
+#### 6.39 Controller发生网络分区（Network Partitioning）时，Kafka会怎么样？
+
+这道题目能够诱发我们对分布式系统设计、CAP理论、一致性等多方面的思考。不过，针对故障定位和分析的这类问题，我建议你首先言明“实用至上”的观点，即不论怎么进行理论分析，永远都要以实际结果为准。一旦发生Controller网络分区，那么，第一要务就是查看集群是否出现“脑裂”，即同时出现两个甚至是多个Controller组件。这可以根据Broker端监控指标ActiveControllerCount来判断。
+
+现在，我们分析下，一旦出现这种情况，Kafka会怎么样。
+
+由于Controller会给Broker发送3类请求，即LeaderAndIsrRequest、StopReplicaRequest和UpdateMetadataRequest，因此，一旦出现网络分区，这些请求将不能顺利到达Broker端。这将影响主题的创建、修改、删除操作的信息同步，表现为集群仿佛僵住了一样，无法感知到后面的所有操作。因此，网络分区通常都是非常严重的问题，要赶快修复。
+
+#### 6.40 Java Consumer为什么采用单线程来获取消息？
+
+在回答之前，如果先把这句话说出来，一定会加分：**Java Consumer是双线程的设计。一个线程是用户主线程，负责获取消息；另一个线程是心跳线程，负责向Kafka汇报消费者存活情况。将心跳单独放入专属的线程，能够有效地规避因消息处理速度慢而被视为下线的“假死”情况。**
+
+单线程获取消息的设计能够避免阻塞式的消息获取方式。单线程轮询方式容易实现异步非阻塞式，这样便于将消费者扩展成支持实时流处理的操作算子。因为很多实时流处理操作算子都不能是阻塞式的。另外一个可能的好处是，可以简化代码的开发。多线程交互的代码是非常容易出错的。
+
+#### 6.41 简述Follower副本消息同步的完整流程
+
+首先，Follower发送FETCH请求给Leader。接着，Leader会读取底层日志文件中的消息数据，再更新它内存中的Follower副本的LEO值，更新为FETCH请求中的fetchOffset值。最后，尝试更新分区高水位值。Follower接收到FETCH响应之后，会把消息写入到底层日志，接着更新LEO和HW值。
+
+Leader和Follower的HW值更新时机是不同的，Follower的HW更新永远落后于Leader的HW。这种时间上的错配是造成各种不一致的原因。
+
 
 
 
@@ -1256,20 +1433,15 @@ Kafka帮你关闭，这与Producer端参数connections.max.idle.ms的值有关�
 
 [Kafka：这次分享我只想把原理讲清楚](https://toutiao.io/posts/0etokja/preview)
 [kafka中文网](https://kafka.apachecn.org/intro.html)
-
 [关于OS Page Cache的简单介绍](https://www.cnblogs.com/leadership/p/12349486.html)
-
 [《图解系统》笔记（一）](https://blog.csdn.net/weixin_39892358/article/details/127692631)
-
 [zookeeper和Kafka的关系](https://blog.csdn.net/wwwwwww31311/article/details/119840991)
-
 [Kafka源码深度解析－序列4 －Producer －network层核心原理](https://blog.csdn.net/chunlongyu/article/details/52651960)
-
 [Reactor模式介绍](https://zhuanlan.zhihu.com/p/428693405)
-
 [Reactor模型](https://blog.csdn.net/wlddhj/article/details/123872275)
-
 [图解Kafka服务端网络模型](https://bbs.huaweicloud.com/blogs/344672?utm_source=weibo&utm_medium=bbs-ex&utm_campaign=other&utm_content=content)]
+[Kafka 核心技术与实战](https://time.geekbang.org/column/intro/100029201)
+[Kafka 核心源码解读](https://time.geekbang.org/column/intro/100050101)
 
 待读：
 
