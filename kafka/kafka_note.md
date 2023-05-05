@@ -1,5 +1,5 @@
 
- kafka基础名词、使用说明、场景、原理、架构、快的原因、其它中间件共同的优化措施、面试集锦
+文章分以下几个部分：kafka基础名词、使用说明、场景、原理、架构、快的原因、其它中间件共同的优化措施、面试集锦
 
 ## 一、kafka简介
 
@@ -1103,6 +1103,8 @@ configs.setProperty(BucketPriorityConfig.ALLOCATION_CONFIG, "70%, 30%");
 
 主从的模式带来的数据延迟，从节点总是会落后主节点ms级别，甚至s级别。但是在kafka除了用做削峰，异步的中间件外，它还是流式处理中间件，比如Flink,Spark，Spark的实时性要求不高，它是一批一批处理，减少批次间的间隔来完成假的实时功能；但Flink对实时性要求比较高。在实时性要求高的场景下，如果出现秒级甚至由于网络的原因，出现了分区级别的延迟，这是不能接受的。
 
+自Kafka 2.4版本开始，社区通过引入新的Broker端参数，允许Follower副本有限度地提供读服务。
+
 #### 6.7 数据积压，如何提高吞吐量
 
 **broker端**
@@ -1422,6 +1424,20 @@ Zero Copy是特别容易被问到的高阶题目。在Kafka中，体现Zero Copy
 首先，Follower发送FETCH请求给Leader。接着，Leader会读取底层日志文件中的消息数据，再更新它内存中的Follower副本的LEO值，更新为FETCH请求中的fetchOffset值。最后，尝试更新分区高水位值。Follower接收到FETCH响应之后，会把消息写入到底层日志，接着更新LEO和HW值。
 
 Leader和Follower的HW值更新时机是不同的，Follower的HW更新永远落后于Leader的HW。这种时间上的错配是造成各种不一致的原因。
+
+#### 6.42 Kafka中的索引底层的实现原理是什么？
+
+原理：**内存映射文件，即Java中的MappedByteBuffer**，即java.nio.MappedByteBuffer 。
+
+OffsetIndex、TimeIndex和TransactionIndex都继承了AbstractIndex类，在AbstractIndex中，这个MappedByteBuffer就是名为mmap的变量。
+
+mmap中保存了**相对位移值/时间戳，物理位置信息**，并在写入索引过程中，更新索引计数器`_entries`(每写入一条索引计数器+1)，以及更新当前索引项最新位移值。
+
+使用内存映射文件的主要优势在于，它有很高的I/O性能，特别是对于索引这样的小文件来说，由于文件内存被直接映射到一段虚拟内存上，访问内存映射文件的速度要快于普通的读写文件速度。
+
+另外，在很多操作系统中（比如Linux），这段映射的内存区域实际上就是内核的页缓存（Page Cache）。这就意味着，里面的数据不需要重复拷贝到用户态空间，避免了很多不必要的时间、空间消耗。
+
+
 
 
 
