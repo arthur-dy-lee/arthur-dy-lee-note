@@ -31,10 +31,16 @@
 
 ## 四、 分布式
 
-### 4.1 分布式理论
+### 4.1 高并发高可用
+
+高并发(SS缓数异池NGR)
+
+高可用（超负压限降隔回灰故故）
+
+### 4.2 分布式理论
 - [分布式](distributed/-分布式.md)
 
-### 4.2 raft
+### 4.3 raft
 - [raft](raft/raft.md)
 - [raft原论文中文翻译](raft/raft-zh_cn/raft-zh_cn.md)
 - [raft英文(小)论文: In Search of an Understandable Consensus Algorithm](https://ramcloud.atlassian.net/wiki/download/attachments/6586375/raft.pdf)
