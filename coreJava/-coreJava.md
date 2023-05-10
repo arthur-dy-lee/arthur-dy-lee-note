@@ -25,7 +25,7 @@
 #### 可重入锁
 
 可重入锁又名递归锁，是指在同一个线程在外层方法获取锁的时候，在进入内层方法会自动获取锁。说的有点抽象，下面会有一个代码的示例。
-对于Java `ReentrantLock`而言, 他的名字就可以看出是一个可重入锁，其名字是`Re entrant Lock`重新进入锁。
+对于Java `ReentrantLock`而言, 他的名字就可以看出是一个可重入锁，其名字是`Reentrant Lock`重新进入锁。
 对于`Synchronized`而言,也是一个可重入锁。可重入锁的一个好处是可一定程度避免死锁。
 
 #### 独享锁/共享锁
@@ -68,7 +68,7 @@
 
 ##### 偏向锁
 
-在大多数情况下，锁总是由同一线程多次获得，不存在多线程竞争，所以出现了偏向锁，其目标就是在只有一个线程执行同步代码块时，降低获取锁带来的消耗，提高性能（可以通过J V M参数关闭偏向锁：-XX:-UseBiasedLocking=false，关闭之后程序默认会进入轻量级锁状态）。
+在大多数情况下，锁总是由同一线程多次获得，不存在多线程竞争，所以出现了偏向锁，其目标就是在只有一个线程执行同步代码块时，降低获取锁带来的消耗，提高性能（可以通过JVM参数关闭偏向锁：-XX:-UseBiasedLocking=false，关闭之后程序默认会进入轻量级锁状态）。
 
 线程执行同步代码或方法前，线程只需要判断对象头的`Mark Word`中线程`ID`与当前线程`ID`是否一致，如果一致直接执行同步代码或方法
 
@@ -118,7 +118,7 @@ Synchronized关键字可以用来修饰方法或者代码块。对于同步方�
 
 当第二个线程过来，两个线程产生了竞争，就会从偏向锁升级成自旋锁。自旋锁竞争状态中，没有获得锁的线程，就会不断自旋判断自己是否拿到了锁，没有拿到锁就会忙等。
 
-#### `Synchronized`的使用用方式有三种
+#### Synchronized的使用用方式有三种
 
 - 修饰普通函数，监视器锁（`monitor`）便是对象实例（`this`）
 - 修饰静态静态函数，视器锁（`monitor`）便是对象的`Class`实例（每个对象只有一个`Class`实例），又因为Class的相关数据存储在永久带PermGen（jdk1.8则是metaspace），永久带是全局共享的，因此静态方法锁相当于类的一个全局锁，会锁所有调用该方法的线程
@@ -130,7 +130,7 @@ Synchronized关键字可以用来修饰方法或者代码块。对于同步方�
 
 `monitorenter`指令插入到同步代码块的开始位置，`monitorexit`指令插入到同步代码块的结束位置，`JVM`需要保证每一个 `monitorenter`都有`monitorexit`与之对应。
 
-synchronized的对象锁，其指针指向的是一个monitor对象（由C++实现）的起始地址。每个对象实例都会有一个 monitor。其中monitor可以与对象一起创建、销毁；亦或者当线程试图获取对象锁时自动生成。**任何对象**都有一个监视器锁（`monitor`）关联，线程执行`monitorenter`指令时尝试获取`monitor`的所有权。
+synchronized的对象锁，其指针指向的是一个monitor对象（由C++实现）的起始地址。**每个对象实例都会有一个 monitor。其中monitor可以与对象一起创建、销毁；亦或者当线程试图获取对象锁时自动生成**。**任何对象**都有一个监视器锁（`monitor`）关联，线程执行`monitorenter`指令时尝试获取`monitor`的所有权。
 
 ```java
 ObjectMonitor() {
@@ -204,7 +204,7 @@ AQS相较于Synchronized内置了多个Condition，会针对Conditon进行精确
    - 公平锁：按照线程在队列中的排队顺序，先到者先拿到锁
    - 非公平锁：当线程要获取锁时，无视队列顺序直接去抢锁，谁抢到就是谁的
 
-2. Share（共享）：多个线程可同时执行，如Semaphore/CountDownLatch。Semaphore、CountDownLatch、 CyclicBarrier、ReadWriteLock
+2. Share（共享）：多个线程可同时执行，如Semaphore、CountDownLatch、 CyclicBarrier、ReadWriteLock
 
 ReentrantReadWriteLock可以看成是组合式，因为ReentrantReadWriteLock也就是读写锁允许多个线程同时对某一资源进行读。
 
@@ -518,7 +518,7 @@ jdk1.8中的ConcurrencyHashMap
 
 ### 2.5 treeMap
 
-TreeMap 继承于AbstractMap ，其是一个 有序的key-value集合，内部基于 红黑树 实现；TreeMap 根据 其key的自然顺序进行排序，或者在构造方法中指定 Comparator 进行排序；TreeMap的基本操作 containsKey()、get()、put() 和 remove() 的时间复杂度是 log(n)。
+TreeMap 继承于AbstractMap ，其是一个 有序的key-value集合，内部**基于红黑树**实现；TreeMap 根据 其key的自然顺序进行排序，或者在构造方法中指定 Comparator 进行排序；TreeMap的基本操作 containsKey()、get()、put() 和 remove() 的时间复杂度是 log(n)。
 另外，TreeMap是非同步的。
 
 #### 红黑树特征
@@ -618,6 +618,8 @@ Java 中每个线程都有与之关联的Thread对象，Thread对象中有一个
 ThreadLocalMap实现中已经考虑了这种情况，在调用 set()、get()、remove() 方法的时候，会清理掉 key 为 null 的记录。如果说会出现内存泄漏，那只有在出现了 key 为 null 的记录后，没有手动调用 remove() 方法，并且之后也不再调用 get()、set()、remove() 方法的情况下。
 
 [ThreadLocal 面试夺命11连问](https://blog.csdn.net/agonie201218/article/details/125933740)
+
+[ThreadLocal 夺命14连问](https://blog.csdn.net/qq_39687472/article/details/129213948)
 
 ### InheritableThreadLocal和TransmittableThreadLocal
 

@@ -123,7 +123,7 @@
 
 ## 八、coreJava
 
-- [coreJava](coreJava-coreJava.md)
+- [coreJava](coreJava/-coreJava.md)
 - [JVM](JVM/JVM调优.md)
 - [JVM调优参数](JVM/JVM参数.xlsx)
 
