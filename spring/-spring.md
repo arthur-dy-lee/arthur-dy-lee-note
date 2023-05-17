@@ -862,3 +862,33 @@ jwt的头部承载两部分信息：
 签发者、签发时间、过期时间、唯一身份标识，主要用来作为一次性token、
 3/signature
 base64加密后的header和base64加密后的payload使用.连接组成的字符串，然后通过header中声明的加密方式进行加盐secret组合加密，然后就构成了jwt的第三部分。
+
+### Session跨域问题
+
+之所以出现跨域问题，是因为浏览器的同源策略，为了隔离潜在的恶意文件，为了防御来自歪门邪道的攻击，浏览器限制了从同一个源加载的文档或脚本与来自另一个源的资源进行交互。
+
+#### spring-session解决同域名共享
+
+springboot开启 CORS 支持。跨域资源共享，也就是 Cross-Origin Resource Sharing，简拼为 CORS，是一种基于 HTTP 头信息的机制，通过允许服务器标识除了它自己以外的资源，从而实现跨域访问。
+
+spring-session技术是spring提供的用于处理集群会话共享的解决方案。spring-session技术是将用户session数据保存到三方存储容器中。如：MySQL，redis等。
+Spring-session技术是解决同域名下的多服务器集群session共享问题的。不能解决跨域session共享问题。所以互联网开发中越来越少使用这门技术。
+
+#### JWT
+
+JWT是目前最流行的一个[跨域](https://mp.weixin.qq.com/s/HTMDZaukCb7pyfHefVcfyg)认证解决方案：客户端发起用户登录请求，服务器端接收并认证成功后，生成一个 JSON 对象（如下所示），然后将其返回给客户端。
+
+## 八、常见问题
+
+1. 同步和阻塞的关系，SpringBoot里面的同步非阻塞
+
+
+
+
+
+
+
+
+
+
+
