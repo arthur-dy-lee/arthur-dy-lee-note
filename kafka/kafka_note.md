@@ -7,6 +7,8 @@
 
 **Apache Kafka是 一个分布式流处理平台**
 
+> Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
+
 流处理平台有以下三种特性:
 1. 要**发布**（写）和**订阅**（读）流事件，包括来自其他系统的数据的持续导入/导出的。
 2. **存储**持久和可靠的事件流
@@ -57,7 +59,7 @@ Kafka 最初是 LinkedIn 的一个内部基础设施系统。我们发现虽然�
 - **LSO**：Log Stable Offset。这是Kafka事务的概念。如果你没有使用到事务，那么这个值不存在（其实也不是不存在，只是设置成一个无意义的值）。该值控制了事务型消费者能够看到的消息范围。它经常与Log Start Offset，即日志起始位移值相混淆，因为有些人将后者缩写成LSO，这是不对的。在Kafka中，LSO就是指代Log Stable Offset。
 - **AR**：Assigned Replicas。AR是主题被创建后，分区创建时被分配的副本集合，副本个数由副本因子决定。
 - **ISR**：In-Sync Replicas。Kafka中特别重要的概念，指代的是AR中那些与Leader保持同步的副本集合。在AR中的副本可能不在ISR中，但Leader副本天然就包含在ISR中。关于ISR，还有一个常见的面试题目是**如何判断副本是否应该属于ISR**。目前的判断依据是：**Follower副本的LEO落后Leader LEO的时间，是否超过了Broker端参数replica.lag.time.max.ms值**。如果超过了，副本就会被从ISR中移除。
-- **HW**：高水位值（High watermark）。这是控制消费者可读取消息范围的重要字段。一个普通消费者只能“看到”Leader副本上介于Log Start Offset和HW（不含）之间的所有消息。水位以上的消息是对消费者不可见的。关于HW，问法有很多，我能想到的最高级的问法，就是让你完整地梳理下Follower副本拉取Leader副本、执行同步机制的详细步骤。这就是我们的第20道题的题目，一会儿我会给出答案和解析。
+- **HW**：高水位值（High watermark）。这是控制消费者可读取消息范围的重要字段。一个普通消费者只能“看到”Leader副本上介于Log Start Offset和HW（不含）之间的所有消息。水位以上的消息是对消费者不可见的。
 
 
 
@@ -95,15 +97,13 @@ Kafka 最初是 LinkedIn 的一个内部基础设施系统。我们发现虽然�
 
 一个典型的kafka集群中包含若干个Producer，若干个Broker，若干个Consumer，以及一个zookeeper集群； kafka通过zookeeper管理集群配置，选举leader，以及在Consumer Group发生变化时进行Rebalance（负载均衡）；Producer使用push模式将消息发布到Broker；Consumer使用pull模式从Broker中订阅并消费消息。
 
-![](pics/kafka_architecture.png)
+<img src="pics/kafka_architecture.png" style="zoom:33%;" />
 
 #### 3.1.1 controller
 
  Kafka的核心组件。它的主要作用是在Apache ZooKeeper的帮助下管理和协调整个Kafka集群。controller控制器是重度依赖ZooKeeper
 
 Broker在启动时，会尝试去ZooKeeper中创建/controller节点。Kafka当前选举控制器的规则是：**第一个成功创建/controller节点的Broker会被指定为控制器**。
-
-
 
 1. 主题管理（创建、删除、增加分区）
 
@@ -151,7 +151,7 @@ Kafka通过Zookeeper管理集群配置，选举leader，以及在Consumer Group�
 
 注册到消费者分组。每个消费者服务器启动时，都会到Zookeeper的指定节点下创建一个属于自己的消费者节点，例如/consumers/[group_id]/ids/[consumer_id]，完成节点创建后，消费者就会将自己订阅的Topic信息写入该临时节点。
 
-对 消费者分组 中的 消费者 的变化注册监听。每个 消费者 都需要关注所属 消费者分组 中其他消费者服务器的变化情况，即对/consumers/[group_id]/ids节点注册子节点变化的Watcher监听，一旦发现消费者新增或减少，就触发消费者的负载均衡。
+对 消费者分组中的消费者的变化注册监听。每个消费者都需要关注所属消费者分组中其他消费者服务器的变化情况，即对/consumers/[group_id]/ids节点注册子节点变化的Watcher监听，一旦发现消费者新增或减少，就触发消费者的负载均衡。
 
 对Broker服务器变化注册监听。消费者需要对/broker/ids/[0-N]中的节点进行监听，如果发现Broker服务器列表发生变化，那么就根据具体情况来决定是否需要进行消费者负载均衡。
 
@@ -181,7 +181,7 @@ Kafka通过Zookeeper管理集群配置，选举leader，以及在Consumer Group�
 
 - 一个 Topic 是由多个队列组成的，被称为【Partition（分区）】。
 - 生产者发送消息的时候，这条消息会被路由到此 Topic 中的某一个 Partition。
-- 消费者监听的是所有分区。
+- 消费者监听的是所有Partition。
 - 生产者发送消息时，默认是面向 Topic 的，由 Topic 决定放在哪个 Partition，默认使用轮询策略。
 - 也可以配置 Topic，让同类型的消息都在同一个 Partition。例如，处理用户消息，可以让某一个用户所有消息都在一个 Partition。用户1发送了3条消息：A、B、C，默认情况下，这3条消息是在不同的 Partition 中（如 P1、P2、P3）。在配置之后，可以确保用户1的所有消息都发到同一个分区中（如 P1）。这是为了提供消息的【有序性】。
 - **消息在不同的 Partition 是不能保证有序的，只有一个 Partition 内的消息是有序的。**
@@ -327,30 +327,30 @@ Reacor模式是一种事件驱动机制，他逆转了事件处理的流程，�
 2）Reactor对象通过select监听客户端请求事件，通过dispatch进行分发
 3）如果是建立链接请求，则由Acceptor通过accept处理链接请求，然后创建一个Handler对象处理完成链接后的各种事件
 4）如果不是链接请求，则由Reactor分发调用链接对应的Handler来处理
-5）Handler会完成Read->业务处理->send的完整业务流程
+5）**Handler会完成Read->业务处理->send的完整业务流程**
 
-![](pics/single_reactor_1thread.png)
+<img src="pics/single_reactor_1thread.png" style="zoom:33%;" />
 
 **2. 单Reactor多线程**
 
 1）Reactor对象通过select监听客户端请求事件，收到事件后，通过dispatch分发
 2）如果是建立链接请求，则由Acceptor通过accept处理链接请求，然后创建一个Handler对象处理完成链接后的各种事件
 3）如果不是链接请求，则由Reactor分发调用链接对应的Handler来处理
-4）Handler只负责事件响应不做具体业务处理
-5）通过read读取数据后，分发到worker线程池处理，处理完成后返回给Handler，Handler收到后，通过send将结果返回给client
+4）**Handler只负责事件响应不做具体业务处理**
+5）通过read读取数据后，**分发到worker线程池处理，处理完成后返回给Handler**，Handler收到后，通过send将结果返回给client
 
-![](pics/single_reactor_multithread.png)
+<img src="pics/single_reactor_multithread.png" style="zoom:33%;" />
 
 **3. 主从Reactor多线程**
 
-1）Reactor主线程MainReactor对象通过select监听链接事件，通过Acceptor处理
-2）当Acceptor处理链接事件后，MainReactor将链接分配给SubReactor
+1）Reactor**主线程MainReactor对象通过select监听链接事件，通过Acceptor处理**
+2）当Acceptor处理链接事件后，**MainReactor将链接分配给SubReactor**
 3）SubReactor将链接加入到队列进行监听，并创建Handler进行事件处理
 4）当有新事件发生时，SubReactor就会调用对应的Handler处理
-5）Handler通过read读取数据，分发到worker线程池处理，处理完成后返回给Handler，Handler收到后，通过send将结果返回给client
+5）**Handler通过read读取数据，分发到worker线程池处理**，处理完成后返回给Handler，Handler收到后，通过send将结果返回给client
 6）Reactor主线程可以对应多个Reactor子线程
 
-![](pics/two_reactor_multithread.png)
+<img src="pics/two_reactor_multithread.png" style="zoom:33%;" />
 
 更详细的版本：
 
@@ -362,7 +362,7 @@ Reacor模式是一种事件驱动机制，他逆转了事件处理的流程，�
 - Worker 线程池会分配独立的线程完成真正的业务处理，如何将响应结果发给 Handler 进行处理；
 - Handler 收到响应结果后通过 Send 将响应结果返回给 Client。
 
-![](pics/two_reactor_multithread2.png)
+<img src="pics/two_reactor_multithread2.png" style="zoom:33%;" />
 
 **总结**
 三种模式用生活案例来理解
@@ -445,8 +445,6 @@ AbstractServerThread是**Acceptor**线程和**Processor**线程的抽象基类�
 
 
 #### 3.2.4 通信流程
-
-
 
 ![](pics/Kafka_Reactor_connect.png)
 
@@ -622,10 +620,10 @@ boolean flushOK = request.waitForFlush(this.defaultMessageStore.getMessageStoreC
 1. acks=0，producer不等待broker的响应，效率最高，但是消息很可能会丢。
 2. acks=1，leader broker收到消息后，不等待其他follower的响应，即返回ack。也可以理解为ack数为1。此时，如果follower还没有收到leader同步的消息leader就挂了，那么消息会丢失。按照上图中的例子，如果leader收到消息，成功写入PageCache后，会返回ack，此时producer认为消息发送成功。但此时，按照上图，数据还没有被同步到follower。如果此时leader断电，数据会丢失。
 3. acks=-1，leader broker收到消息后，挂起，等待所有ISR列表中的follower返回结果后，再返回ack。-1等效与all。这种配置下，只有leader写入数据到pagecache是不会返回ack的，还需要所有的ISR返回“成功”才会触发ack。如果此时断电，producer可以知道消息没有被发送成功，将会重新发送。如果在follower收到数据以后，成功返回ack，leader断电，数据将存在于原来的follower中。在重新选举以后，新的leader会持有该部分数据。数据从leader同步到follower，需要2步：
-   - 数据从pageCache被刷盘到disk。因为只有disk中的数据才能被同步到replica。
-   - 数据同步到replica，并且replica成功将数据写入PageCache。在producer得到ack后，哪怕是所有机器都停电，数据也至少会存在于leader的磁盘内。
+   - **数据从pageCache被刷盘到disk。因为只有disk中的数据才能被同步到replica。**
+   - **数据同步到replica，并且replica成功将数据写入PageCache。在producer得到ack后，哪怕是所有机器都停电，数据也至少会存在于leader的磁盘内。**
 
-上面第三点提到了ISR的列表的follower，需要配合另一个参数才能更好的保证ack的有效性。ISR是Broker维护的一个“可靠的follower列表”，in-sync Replica列表，broker的配置包含一个参数：min.insync.replicas。该参数表示ISR中最少的副本数。如果不设置该值，ISR中的follower列表可能为空。此时相当于acks=1。
+上面第三点提到了ISR的列表的follower，需要配合另一个参数才能更好的保证ack的有效性。ISR是Broker维护的一个“可靠的follower列表”，in-sync Replica列表，broker的配置包含一个参数：**min.insync.replicas。该参数表示ISR中最少的副本数**。如果不设置该值，ISR中的follower列表可能为空。此时相当于acks=1。
 
 ### 3.4 高可用模型及幂等
 
@@ -642,10 +640,11 @@ Kafka 使用完全不同的方式解决消息丢失问题。Kafka的 topic 被�
 #### 3.4.3 一旦分区上的所有备份节点都挂了，怎么去保证数据不会丢失
 
 一旦分区上的所有备份节点都挂了，怎么去保证数据不会丢失，这里有两种实现的方法
-1.等待一个 ISR 的副本重新恢复正常服务，并选择这个副本作为领 leader （它有极大可能拥有全部数据）。
-2.选择第一个重新恢复正常服务的副本（不一定是 ISR 中的）作为leader。
-kafka 默认选择第二种策略，当所有的 ISR 副本都挂掉时，会选择一个可能不同步的备份作为 leader ，可以配置属性 unclean.leader.election.enable 禁用此策略，那么就会使用第 一种策略即停机时间优于不同步。
-这种困境不只有 Kafka 遇到，它存在于任何 quorum-based 规则中。例如，在大多数投票算法当中，如果大多数服务器永久性的挂了，那么您要么选择丢失100%的数据，要么违背数据的一致性选择一个存活的服务器作为数据可信的来源。
+
+1. 等待一个 ISR 的副本重新恢复正常服务，并选择这个副本作为领 leader （它有极大可能拥有全部数据）。
+2. 选择第一个重新恢复正常服务的副本（不一定是 ISR 中的）作为leader。
+   kafka 默认选择第二种策略，当所有的 ISR 副本都挂掉时，会选择一个可能不同步的备份作为 leader ，可以配置属性 unclean.leader.election.enable 禁用此策略，那么就会使用第 一种策略即停机时间优于不同步。
+   这种困境不只有 Kafka 遇到，它存在于任何 quorum-based 规则中。例如，在大多数投票算法当中，如果大多数服务器永久性的挂了，那么您要么选择丢失100%的数据，要么违背数据的一致性选择一个存活的服务器作为数据可信的来源。
 
 默认情况下，当 acks = all 时，只要 ISR 副本同步完成，就会返回消息已经写入。
 
@@ -655,7 +654,7 @@ kafka 默认选择第二种策略，当所有的 ISR 副本都挂掉时，会选
 
 - at-least-once：
   至少一次，有可能会有多次。如果producer收到来自ack的确认，则表示该消息已经写入到Kafka了，此时刚好是一次，也就是我们后面的exactly-once。但是如果producer超时或收到错误，并且request.required.acks配置的不是-1，则会重试发送消息，客户端会认为该消息未写入Kafka。如果broker在发送Ack之前失败，但在消息成功写入Kafka之后，这一次重试将会导致我们的消息会被写入两次，所以消息就不止一次地传递给最终consumer，如果consumer处理逻辑没有保证幂等的话就会得到不正确的结果。
-  在这种语义中会出现乱序，也就是当第一次ack失败准备重试的时候，但是第二消息已经发送过去了，这个时候会出现单分区中乱序的现象,我们需要设置Prouducer的参数max.in.flight.requests.per.connection，flight.requests是Producer端用来保存发送请求且没有响应的队列，保证Producer端未响应的请求个数为1。
+  在这种语义中会出现乱序，也就是当第一次ack失败准备重试的时候，但是第二消息已经发送过去了，这个时候会出现单分区中乱序的现象,我们需要设置**Prouducer的参数max.in.flight.requests.per.connection，flight.requests是Producer端用来保存发送请求且没有响应的队列，保证Producer端未响应的请求个数为1**。
 - at-most-once:
   如果在ack超时或返回错误时producer不重试，也就是我们讲request.required.acks=-1，则该消息可能最终没有写入kafka，所以consumer不会接收消息。
 - exactly-once：
@@ -776,7 +775,7 @@ write(socket, tmp_buf, len);
 
 **常规文件操作为了提高读写效率和保护磁盘，使用了页缓存机制。**这样造成读文件时需要先**将文件页从磁盘拷贝到页缓存中**，由于页缓存处在内核空间，不能被用户进程直接寻址，所以还需要**将数据页从页缓存中再次拷贝到内存对应的用户空间中**。这样，通过了两次数据拷贝过程，才能完成进程对文件内容的获取任务。写操作也是一样，待写入的buffer在内核空间不能直接访问，必须要先拷贝至内核空间对应的主存，再写回磁盘中（延迟写回），也是需要两次数据拷贝。
 
-![](pics/Traditional_IO.png)
+<img src="pics/Traditional_IO.png" style="zoom:67%;" />
 
 **文件到套接字的常见数据传输路径**
 
@@ -814,7 +813,7 @@ write(sockfd, buf, len);
 
 **mmap()系统调用函数会直接把内核缓冲区里的数据「**映射**」到用户空间，这样，操作系统内核与用户空间就不需要再进行任何的数据拷贝操作，它替换了read()系统调用函数。**
 
-![](pics/mmap.png)
+<img src="pics/mmap.png" style="zoom:33%;" />
 
 
 
@@ -834,7 +833,7 @@ sendfile可以替代前面的 `read()` 和 `write()` 这两个系统调用，这
 ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 ```
 
-![](pics/sendfile.png)
+<img src="pics/sendfile.png" style="zoom:33%;" />
 
 如果网卡支持 SG-DMA（*The Scatter-Gather Direct Memory Access*）技术（和普通的 DMA 有所不同），我们可以进一步减少通过 CPU 把内核缓冲区里的数据拷贝到 socket 缓冲区的过程。
 
@@ -843,7 +842,7 @@ ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 第一步，通过 DMA 将磁盘上的数据拷贝到内核缓冲区里；
 第二步，缓冲区描述符和数据长度传到 socket 缓冲区，这样网卡的 SG-DMA 控制器就可以直接将内核缓存中的数据拷贝到网卡的缓冲区里，此过程不需要将数据从操作系统内核缓冲区拷贝到 socket 缓冲区中，这样就减少了一次数据拷贝；
 
-![](pics/sendfile2.png)
+<img src="pics/sendfile2.png" style="zoom: 33%;" />
 
 **零拷贝（Zero-copy）技术，因为我们没有在内存层面去拷贝数据，也就是说全程没有通过 CPU 来搬运数据，所有的数据都是通过 DMA 来进行传输的。**
 
@@ -977,11 +976,78 @@ netty也有使用到, 以及它所用的mmap, epoll
 
 
 
+## 六、其它扩展
 
+### 6.1 延时队列时间轮
 
-## 六、常见问题QA
+Kafka 中有很多延时操作，比如消息只保存7天(默认)
 
-#### 6.1 无消息丢失如何配置
+Kafka 没有使用 JDK 自带的 Timer 和 DelayQueue 实现。因为时间复杂度上这两者插入和删除操作都是 O(logn)，不能满足 Kafka 的高性能要求。
+
+JDK Timer 和 DelayQueue 底层都是个优先队列，即采用了 minHeap 的数据结构，最快需要执行的任务排在队列第一个，不一样的是 Timer 中有个线程去拉取任务执行，DelayQueue 其实就是个容器，需要配合其他线程工作。ScheduledThreadPoolExecutor 是 JDK 的定时任务实现的一种方式，其实也就是 DelayQueue + 池化线程的一个实现。
+
+Kafka 基于时间轮实现了延时操作，时间轮算法的插入删除操作都是 O(1) 的时间复杂度，满足了 Kafka 对于性能的要求。除了 Kafka 以外，像 Netty 、ZooKeepr、Dubbo 这样的开源项目都有使用到时间轮的实现。
+
+#### Kafka 时间轮算法
+
+Kafka 中的时间轮（TimingWheel）是一个存储定时任务的环形队列，底层采用数组实现，数组中的每个元素可以存放一个定时任务列表（TimerTaskList）。TimerTaskList是一个环形的双向链表，链表中的每一项表示的都是定时任务项（TimerTaskEntry），其中封装了真正的定时任务（TimerTask）。
+
+<img src="pics/timewheel1.png" style="zoom: 67%;" />
+
+图中的几个参数：
+
+- tickMs: 时间跨度
+
+- wheelSize: 时间轮中 bucket 的个数
+
+- startMs: 开始时间
+
+- interval：时间轮的整体时间跨度 = tickMs * wheelSize
+
+- currentTime: tickMs 的整数倍，代表时间轮当前所处的时间
+
+  currentTime可以将整个时间轮划分为到期部分和未到期部分，currentTime当前指向的时间格也属于到期部分，表示刚好到期，需要处理此时间格所对应的TimerTaskList中的所有任务
+
+整个时间轮的总体跨度是不变的，随着指针currentTime的不断推进，当前时间轮所能处理的时间段也在不断后移，总体时间范围在currentTime和currentTime+interval之间。
+
+#### **如何支持大跨度的定时任务**
+
+如果要支持几十万毫秒的定时任务，难不成要扩容时间轮的那个数组？实际上这里有两种解决方案：
+
+- 使用增加轮次/圈数的概念（Netty 的 HashedWheelTimer ）
+  - 举例来说，比如目前是 "0-7" 8个槽，41 % 8 + 1 = 2，即应该放在槽位是 2，下标是 1 的位置。然后 ( 41 - 1 ) / 8 = 5，即轮数记为 5。也就是说当循环 5 轮之后扫到下标的 1 的这个槽位会触发这个任务。
+  - 具体实现细节这里不详述
+- 使用多层时间轮的概念 （Kafka 的 TimingWheel）
+  - 相较于上个方案，层级时间轮能更好控制时间粒度，可以应对更加复杂的定时任务处理场景，适用的范围更广；
+
+多层时间轮就更像我们钟表的概念了。秒针走的一圈、分针走的一圈和时针走的一圈就形成了一个多层时间轮的关系。
+
+<img src="pics/timewheel2.png" style="zoom:67%;" />
+
+第N层时间轮走了一圈，等于 N+1 层时间轮走一格。即高一层时间轮的时间跨度等于当前时间轮的整体跨度。
+
+在任务插入时，如果第一层时间轮不满足条件，就尝试插入到高一层的时间轮，以此类推。
+
+随着时间推进，也会有一个时间轮降级的操作，原本延时较长的任务会从高一层时间轮重新提交到时间轮中，然后会被放在合适的低层次的时间轮当中等待处理；
+
+**在 Kafka 中时间轮之间如何关联呢，如何展现这种高一层的时间轮关系？**
+
+其实很简单就是一个内部对象的指针，指向自己高一层的时间轮对象。
+
+**另外还有一个问题，如何推进时间轮的前进，让时间轮的时间往前走。**
+
+- Netty 中的时间轮是通过工作线程按照固定的时间间隔 tickDuration 推进的
+  - `tickDuration`：即一个 bucket 代表的时间，默认为 100ms，Netty 认为大多数场景下不需要修改这个参数
+  - 如果长时间没有到期任务，这种方案会带来空推进的问题，从而造成一定的性能损耗；
+- Kafka 则是通过 DelayQueue 来推进，是一种空间换时间的思想；
+  - DelayQueue 中保存着所有的 TimerTaskList 对象，根据时间来排序，这样延时越小的任务排在越前面。
+  - 外部通过一个线程（叫做ExpiredOperationReaper）从 DelayQueue 中获取超时的任务列表 TimerTaskList，然后根据 TimerTaskList 的 **过期时间来精确推进时间轮的时间**，这样就不会存在空推进的问题啦。
+
+**其实 Kafka 采用的是一种权衡的策略，把 DelayQueue 用在了合适的地方。DelayQueue 只存放了 TimerTaskList，并不是所有的 TimerTask，数量并不多，相比空推进带来的影响是利大于弊的**。
+
+## 七、常见问题QA
+
+#### 7.1 无消息丢失如何配置
 
 **producer**
 
@@ -1025,7 +1091,7 @@ netty也有使用到, 以及它所用的mmap, epoll
 
 4. 确保 replication.factor > min.insync.replicas。如果两者相等，那么只要有一个副本挂机，整个分区就无法正常工作了。我们不仅要改善消息的持久性，防止数据丢失，还要在不降低可用性的基础上完成。推荐设置成 replication.factor = min.insync.replicas + 1。
 
-#### 6.2 producer在接收到ack后会刷盘吗？有可能丢消息吗？
+#### 7.2 producer在接收到ack后会刷盘吗？有可能丢消息吗？
 
 producer在接收到broker的ack后不会刷盘，有可能丢消息。
 
@@ -1036,17 +1102,17 @@ kafka 通过「多 Partition （分区）多 Replica（副本）机制」已经�
 
 更多配置见上面。
 
-#### 6.3 如何保证消息的顺序存储
+#### 7.3 如何保证消息的顺序存储
 
 1. 全局有序只能让一个Topic只有一个Partition。可以通过生产者在写消息的时候指定一个key，通过partitionKey将某类消息写入同一个Partition中。
 2. Kafka通过引入生产者的幂等性来解决重传机制引起的消息乱序。每一个新的生产者在初始化的时候会生成一个Producer ID，即PID。对于每一个PID，该Producer发送消息的每个<Topic,Partition> 都对应一个单调递增的Sequence Number。broker端会缓存这个序号。每收到一条消息，判断该消息的序号是否比缓存的序号大1，是则接收，不是则丢弃。
 
-#### 6.4 顺序消费
+#### 7.4 顺序消费
 
 1. Kafka 只保证单Partition有序，而不保证主题中不同分区的顺序。每个 partition 分区按照key值排序足以满足大多数应用程序的需求。但如果你需要总记录在所有记录的上面，可使用仅有一个分区的主题来实现，这意味着每个消费者组只有一个消费者进程。
 2. 使用Kafka key+offset做到业务有序，后根据key+offset存储到时序数据库或ES中。 key区分相同的业务，offset区分前后进入的顺序。使用场景比如用户画像分析，用户id做key，用户的操作先后根据offset排序，后对用户的行为进行分析。
 
-#### 6.5 消息优先级
+#### 7.5 消息优先级
 
 实际上，这个需求也在Kafka的官方需求中([KIP-349: Priorities for Source Topics](https://cwiki.apache.org/confluence/display/KAFKA/KIP-349%3A+Priorities+for+Source+Topics))，目前的状态是Under Vote，这个Proposal是2019年提出来的，看来官方的方案是指望不上了，只能找些第三方的轮子，或者自己来实现。
 
@@ -1067,11 +1133,11 @@ kafka 通过「多 Partition （分区）多 Replica（副本）机制」已经�
 
    每次都要串行的判断各个优先级数据是否存在，实际的场景中往往是高优消息时比较少的，每次轮询到较低优先级才拉取到消息，一个consumer在性能上可能存在问题。
 
-3. **权重消费**。使用不同的consumer分别拉取各个topic，但是拉取的消息数量不同，对于高优先级的消息，拉取的“配额”更多。
+3. **权重消费**。使用不同的consumer分别拉取各个topic，但是拉取的消息数量不同，对于**高优先级的消息，拉取的“配额”更多**。
 
    有一个开源的实现[flipkart-incubator/priority-kafka-client](https://github.com/flipkart-incubator/priority-kafka-client)。对于每次拉取的数量，按照优先级的“权重”不同，分配到不同的topic上。默认的分配策略是按照指数分配。
 
-4. **桶优先级消费**。开源实现：[prioritization-kafka](https://github.com/riferrei/prioritization-kafka) 
+4. **桶优先级消费**。**优先级高的有更多数量的Partition, 消费的时候，更多的消费者去消费。**开源实现：[prioritization-kafka](https://github.com/riferrei/prioritization-kafka) 
 
 **权重消费**
 
@@ -1099,13 +1165,13 @@ configs.setProperty(BucketPriorityConfig.ALLOCATION_CONFIG, "70%, 30%");
 
 ![](pics/bucket_partitioner3.png)
 
-#### 6.6 kafka为什么不支持主从读写
+#### 7.6 kafka为什么不支持主从读写
 
 主从的模式带来的数据延迟，从节点总是会落后主节点ms级别，甚至s级别。但是在kafka除了用做削峰，异步的中间件外，它还是流式处理中间件，比如Flink,Spark，Spark的实时性要求不高，它是一批一批处理，减少批次间的间隔来完成假的实时功能；但Flink对实时性要求比较高。在实时性要求高的场景下，如果出现秒级甚至由于网络的原因，出现了分区级别的延迟，这是不能接受的。
 
 自Kafka 2.4版本开始，社区通过引入新的Broker端参数，允许Follower副本有限度地提供读服务。
 
-#### 6.7 数据积压，如何提高吞吐量
+#### 7.7 数据积压，如何提高吞吐量
 
 **broker端**
 
@@ -1117,48 +1183,48 @@ configs.setProperty(BucketPriorityConfig.ALLOCATION_CONFIG, "70%, 30%");
 1. 如果是kafka的消费能力不足，则可以考虑**增加topic的分区数**，并且同时提升消费组的消费者数量，**消费者数=分区数**，两者缺一不可
 2. 如果是下游的数据处理不及时，**提高每批次拉取的数量。** 批次拉取数量过少(拉取数据/处理时间 < 生产速度)，使处理的数据小于生产的数据，也会造成数据积压
 
-#### 6.8 消息默认保存多久
+#### 7.8 消息默认保存多久
 
 默认保存7天。kafka支持消息持久化，消费端为拉模型来拉取数据，消费状态和订阅关系有客户端负责维护，消息消费完后，不会立即删除，会保留历史消息。因此支持多订阅时，消息只会存储一份就可以了。
 
-#### 6.9 哪些情况会落后于leader？
+#### 7.9 哪些情况会落后于leader？
 
 - 副本是新加入的，直到它同步与leader一致才能加入ISR
 - 副本卡死，副本机器死亡或GC卡死
 - 副本同步因为网络或其它原因导致延迟
 
-#### 6.10 怎么判断副本落后？
+#### 7.10 怎么判断副本落后？
 replica.lag.time.max.ms参数：如果副本落后超过这个时间就判定为落后了，直到它回来。消息复制分为异步和同步，ISR是动态的，有进有出。
 
-#### 6.11 哪些情况consumer会发生再均衡的情形呢？
+#### 7.11 哪些情况consumer会发生再均衡的情形呢？
 
 1. 同一组中消费者数量发生变化
 2. 主题的分区数发生变化，加减分区
 3. 组协调者节点下线
 
-#### 6.12 in-memory cache 和 in-process cache
+#### 7.12 in-memory cache 和 in-process cache
 
 in-memory cache（内存缓存）是位于应用程序和数据库之间的数据存储层，通过存储来自早期请求的数据或直接从数据库复制的数据来高速传递响应。当构建在基于磁盘的数据库上的应用程序必须在处理之前从磁盘检索数据时，内存中的缓存可以消除性能延迟。从内存读取数据比从磁盘读取数据快。内存缓存避免了延迟，提高了在线应用程序的性能。
 
 in-process cache（进程内缓存）是在与应用程序相同的地址空间中构建的对象缓存，在使用进程内缓存时，缓存元素只存在于应用程序的单个实例中。谷歌Guava库提供了一个简单的进程内缓存API，这就是一个很好的例子。另一方面，分布式缓存位于应用程序外部，很可能部署在多个节点上，形成一个大型逻辑缓存。Memcached是一种流行的分布式缓存。来自Terracotta的Ehcache是一款可以配置为任意一种功能的产品。
 
-#### 6.13 一个Partition就是一个queue吗？
+#### 7.13 一个Partition就是一个queue吗？
 
 和java中的queue没有关系，一个Partition是由一个或多个segment文件组成。
 
-#### 6.14 新增一个consumer是会发生什么？
+#### 7.14 新增一个consumer是会发生什么？
 
 [What happens when a new consumer joins the group in Kafka?](https://chrzaszcz.dev/2019/06/kafka-rebalancing/)
 
-#### 6.15 一个消费者可以订阅和消费多个topic? 
+#### 7.15 一个消费者可以订阅和消费多个topic? 
 
 消费者组中的2个或多个消费者可以订阅不同的topic。同一个topic下的某一个分区只能被某个组中的同一个消费者所消费。
 
-#### 6.17 什么是事件流(**event streaming**)?
+#### 7.17 什么是事件流(**event streaming**)?
 
 **event streaming 是一个动态的概念，它描述了一个个 event ( “something happened” in the world ) 在不同主体间连续地、正确地流动的状态(state)**。event source 产生 event，event source 可以是数据库、传感器、移动设备、应用程序，等等。
 
-![](pics/event_source.png)
+<img src="pics/event_source.png" style="zoom: 50%;" />
 
 event source 产生 event，event source 可以是数据库、传感器、移动设备、应用程序，等等。
 event broker 持久化 event，以备 event sink 可以随时获取它们。
@@ -1187,7 +1253,7 @@ producer 发布 event，broker 持久化 even，consumer 订阅 event。
 
 事件流是一个或多个**状态的改变**，它具有实时性，它的来源多种多样，可以是事务记录、IOT数据、业务和操作的metrics等，而这些数据来源，即事件具有一系列的连续性。
 
-#### 6.18 直接io和裸io区别
+#### 7.18 直接io和裸io区别
 
 直接io是经过文件系统但不经过page cache，直接io的一个比较常见的用法就是在备份文件的时候会用直接io，这样它不会污染文件系统的cache，造成缓存命中率的下降。
 
@@ -1195,36 +1261,36 @@ producer 发布 event，broker 持久化 even，consumer 订阅 event。
 
 裸io指direct io。有两种绕过文件系统的方法： 1、禁止掉文件系统的io缓存。这种做法实际上不是绕过文件系统，而是不采纳文件系统的io缓存算法。因为数据库可能自己有自己的缓存算法，如果文件系统也有缓存，就比较累赘，浪费了宝贵的内存空间，同样的内存空间给数据库扩大缓存空间更好。 2、直接裸写磁盘分区。这时不存在文件系统，也就是说磁盘分区不需要格式化。这种做法在对象存储系统中用得更多一点，在数据库中用得不多。
 
-#### 6.19 follower如何同步leader? 如何保证数据强一致性？
+#### 7.19 follower如何同步leader? 如何保证数据强一致性？
 
 Kafka中partition replication之间同步数据，从partition的leader复制数据到follower只需要一个线程(ReplicaFetcherThread)，实际上复制是follower(一个follower相当于consumer)主动从leader批量拉取消息的。Kafka中每个Broker启动时都会创建一个副本管理服务(ReplicaManager)，该服务负责维护ReplicaFetcherThread与其他Broker链路连接关系，该Broker中存在多少Follower的partitions，就会创建相同数量的ReplicaFetcherThread线程同步对应partition数据，Kafka中partition间复制数据是由follower(扮演consumer角色)主动向leader获取消息，follower每次读取消息都会更新HW状态。
 
 当Producer发送消息到leader partition所在Broker时，首先保证leader commit消息成功，然后创建一个“生产者延迟请求任务”，并判断当前partiton的HW是否大于等于logEndOffset，如果满足条件即表示本次Producer请求partition replicas之间数据已经一致，立即向Producer返回Ack。否则待Follower批量拉取Leader的partition消息时，同时更新Leader ISR中HW，然后检查是否满足上述条件，如果满足向Producer返回Ack。
 
-#### 6.20 堆外内存
+#### 7.20 堆外内存
 
 kafka并没有直接使用堆外内存，但由于kafka的网络IO使用了java的nio中的DirectMemory的方式,而这个申请的是堆外内存。在对于HeapByteBuffer进行读写操作时，需要开辟堆外内存空间作为中间数据交换的空间。而这部分堆外内存并非由Kafka直接申请，而是由JVM申请。
 
 如果在jvm参数里，`-XX:MaxDirectMemorySize`参数配置的过小，kafka可能会出现java.lang.OutOfMemoryError: Direct buffer memory的错误。
 
-#### 6.21 Kafka判断一个节点是否活着有两个条件
+#### 7.21 Kafka判断一个节点是否活着有两个条件
 
 1. 节点必须可以维护和ZooKeeper的连接，Zookeeper通过心跳机制检查每个节点的连接。
 2. 如果节点是个follower,他必须能及时的同步leader的写操作，延时不能太久。
 
 符合以上条件的节点准确的说应该是“同步中的（in sync）”，而不是模糊的说是“活着的”或是“失败的”。Leader会追踪所有“同步中”的节点，一旦一个down掉了，或是卡住了，或是延时太久，leader就会把它移除。至于延时多久算是“太久”，是由参数replica.lag.max.messages决定的，怎样算是卡住了，怎是由参数replica.lag.time.max.ms决定的。
 
-#### 6.22 Kafa consumer是否可以消费指定分区消息？
+#### 7.22 Kafa consumer是否可以消费指定分区消息？
 
 在某些业务场景下，比如上游生产者希望通过分区将不同类型的业务数据发送到不同的分区，而对下游的消费者来说，就需要从指定的分区消费数据；或者在另一种业务情况下，消费者希望能够顺序消费，那么就可以通过生产端将消息发送到指定的分区下即可；
 
-#### 6.23 Kafka存储在硬盘上的消息格式是什么？
+#### 7.23 Kafka存储在硬盘上的消息格式是什么？
 
 Segment由log、index、timeindex三个文件组成，index和timeindex分别是一些索引信息。
 
 消息由一个固定长度的头部和可变长度的字节数组组成。头部包含了一个版本号、CRC32校验码、消息长度、具体的消息。
 
-#### 6.24 Kafka创建Topic时如何将分区放置到不同的Broker中
+#### 7.24 Kafka创建Topic时如何将分区放置到不同的Broker中
 
 [实现类AdminUtils](https://github.com/apache/kafka/blob/trunk/core/src/main/scala/kafka/admin/AdminUtils.scala)
 
@@ -1233,13 +1299,13 @@ Segment由log、index、timeindex三个文件组成，index和timeindex分别是
 3. **其他分区的第⼀个副本放置位置相对于第 0 个分区依次往后移**。也就是如果我们有 5 个Broker， 5个分区，假设第⼀个分区放在第四个 Broker 上，那么第⼆个分区将会放在第五个 Broker 上；第三个分区将会放在第⼀个 Broker 上；第四个分区将会放在第⼆个Broker 上，依次类推；
 4. 剩余的副本相对于第⼀个副本放置位置其实是由 nextReplicaShift 决定的，⽽ 这个数也是随机产⽣的
 
-#### 6.25 Kafka新建的分区会在哪个目录下创建
+#### 7.25 Kafka新建的分区会在哪个目录下创建
 
 配置好 log.dirs 参数，其值是 Kafka 数据的存放目录。
 
 Kafka 会在含有分区目录最少的文件夹中创建新的分区目录，分区目录名为 Topic名+分区 ID。注意，是分区文件夹总数最少的目录，而不是磁盘使用量最少的目录！也就是说，如果你给 log.dirs 参数新增了一个新的磁盘，新的分区目录肯定是先在这个新的磁盘上创建直到这个新的磁盘目录拥有的分区目录不是最少为止。
 
-#### 6.26 Kafka再平衡机制
+#### 7.26 Kafka再平衡机制
 
 所谓的再平衡，指的是在kafka consumer所订阅的topic发生变化时发生的一种分区重分配机制。一般有三种情况会触发再平衡：
 
@@ -1258,13 +1324,13 @@ Kafka提供的再平衡策略主要有三种：`Round Robin`，`Range`和`Sticky
 - - 将现有的分区尽可能均衡的分配给各个consumer，存在此目的的原因在于`Round Robin`和`Range`分配策略实际上都会导致某几个consumer承载过多的分区，从而导致消费压力不均衡；
   - 如果发生再平衡，那么重新分配之后在前一点的基础上会尽力保证当前未宕机的consumer所消费的分区不会被分配给其他的consumer上；
 
-#### 6.27 kafka为什么比rocketmq支持的单机partion要少?
+#### 7.27 kafka为什么比rocketmq支持的单机partion要少?
 
 kafka是一个分区一个文件，当topic过多，分区的总量也会增加，kafka中存在过多的文件，当对消息刷盘时，就会出现文件竞争磁盘，出现性能的下降。
 
 rocketMq中，所有的队列都存储在一个文件中，每个队列的存储的消息量也比较小，因此topic的增加对rocketMq的性能的影响较小。也从而rocketMq可以存在的topic比较多，可以适应比较复杂的业务。
 
-#### 6.28 partition分区数设置多少合适
+#### 7.28 partition分区数设置多少合适
 
 没有一个统一的标准答案，可以根据当前这个topic所属业务的某个维度来，也可以按照你kafka的broker数量来决定，还可以根据kafka系统默认的分区数量来。 
 
@@ -1278,11 +1344,11 @@ rocketMq中，所有的队列都存储在一个文件中，每个队列的存储
 1. 性能。如果一次有大批量的数据过来，需要在短时间内存储，那么在资源请允许的情况下，尽量设置多一些，增加吞吐量，partition数量>=consumer数量，这些也影响comsumer的消费速度；如果在资源有限，一旦单个broker的partition过多，则顺序写将退化为随机写，Page Cache脏页过多，频繁触发缺页中断，性能大幅下降。
 2. 业务的角度。有多少数据源，或者按业务的维度去划分更有利于消费，比如topic省市来划分partition等
 
-#### 6.28 kafka删除topic
+#### 7.28 kafka删除topic
 
-![](pics/delete_topic.png)
+<img src="pics/delete_topic.png" style="zoom: 40%;" />
 
-#### 6.29 consumer 再平衡步骤
+#### 7.29 consumer 再平衡步骤
 
 **coordinator**:协调者，负责消费者组内成员的leader选举、组内再平衡、组offset提交等功能。
 
@@ -1302,7 +1368,7 @@ rocketMq中，所有的队列都存储在一个文件中，每个队列的存储
 4. 消费者leader会负责制定消费方案
 5. 把消费方案发给 coordinator，即**消费者leader向协调者发送SyncGroup请求**
 6. Coordinator 就把消费方案下发给各个consumer
-7. 每个消费者都会和 coordinator 保持心跳（ 默认 3s ），一旦超时 session.timeout.ms= 45s ），该消费者会被移除，并触发再平衡；或者消费者处理消息的过长（max.poll.interval.ms 5 分钟），也会触发再 平衡
+7. 每个消费者都会和 coordinator 保持心跳（ 默认 3s ），一旦超时 session.timeout.ms= 45s ），该消费者会被移除，并触发再平衡；或者消费者处理消息的过长（max.poll.interval.ms 5 分钟），也会触发再平衡
 
 **分区分配策略的选择**
 
@@ -1313,7 +1379,7 @@ rocketMq中，所有的队列都存储在一个文件中，每个队列的存储
 3.  每个消费者需要从候选集里找出一个自己支持的策略，并且为这个策略投票
 4.  最终计算候选集中各个策略的选票数，票数最多的就是当前消费组的分配策略 
 
-#### 6.30 KafkaProducer何时创建TCP连接？
+#### 7.30 KafkaProducer何时创建TCP连接？
 
 Apache Kafka的所有通信都是基于TCP的，而不是基于HTTP或其他协议。
 
@@ -1336,11 +1402,11 @@ Producer端关闭TCP连接的方式有两种：**一种是用户主动关闭；�
 
 Kafka帮你关闭，这与Producer端参数connections.max.idle.ms的值有关。默认情况下该参数值是9分钟，即如果在9分钟内没有任何请求“流过”某个TCP连接，那么Kafka会主动帮你把该TCP连接关闭。用户可以在Producer端设置connections.max.idle.ms=-1禁掉这种机制。一旦被设置成-1，TCP连接将成为永久长连接。
 
-在第二种方式中，TCP连接是在Broker端被关闭的，但其实这个TCP连接的发起方是客户端，因此在TCP看来，这属于被动关闭的场景，即passive close。被动关闭的后果就是会产生大量的CLOSE\_WAIT连接，因此Producer端或Client端没有机会显式地观测到此连接已被中断。如果设置该参数=-1，那么步骤1中创建的TCP连接将无法被关闭，从而成为“僵尸”连接
+在第二种方式中，TCP连接是在Broker端被关闭的，但其实这个TCP连接的发起方是客户端，因此在TCP看来，这属于被动关闭的场景，即 close。被动关闭的后果就是会产生大量的CLOSE\_WAIT连接，因此Producer端或Client端没有机会显式地观测到此连接已被中断。如果设置该参数=-1，那么步骤1中创建的TCP连接将无法被关闭，从而成为“僵尸”连接
 
 **和生产者不同的是，构建KafkaConsumer实例时是不会创建任何TCP连接的**
 
-#### 6.31 KafkaConsumer何时创建TCP连接？
+#### 7.31 KafkaConsumer何时创建TCP连接？
 
 1. 发起FindCoordinator请求时
 
@@ -1354,21 +1420,21 @@ Kafka帮你关闭，这与Producer端参数connections.max.idle.ms的值有关�
 
 **当第三类TCP连接成功创建后，消费者程序就会废弃第一类TCP连接**，之后在定期请求元数据时，它会改为使用第三类TCP连接。也就是说，最终你会发现，第一类TCP连接会在后台被默默地关闭掉。对一个运行了一段时间的消费者程序来说，只会有后面两类TCP连接存在。
 
-#### 6.32 comsumer自动提交位移的顺序
+#### 7.32 comsumer自动提交位移的顺序
 
 一旦设置了enable.auto.commit为true，Kafka会保证在开始调用poll方法时，提交上次poll返回的所有消息。从顺序上来说，poll方法的逻辑是先提交上一批消息的位移，再处理下一批消息，因此它能保证不出现消费丢失的情况。但自动提交位移的一个问题在于，**它可能会出现重复消费**。
 
-#### 6.33 KafkaConsumer是线程安全的吗
+#### 7.33 KafkaConsumer是线程安全的吗
 
 KafkaConsumer类不是线程安全的(thread-safe)。所有的网络I/O处理都是发生在用户主线程中，因此，你在使用过程中必须要确保线程安全。简单来说，就是你不能在多个线程中共享同一个KafkaConsumer实例，否则程序会抛出ConcurrentModificationException异常。
 
-#### 6.34 Leader总是-1，怎么破？
+#### 7.34 Leader总是-1，怎么破？
 
 在生产环境中，你一定碰到过“某个主题分区不能工作了”的情形。使用命令行查看状态的话，会发现Leader是-1，于是，你使用各种命令都无济于事，最后只能用“重启大法”。不重启集群呢？
 
 **删除ZooKeeper节点/controller，触发Controller重选举。Controller重选举能够为所有主题分区重刷分区状态，可以有效解决因不一致导致的Leader不可用问题**。
 
-#### 6.35 \_\_consumer\_offsets是做什么用的？
+#### 7.35 __consumer_offsets是做什么用的？
 
 这是一个内部主题，公开的官网资料很少涉及到。因此，我认为，此题属于面试官炫技一类的题目。你要小心这里的考点：该主题有3个重要的知识点，你一定要全部答出来，才会显得对这块知识非常熟悉。
 
@@ -1376,7 +1442,7 @@ KafkaConsumer类不是线程安全的(thread-safe)。所有的网络I/O处理都
 - 它的主要作用是负责注册消费者以及保存位移值。可能你对保存位移值的功能很熟悉，但其实**该主题也是保存消费者元数据的地方。千万记得把这一点也回答上**。另外，这里的消费者泛指消费者组和独立消费者，而不仅仅是消费者组。
 - Kafka的GroupCoordinator组件提供对该主题完整的管理功能，包括该主题的创建、写入、读取和Leader维护等。
 
-#### 6.36 分区Leader选举策略有几种？
+#### 7.36 分区Leader选举策略有几种？
 
 分区的Leader副本选举对用户是完全透明的，它是由Controller独立完成的。你需要回答的是，在哪些场景下，需要执行分区Leader选举。每一种场景对应于一种选举策略。当前，Kafka有4种分区Leader选举策略。
 
@@ -1387,7 +1453,7 @@ KafkaConsumer类不是线程安全的(thread-safe)。所有的网络I/O处理都
 
 这4类选举策略的大致思想是类似的，即从AR中挑选首个在ISR中的副本，作为新Leader。当然，个别策略有些微小差异。不过，回答到这种程度，应该足以应付面试官了。毕竟，微小差别对选举Leader这件事的影响很小。
 
-#### 6.37 Kafka的哪些场景中使用了零拷贝（Zero Copy）？
+#### 7.37 Kafka的哪些场景中使用了零拷贝（Zero Copy）？
 
 Zero Copy是特别容易被问到的高阶题目。在Kafka中，体现Zero Copy使用场景的地方有两处：**基于mmap的索引**和**日志文件读写所用的TransportLayer**。
 
@@ -1395,7 +1461,7 @@ Zero Copy是特别容易被问到的高阶题目。在Kafka中，体现Zero Copy
 
 再说第二个。TransportLayer是Kafka传输层的接口。它的某个实现类使用了FileChannel的transferTo方法。该方法底层使用sendfile实现了Zero Copy。对Kafka而言，如果I/O通道使用普通的PLAINTEXT，那么，Kafka就可以利用Zero Copy特性，直接将页缓存中的数据发送到网卡的Buffer中，避免中间的多次拷贝。相反，如果I/O通道启用了SSL，那么，Kafka便无法利用Zero Copy特性了。
 
-#### 6.38 如何调优Kafka？
+#### 7.38 如何调优Kafka？
 
 回答任何调优问题的第一步，就是**确定优化目标，并且定量给出目标**！这点特别重要。对于Kafka而言，常见的优化目标是吞吐量、延时、持久性和可用性。每一个方向的优化思路都是不同的，甚至是相反的。
 
@@ -1405,27 +1471,27 @@ Zero Copy是特别容易被问到的高阶题目。在Kafka中，体现Zero Copy
 - **Broker端**：增加num.replica.fetchers，提升Follower同步TPS，避免Broker Full GC等。
 - **Consumer**：增加fetch.min.bytes等
 
-#### 6.39 Controller发生网络分区（Network Partitioning）时，Kafka会怎么样？
+#### 7.39 Controller发生网络分区（Network Partitioning）时，Kafka会怎么样？
 
-这道题目能够诱发我们对分布式系统设计、CAP理论、一致性等多方面的思考。不过，针对故障定位和分析的这类问题，我建议你首先言明“实用至上”的观点，即不论怎么进行理论分析，永远都要以实际结果为准。一旦发生Controller网络分区，那么，第一要务就是查看集群是否出现“脑裂”，即同时出现两个甚至是多个Controller组件。这可以根据Broker端监控指标ActiveControllerCount来判断。
+一旦发生Controller网络分区，那么，第一要务就是查看集群是否出现“脑裂”，即同时出现两个甚至是多个Controller组件。这可以根据Broker端监控指标ActiveControllerCount来判断。
 
 现在，我们分析下，一旦出现这种情况，Kafka会怎么样。
 
 由于Controller会给Broker发送3类请求，即LeaderAndIsrRequest、StopReplicaRequest和UpdateMetadataRequest，因此，一旦出现网络分区，这些请求将不能顺利到达Broker端。这将影响主题的创建、修改、删除操作的信息同步，表现为集群仿佛僵住了一样，无法感知到后面的所有操作。因此，网络分区通常都是非常严重的问题，要赶快修复。
 
-#### 6.40 Java Consumer为什么采用单线程来获取消息？
+#### 7.40 Java Consumer为什么采用单线程来获取消息？
 
 在回答之前，如果先把这句话说出来，一定会加分：**Java Consumer是双线程的设计。一个线程是用户主线程，负责获取消息；另一个线程是心跳线程，负责向Kafka汇报消费者存活情况。将心跳单独放入专属的线程，能够有效地规避因消息处理速度慢而被视为下线的“假死”情况。**
 
 单线程获取消息的设计能够避免阻塞式的消息获取方式。单线程轮询方式容易实现异步非阻塞式，这样便于将消费者扩展成支持实时流处理的操作算子。因为很多实时流处理操作算子都不能是阻塞式的。另外一个可能的好处是，可以简化代码的开发。多线程交互的代码是非常容易出错的。
 
-#### 6.41 简述Follower副本消息同步的完整流程
+#### 7.41 简述Follower副本消息同步的完整流程
 
 首先，Follower发送FETCH请求给Leader。接着，Leader会读取底层日志文件中的消息数据，再更新它内存中的Follower副本的LEO值，更新为FETCH请求中的fetchOffset值。最后，尝试更新分区高水位值。Follower接收到FETCH响应之后，会把消息写入到底层日志，接着更新LEO和HW值。
 
 Leader和Follower的HW值更新时机是不同的，Follower的HW更新永远落后于Leader的HW。这种时间上的错配是造成各种不一致的原因。
 
-#### 6.42 Kafka中的索引底层的实现原理是什么？
+#### 7.42 Kafka中的索引底层的实现原理是什么？
 
 原理：**内存映射文件，即Java中的MappedByteBuffer**，即java.nio.MappedByteBuffer 。
 
@@ -1437,7 +1503,47 @@ mmap中保存了**相对位移值/时间戳，物理位置信息**，并在写�
 
 另外，在很多操作系统中（比如Linux），这段映射的内存区域实际上就是内核的页缓存（Page Cache）。这就意味着，里面的数据不需要重复拷贝到用户态空间，避免了很多不必要的时间、空间消耗。
 
+#### 7.43 延迟队列
 
+1. Kafka的时间轮改造
+
+2. redis 过期事件监听 + kafka 
+
+   Redis有一个过期监听的功能，在 redis.conf 中，加入一条配置notify-keyspace-events Ex开启过期监听，然后再代码中实现一个KeyExpirationEventMessageListener，就可以监听key的过期消息了。在接收到过期消息的时候，进行订单的关单操作。
+
+   缺点：Redis官网上明确的说过，Redis并不保证Key在过期的时候就能被立即删除，更不保证这个消息能被立即发出。
+
+3. Redis的zset
+
+   zset是一个有序集合，每一个元素(member)都关联了一个 score，可以通过 score 排序来取集合中的值。
+
+   我们将订单超时时间的时间戳（下单时间+超时时长）与订单号分别设置为 score 和 member。这样redis会对zset按照score延时时间进行排序。然后我们再开启redis扫描任务，获取”当前时间 > score”的延时任务，扫描到之后取出订单号，然后查询到订单进行关单操作即可。
+
+   缺点：那就是在高并发场景中，有可能有多个消费者同时获取到同一个订单号，一般采用加分布式锁，或幂等解决。
+
+4. Redission分布式延迟队列RDelayedQueue
+
+   Redission中定义了分布式延迟队列RDelayedQueue，这是一种基于我们前面介绍过的zset结构实现的延时队列，它允许以指定的延迟时长将元素放到目标队列中。
+
+5. RabbitMQ插件
+
+   rabbitmq_delayed_message_exchange插件，从RabbitMQ的3.6.12开始支持的。基于插件的这种方式，消息并不会立即进入队列，而是先把他们保存在一个基于Erlang开发的Mnesia数据库中，然后通过一个定时器去查询需要被投递的消息，再把他们投递到x-delayed-message队列中。
+
+6. RocketMQ延迟消息
+
+   RocketMQ的延迟消息并不是支持任意时长的延迟的，它只支持：1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h这几个时长。
+
+   RocketMQ发送延时消息时先把消息按照延迟时间段发送到指定的队列中(rocketmq把每种延迟时间段的消息都存放到同一个队列中)，然后通过一个定时器进行轮训这些队列，查看消息是否到期，如果到期就把这个消息发送到指定topic的队列中
+
+   缺点：延迟时间粒度受限制
+
+7. 业务消费时自己实现
+
+总结：通过中间件，通用的方式是
+
+1. 先把消息放入第三方队列(redis的zset、rabbitMQ的延迟队列、rocketMQ的延时队列、Redission的延时队列)等，然后消息不可见。
+2. 内部有一个线程去轮循是否到期，到期后通知或回调。
+3. 放回kafka、消息可见或直接消费。
 
 
 
