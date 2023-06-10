@@ -1153,8 +1153,6 @@ Java 语言是典型的静态语言，因此 Java 数组是静态的，即当数
 当Thread1执行完代码块的内容后，开始释放锁，使用CAS去重置Object的Mark Word，此时会失败。因为当前对象头存储的是Monitor的地址。
 所示此时会进入重量级锁的解锁过程。将Monitor的Owner设置为null，同时唤醒EntryList中的Thread-2
 
-
-
 ### 8.11 为什么需要Session？
 
 1. HTTP 协议是无状态的。服务端给特定的用户创建特定的 `Session` 之后就可以标识这个用户并且跟踪这个用户了。
@@ -1171,19 +1169,15 @@ cookie是早于session出现的，cookie不可跨越域名，但是cookie存在�
 
 Dockerfile是Docker中的一种构建文件，它是一个文本文件，包含了一系列构建指令。使用Dockerfile可以快速构建Docker镜像。Dockerfile中的指令会按照顺序执行，每个指令都会创建一个新的镜像层，最终生成一个完整的Docker镜像。
 
-
-
-`future. get()`任务执行是异步的，但获取任务执行结果是阻塞的；`JDK8`中的`CompleteblaFuture`采用流式编程方式，获取结果能够实现非阻塞，即采用完成后回调的方式执行。 
+### 8.13 park & unpark
 
 park & unpark 是以线程为单位来【阻塞】和【唤醒】线程，而 notify 只能随机唤醒一个等待线程，notifyAll是唤醒所有等待线程，就不那么
 
+### 8.14 反射是什么
 
+Reflection(反射) 是 Java 程序开发语言的特征之一，它允许运行中的 Java 程序对自身进行检查。被private封装的资源只能类内部访问，外部是不行的，但反射能直接操作类私有属性。反射可以在运行时获取一个类的所有信息，（包括成员变量，成员方法，构造器等），并且可以操纵类的字段、方法、构造器等部分。
 
+### 8.15 future. get()
 
-
--------------
-
-
-
-O(1)<O(log⁡(n))<O(n)<O(nlog⁡n)<O(n2)<O(2n)<O(n!)<O(nn)O(n2)<O(2n)<O(n!)<O(nn) 
+`future. get()`任务执行是异步的，但获取任务执行结果是阻塞的；`JDK8`中的`CompleteblaFuture`采用流式编程方式，获取结果能够实现非阻塞，即采用完成后回调的方式执行。 
 
