@@ -58,7 +58,7 @@ beanFactory主要是面对与 spring 框架的基础设施，面对 spring 自�
 
 ### 2.3 spring框架中需要引用哪些jar包，以及这些jar包的用途  
 
-#### 
+
 
 ## 三、spring原理
 
@@ -93,9 +93,9 @@ Java变量的初始化顺序为：静态变量或静态语句块（按声明顺�
 
 #### BeanFactoryPostProcessor
 
-BeanPostProcessor：bean后置处理器，bean创建对象初始化前后进行拦截工作的
+BeanPostProcessor：**bean后置处理器，bean创建对象初始化前后进行拦截工作的**
 而BeanFactoryPostProcessor：是beanFactory的后置处理器；
-调用时机：在BeanFactory标准初始化之后调用，这时所有的bean定义已经保存加载到beanFactory，但是bean的实例还未创建
+调用时机：在BeanFactory标准初始化之后调用，这时**所有的bean定义已经保存加载到beanFactory，但是bean的实例还未创建**
 能干什么：来定制和修改BeanFactory的内容，如覆盖或添加属性
 
 #### 等待所有的bean都装载完后，去做一些事情，这种一般采用什么方式
@@ -125,7 +125,7 @@ BeanPostProcessor：bean后置处理器，bean创建对象初始化前后进行�
    - 如果工程中有多个实现接口SmartLifecycle的类，则这些类的start的执行顺序按getPhase方法返回值从小到大执行。
 
 在数据初始化层面，不推荐@PostConstruct和ApplicationListener，原因是两者都会影响程序的启动，如果执行逻辑耗时很长，启动服务时间就很长。
-建议使用CommandLintRunner、ApplicationRunner的方式，不会影响服务的启动速度，处理起来也比较简单。
+建议使用CommandLineRunner、ApplicationRunner的方式，不会影响服务的启动速度，处理起来也比较简单。
 `SmartLifecycle` is available for any Spring application, not just Boot applications.
 
 
@@ -143,22 +143,32 @@ BeanPostProcessor：bean后置处理器，bean创建对象初始化前后进行�
 
 
 
-
 ### 3.2 AOP原理
+
+几年前写的AOP原理，后面有空再整理一下
+
+ - [1.spring-AOP-IOC的启动](spring-AOP/1.spring-AOP-IOC的启动.md)
+ - [2.spring-AOP-ConfigBeanDefinitionParser解析器](spring-AOP/2.spring-AOP-ConfigBeanDefinitionParser解析器.md)
+ - [3.AspectJAwareAdvisorAutoProxyCreator创建代理对象](spring-AOP/3.AspectJAwareAdvisorAutoProxyCreator创建代理对象.md)
+ - [4.spring-AOP-invoke调用](spring-AOP/4.spring-AOP-invoke调用.md)
+ - [AspectJAwareAdvisorAutoProxyCreator](spring-AOP/AspectJAwareAdvisorAutoProxyCreator.md)
+ - [AOP相关.md](spring-AOP/AOP相关.md)
 
 ### 3.3 事务原理
 
-
+[spring-transaction](spring-transaction/spring-transaction.md)
 
 ## 四、springboot
 
 ### 4.1 springboot的SpringApplication启动过程
 
+![](pics/spring_startup_process.png)
+
 `SpringApplication.run(SpringbootApplication.class, args);`->调用
 `new SpringApplication(primarySources).run(args);`
 
 这里分两部分：
-#### 4.1.1 创建SpringApplication对象。
+#### 4.1.1 创建SpringApplication对象
 Class<?>[] primarySources内容就是当前项目的springboot启动类。
 
 ```java
@@ -179,7 +189,7 @@ public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySourc
 
 创建SpringApplication主要是看两步：
 setInitializers和setListeners
-第一步，从类路径下找到META-INF/spring.factories配置的所有ApplicationContextInitializer，并实例化他们。
+##### 第一步，从类路径下找到META-INF/spring.factories配置的所有ApplicationContextInitializer，并实例化他们。
 `setInitializers((Collection) getSpringFactoriesInstances(
 			ApplicationContextInitializer.class));`
 
@@ -225,15 +235,17 @@ Set<String> names的值为
 6 = "org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener"
 ```
 
->1.DelegatingApplicationContextInitializer： 委派处理ApplicationContext初始化器，其需要委派处理的初始化器来自Spring环境中的context.initializer.classes属性，该属性可以使用逗号分隔多个初始化器。
->2.ContextIdApplicationContextInitializer：为ApplicationContext设置id。根据以下的配置顺序来设置，spring.application.name、vcap.application.name、spring.config.name，如果环境配置中都没有这些配置，则默认使用“application”来表示，另外还会将profiles也加入到id中去。
->3.ConfigurationWarningsApplicationContextInitializer：输出警告日志信息。
->4.ServerPortInfoApplicationContextInitializer：添加一个EmbeddedServletContainerInitializedEvent事件监听，触发设置嵌入的WEB服务启动端口。通过属性local.[namespace].port来设置启动端口，其中namespace为ApplicationContext指定的命名空间，如果命名空间为空，则使用local.server.port属性来表示配置的端口。
->5.SharedMetadataReaderFactoryContextInitializer：和Spring Boot共享CachingMetadataReaderFactory。
->6.RSocketPortInfoApplicationContextInitializer：ApplicationContextInitializer 为 RSocketServer 服务器实际侦听的端口设置环境属性。属性“local.rsocket.server.port”可以使用@Value 直接注入测试或通过环境获取。属性会自动传播到任何父上下文。
->7.ConditionEvaluationReportLoggingListener：将 ConditionEvaluationReport 写入日志的 ApplicationContextInitializer。报告记录在 DEBUG 级别。崩溃报告会触发信息输出，建议用户在启用调试的情况下再次运行以显示报告。此初始化程序不打算在多个应用程序上下文实例之间共享。
+ApplicationContextInitializer的实现类
 
-第二步，从类路径下找到META-INF/spring.factories配置的所有ApplicationListener，过程和第一步类似。
+1. DelegatingApplicationContextInitializer：**委派处理ApplicationContext初始化器**，其需要委派处理的初始化器来自Spring环境中的context.initializer.classes属性，该属性可以使用逗号分隔多个初始化器。
+2. ContextIdApplicationContextInitializer：**为ApplicationContext设置id**。根据以下的配置顺序来设置，spring.application.name、vcap.application.name、spring.config.name，**如果环境配置中都没有这些配置，则默认使用“application”来表示**，另外还会将profiles也加入到id中去。
+3. ConfigurationWarningsApplicationContextInitializer：**输出警告日志信息**。
+4. ServerPortInfoApplicationContextInitializer：添加一个EmbeddedServletContainerInitializedEvent事件监听，触发设置嵌入的WEB服务启动端口。**通过属性local.[namespace].port来设置启动端口，其中namespace为ApplicationContext指定的命名空间**，如果命名空间为空，则使用local.server.port属性来表示配置的端口。
+5. SharedMetadataReaderFactoryContextInitializer：和Spring Boot共享CachingMetadataReaderFactory。
+6. RSocketPortInfoApplicationContextInitializer：ApplicationContextInitializer 为 RSocketServer 服务器实际侦听的端口设置环境属性。属性“local.rsocket.server.port”可以使用@Value 直接注入测试或通过环境获取。属性会自动传播到任何父上下文。
+7. ConditionEvaluationReportLoggingListener：将 ConditionEvaluationReport 写入日志的 ApplicationContextInitializer。报告记录在 DEBUG 级别。崩溃报告会触发信息输出，建议用户在启用调试的情况下再次运行以显示报告。此初始化程序不打算在多个应用程序上下文实例之间共享。
+
+##### 第二步，从类路径下找到META-INF/spring.factories配置的所有ApplicationListener，过程和第一步类似。
 Listener的列表如下
 
 ```java
@@ -250,6 +262,20 @@ Listener的列表如下
 10 = "org.springframework.boot.devtools.restart.RestartApplicationListener"
 11 = "org.springframework.boot.autoconfigure.BackgroundPreinitializer"
 ```
+
+
+| **ApplicationListener**                    | 作用                                                         |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| PropertiesMigrationListener                | **操作环境变量**                                             |
+| ClearCachesApplicationListener             | 在Spring的context容器完成refresh()方法时调用，用来清除缓存信息 |
+| ParentContextCloserApplicationListener     | 当容器关闭时发出通知，如果父容器关闭，那么子容器也一起关闭   |
+| FileEncodingApplicationListener            | 获取环境中的系统环境参数，检测file.enconding和spring.mandatory-file-encoding设置的值是否一样，不一样则抛出异常 |
+| AnsiOutputApplicationListener              | 如果终端支持ANSI，设置的彩色输出会让日志更具可读性           |
+| ConfigFileApplicationListener              | **读取加载Spring Boot的配置文件如application.properties**    |
+| DelegatingApplicationListener              | 把Listener转发给配置的class处理，这样可以支持外围代码不去改写**spring.factories中的org.springframework.context.ApplicationListener的相关配置** |
+| LiquibaseServiceLocatorApplicationListener | 如果相关的参数liquibase.servicelocator.ServiceLocator存在，则使用Spring Boot相关的版本进行代替 |
+| ClasspathLoggingApplicationListener        | **程序启动时，将classpath打印到debug日志**，启动失败时将classpath打印到info日志 |
+| LoggingApplicationListener                 | **根据配置初始化日志系统进行日志输出**                       |
 
 #### 4.1.2 SpringApplication#run。
 
@@ -309,13 +335,15 @@ public ConfigurableApplicationContext run(String... args) {
 注：
 EventPublishingRunListener 类实现了SpringApplicationRunListener接口，那么在springboot启动的过程中都会对这个类进行回调通知，那么通知什么？ 其实看源码可以看出来里面对所有通知其实都是回调了ApplicationListener接口，说白了就是他就是一个ApplicationListener的代理。springboot启动的几个主要过程的监听通知都是通过他来进行回调
 
-第一步，准备环境environment
+##### 第一步，准备环境environment
 environment包括application.properties和servletContextInitParams
 
 ![](pics/environment.png)
 
-第二步，创建IOC容器：org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext
-createApplicationContext方法,创建AnnotationConfigServletWebServerApplicationContext类
+##### 第二步，创建IOC容器
+
+创建IOC容器：org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext
+createApplicationContext方法,创建AnnotationConfigServletWebServerApplicationContext类**
 
 ```java
 protected ConfigurableApplicationContext createApplicationContext() {
@@ -342,8 +370,11 @@ DEFAULT_REACTIVE_WEB_CONTEXT_CLASS= org.springframework.boot.web.reactive.contex
 
 DEFAULT_CONTEXT_CLASS= org.springframework.context.annotation.AnnotationConfigApplicationContext
 
-第三步，prepareContext
-保存environment到IOC中，并执行ApplicationContextInitializer#initialize方法（上面的7个实现类）
+##### 第三步，IOC容器预处理
+
+保存environment到IOC中，并执行`ApplicationContextInitializer#initialize`方法（上面的7个实现类，可以`ContextIdApplicationContextInitializer`为例做debug），以及IOC和listener建立关系。
+
+`applyInitializers(context)` 执行ApplicationContextInitializer#initialize
 
 ```java
 private void prepareContext(ConfigurableApplicationContext context,
@@ -352,8 +383,8 @@ private void prepareContext(ConfigurableApplicationContext context,
 	context.setEnvironment(environment);
 	postProcessApplicationContext(context);
 	//执行ApplicationContextInitializer#initialize方法
-	applyInitializers(context);
-	listeners.contextPrepared(context);
+	applyInitializers(context);  // 执行ApplicationContextInitializer#initialize
+	listeners.contextPrepared(context); // IOC和listeners建立关系
 	if (this.logStartupInfo) {
 		logStartupInfo(context.getParent() == null);
 		logStartupProfileInfo(context);
@@ -385,9 +416,10 @@ protected void applyInitializers(ConfigurableApplicationContext context) {
 }
 ```
 
-第四步，refreshContext刷新容器,ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）
-		//扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）
-调用AbstractApplicationContext#refresh方法，和传统的spring初始化容器是一样的。
+##### 第四步，ioc容器初始化
+
+**refreshContext刷新容器,ioc容器初始化（如果是web应用，还会创建嵌入式的Tomcat）。**
+调用AbstractApplicationContext#refresh方法，和传统的spring初始化容器是一样的。这是就是**IOC管理的类的加载顺序，即类的全生命周期管理**，包括扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）
 
 ```java
 @Override
@@ -404,7 +436,7 @@ public void refresh() throws BeansException, IllegalStateException {
 			postProcessBeanFactory(beanFactory);
 			// Invoke factory processors registered as beans in the context.
       //starter初始化过程
-			invokeBeanFactoryPostProcessors(beanFactory);
+			invokeBeanFactoryPostProcessors(beanFactory);  //<-- 这一步读springboot stater下META-INF/spring.factories的自定义的EnableAutoConfiguration
 			// Register bean processors that intercept bean creation.
 			registerBeanPostProcessors(beanFactory);
 			// Initialize message source for this context.
@@ -425,7 +457,7 @@ public void refresh() throws BeansException, IllegalStateException {
 }
 ```
 
-第五步，所有的SpringApplicationRunListener回调started方法、回调running方法
+##### 第五步，所有的SpringApplicationRunListener回调started方法、回调running方法
 listeners.started(context);
 listeners.running(context);
 
@@ -461,13 +493,19 @@ start包解析的过程是依赖springboot初始化的过程
 
 #### 自定义的starter类是什么时候加载的？
 
-`@SpringBootApplication`注解中包含了`@EnableAutoConfiguration`，而`@EnableAutoConfiguration`注解中又包含了`@Import(AutoConfigurationImportSelector.class)`注解。
+`AbstractApplicationContext#refresh`，这一步在执行bean后置处理器(`invokeBeanFactoryPostProcessors`)时加载starter。
 
-下图是从StringbootApplication#run开始的调用顺序
+在SpringBoot的启动类，我们都会加上`@SpringBootApplication`注解。这个注解默认会引入`@EnableAutoConfiguration`注解。然后`@EnableAutoConfiguration`会`@Import(AutoConfigurationImportSelector.class)`。
+
+`AutoConfigurationImportSelector#selectImports`方法最终会通过`SpringFactoriesLoader.loadFactoryNames`，加载`META-INF/spring.factories`里的`EnableAutoConfiguration`配置值，也就是我们上文中设置的资源文件。
+
+可以在`SpringFactoriesLoader#loadFactoryNames`处打断点调试。下图是从StringbootApplication#run开始的调用顺序。
 
 ![](pics/starter_EnableAutoConfiguration.png)
 
 当我们启动项目时,会检查`META-INF/spring.factories`中`key`为`org.springframework.boot.autoconfigure.EnableAutoConfiguration`的值。
+
+`AutoConfigurationImportSelector#getCandidateConfigurations`->`SpringFactoriesLoader#loadSpringFactories`
 
 ```java
 protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
@@ -479,15 +517,45 @@ protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
 }
 //
 protected Class<?> getSpringFactoriesLoaderFactoryClass() {
-  return EnableAutoConfiguration.class;
+  return EnableAutoConfiguration.class; //这个就是META-INF/spring.factories文件中的EnableAutoConfiguration
 }
+```
+`SpringFactoriesLoader#loadSpringFactories`
+
+```java
+public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+private static Map<String, List<String>> loadSpringFactories(ClassLoader classLoader) {
+		Map<String, List<String>> result = cache.get(classLoader);
+		if (result != null) {
+			return result;
+		}
+
+		result = new HashMap<>();
+		try {
+			Enumeration<URL> urls = classLoader.getResources(FACTORIES_RESOURCE_LOCATION);
+      ....
+```
+
+从资源文件META-INF/spring.factories文件中，加截EnableAutoConfiguration的value，`List<String> configurations`值list为以下内容
+
+```java
+0 = "org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration"
+1 = "org.springframework.boot.autoconfigure.aop.AopAutoConfiguration"
+......
+6 = "org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration"
+7 = "org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration"
+8 = "org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration"
+9 = "org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration"
+... ...
+130 = "com.taobao.hellostarter.HelloStarterEnableAutoConfiguration" //<-- EnableAutoConfiguration的value
+131 = "cn.hutool.extra.spring.SpringUtil"
 ```
 
 自定义的starter: hello-spring-boot-starter
 
 META-INF/spring.factories中的值为
 
-```xml
+```factories
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.taobao.hellostarter.HelloStarterEnableAutoConfiguration
 ```
 
@@ -495,15 +563,15 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.taobao.hellos
 
 AbstractApplicationContext#refresh -> ServletWebServerApplicationContext#onRefresh
 
-而之前创建的web IOC容器 DEFAULT_WEB_CONTEXT_CLASS = org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext， 而它继承自 ServletWebServerApplicationContext
+而之前创建的web IOC容器 DEFAULT_WEB_CONTEXT_CLASS = org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext， 而它继承自 ServletWebServerApplicationContext, ServletWebServerApplicationContext则继承父类AbstractApplicationContext
 ServletWebServerApplicationContext#onRefresh 方法如下
 
 ```java
 @Override
 protected void onRefresh() {
-	super.onRefresh();
+	super.onRefresh(); //父类AbstractApplicationContext#onRefresh。1、先加载IOC加载类
 	try {
-		createWebServer();
+		createWebServer(); //2、再创建tomcat
 	//...
 }
 //createWebServer()就是启动web服务
@@ -794,3 +862,33 @@ jwt的头部承载两部分信息：
 签发者、签发时间、过期时间、唯一身份标识，主要用来作为一次性token、
 3/signature
 base64加密后的header和base64加密后的payload使用.连接组成的字符串，然后通过header中声明的加密方式进行加盐secret组合加密，然后就构成了jwt的第三部分。
+
+### Session跨域问题
+
+之所以出现跨域问题，是因为浏览器的同源策略，为了隔离潜在的恶意文件，为了防御来自歪门邪道的攻击，浏览器限制了从同一个源加载的文档或脚本与来自另一个源的资源进行交互。
+
+#### spring-session解决同域名共享
+
+springboot开启 CORS 支持。跨域资源共享，也就是 Cross-Origin Resource Sharing，简拼为 CORS，是一种基于 HTTP 头信息的机制，通过允许服务器标识除了它自己以外的资源，从而实现跨域访问。
+
+spring-session技术是spring提供的用于处理集群会话共享的解决方案。spring-session技术是将用户session数据保存到三方存储容器中。如：MySQL，redis等。
+Spring-session技术是解决同域名下的多服务器集群session共享问题的。不能解决跨域session共享问题。所以互联网开发中越来越少使用这门技术。
+
+#### JWT
+
+JWT是目前最流行的一个[跨域](https://mp.weixin.qq.com/s/HTMDZaukCb7pyfHefVcfyg)认证解决方案：客户端发起用户登录请求，服务器端接收并认证成功后，生成一个 JSON 对象（如下所示），然后将其返回给客户端。
+
+## 八、常见问题
+
+1. 同步和阻塞的关系，SpringBoot里面的同步非阻塞
+
+
+
+
+
+
+
+
+
+
+

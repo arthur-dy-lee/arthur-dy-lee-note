@@ -25,7 +25,7 @@
 #### 可重入锁
 
 可重入锁又名递归锁，是指在同一个线程在外层方法获取锁的时候，在进入内层方法会自动获取锁。说的有点抽象，下面会有一个代码的示例。
-对于Java `ReentrantLock`而言, 他的名字就可以看出是一个可重入锁，其名字是`Re entrant Lock`重新进入锁。
+对于Java `ReentrantLock`而言, 他的名字就可以看出是一个可重入锁，其名字是`Reentrant Lock`重新进入锁。
 对于`Synchronized`而言,也是一个可重入锁。可重入锁的一个好处是可一定程度避免死锁。
 
 #### 独享锁/共享锁
@@ -68,7 +68,7 @@
 
 ##### 偏向锁
 
-在大多数情况下，锁总是由同一线程多次获得，不存在多线程竞争，所以出现了偏向锁，其目标就是在只有一个线程执行同步代码块时，降低获取锁带来的消耗，提高性能（可以通过J V M参数关闭偏向锁：-XX:-UseBiasedLocking=false，关闭之后程序默认会进入轻量级锁状态）。
+在大多数情况下，锁总是由同一线程多次获得，不存在多线程竞争，所以出现了偏向锁，其目标就是在只有一个线程执行同步代码块时，降低获取锁带来的消耗，提高性能（可以通过JVM参数关闭偏向锁：-XX:-UseBiasedLocking=false，关闭之后程序默认会进入轻量级锁状态）。
 
 线程执行同步代码或方法前，线程只需要判断对象头的`Mark Word`中线程`ID`与当前线程`ID`是否一致，如果一致直接执行同步代码或方法
 
@@ -118,7 +118,7 @@ Synchronized关键字可以用来修饰方法或者代码块。对于同步方�
 
 当第二个线程过来，两个线程产生了竞争，就会从偏向锁升级成自旋锁。自旋锁竞争状态中，没有获得锁的线程，就会不断自旋判断自己是否拿到了锁，没有拿到锁就会忙等。
 
-#### `Synchronized`的使用用方式有三种
+#### Synchronized的使用用方式有三种
 
 - 修饰普通函数，监视器锁（`monitor`）便是对象实例（`this`）
 - 修饰静态静态函数，视器锁（`monitor`）便是对象的`Class`实例（每个对象只有一个`Class`实例），又因为Class的相关数据存储在永久带PermGen（jdk1.8则是metaspace），永久带是全局共享的，因此静态方法锁相当于类的一个全局锁，会锁所有调用该方法的线程
@@ -130,7 +130,7 @@ Synchronized关键字可以用来修饰方法或者代码块。对于同步方�
 
 `monitorenter`指令插入到同步代码块的开始位置，`monitorexit`指令插入到同步代码块的结束位置，`JVM`需要保证每一个 `monitorenter`都有`monitorexit`与之对应。
 
-synchronized的对象锁，其指针指向的是一个monitor对象（由C++实现）的起始地址。每个对象实例都会有一个 monitor。其中monitor可以与对象一起创建、销毁；亦或者当线程试图获取对象锁时自动生成。**任何对象**都有一个监视器锁（`monitor`）关联，线程执行`monitorenter`指令时尝试获取`monitor`的所有权。
+synchronized的对象锁，其指针指向的是一个monitor对象（由C++实现）的起始地址。**每个对象实例都会有一个 monitor。其中monitor可以与对象一起创建、销毁；亦或者当线程试图获取对象锁时自动生成**。**任何对象**都有一个监视器锁（`monitor`）关联，线程执行`monitorenter`指令时尝试获取`monitor`的所有权。
 
 ```java
 ObjectMonitor() {
@@ -204,7 +204,7 @@ AQS相较于Synchronized内置了多个Condition，会针对Conditon进行精确
    - 公平锁：按照线程在队列中的排队顺序，先到者先拿到锁
    - 非公平锁：当线程要获取锁时，无视队列顺序直接去抢锁，谁抢到就是谁的
 
-2. Share（共享）：多个线程可同时执行，如Semaphore/CountDownLatch。Semaphore、CountDownLatch、 CyclicBarrier、ReadWriteLock
+2. Share（共享）：多个线程可同时执行，如Semaphore、CountDownLatch、 CyclicBarrier、ReadWriteLock
 
 ReentrantReadWriteLock可以看成是组合式，因为ReentrantReadWriteLock也就是读写锁允许多个线程同时对某一资源进行读。
 
@@ -518,7 +518,7 @@ jdk1.8中的ConcurrencyHashMap
 
 ### 2.5 treeMap
 
-TreeMap 继承于AbstractMap ，其是一个 有序的key-value集合，内部基于 红黑树 实现；TreeMap 根据 其key的自然顺序进行排序，或者在构造方法中指定 Comparator 进行排序；TreeMap的基本操作 containsKey()、get()、put() 和 remove() 的时间复杂度是 log(n)。
+TreeMap 继承于AbstractMap ，其是一个 有序的key-value集合，内部**基于红黑树**实现；TreeMap 根据 其key的自然顺序进行排序，或者在构造方法中指定 Comparator 进行排序；TreeMap的基本操作 containsKey()、get()、put() 和 remove() 的时间复杂度是 log(n)。
 另外，TreeMap是非同步的。
 
 #### 红黑树特征
@@ -618,6 +618,8 @@ Java 中每个线程都有与之关联的Thread对象，Thread对象中有一个
 ThreadLocalMap实现中已经考虑了这种情况，在调用 set()、get()、remove() 方法的时候，会清理掉 key 为 null 的记录。如果说会出现内存泄漏，那只有在出现了 key 为 null 的记录后，没有手动调用 remove() 方法，并且之后也不再调用 get()、set()、remove() 方法的情况下。
 
 [ThreadLocal 面试夺命11连问](https://blog.csdn.net/agonie201218/article/details/125933740)
+
+[ThreadLocal 夺命14连问](https://blog.csdn.net/qq_39687472/article/details/129213948)
 
 ### InheritableThreadLocal和TransmittableThreadLocal
 
@@ -1032,15 +1034,150 @@ B -> Z(2.5)
 只有当JVM认为内存不足时，才会去试图回收软引用指向的对象。JVM会确保在抛出OutOfMemoryError之前，清理软引用指向的对象。
 当JVM进行垃圾回收时，无论内存是否充足，都会回收被弱引用关联的对象。这里所说的被弱引用关联的对象是指只有弱引用与之关联，如果存在强引用同时与之关联，则进行垃圾回收时也不会回收该对象（软引用也是如此）。
 
-### 8.7 
+### 8.7 java中JDK、JRE和JVM的之间的关系
 
+![](pics/jdk_jre_jvm.png)
 
+JDK（Java Development Kit）简单理解就是Java开发工具包，是java的核心所在；JRE(Java Runtime Enviroment)是Java的运行环境，JVM( java virtual machine)也就是常常听到Java虚拟机。JDK是面向开发者的，JRE是面向使用JAVA程序的用户，JVM是java实现跨平台和系统的媒介所在。
 
+**JDK**
 
+JDK是整个Java的核心，包括了JRE（Java运行环境），同时在jdk文件夹bin（通常我们配置jdk的环境变量的根目录）目录中包含了一些Java开发工具（例如：jconsole、javac、java、javadoc、native2ascii、jar等）。JDK=JRE+Java开发工具（编译器、反编译器、调试器等）。
 
--------------
+jdk1.8目录包含：
+bin：一堆exe文件，可执行的开发工具，最主要的是javac， 例如：jconsole、javac、java、javadoc、native2ascii、jar。
+jre：java运行环境，包括JVM+Java基础和核心类库 。
+lib：本地资源库，包含dt.jar+tools.jar的常用类库，开发依赖包。
+include：java和JVM交互用的头文件。
 
+**JRE**
 
+JRE(Java Runtime Environment)，即Java运行环境，支持Java程序运行的标准环境，包含**JVM标准实现及Java核心类库**。JRE中包含了Java virtual machine（JVM），runtime class libraries和Java application launcher，这些是运行Java程序的必要组件。
 
-O(1)<O(log⁡(n))<O(n)<O(nlog⁡n)<O(n2)<O(2n)<O(n!)<O(nn)O(n2)<O(2n)<O(n!)<O(nn) 
+jre1.8目录包含：
+bin：**有java.exe但没有javac.exe，无法编译Java程序，但可以运行Java程序，可以把这个bin目录理解成JVM**。
+lib：Java基础和核心类库，如rt.jar，也包含JVM运行时需要的类库。
+
+**JVM**
+
+JVM(Java Virtual Machine)，即Java虚拟机，运行在操作系统之上，存在于内存中，与内存打交道，与硬件没有直接交互，是Java语言实现跨平台的核心。
+
+### 8.8 数组拷贝的内存分配过程
+
+先新建一个大容量的数组，然后将小容量数组中的数据一个一个拷贝到大数组中。
+
+Java 中的每一个数组存储的数据类型是一致的。
+Java 的数组的确是放在一块连续内存里的，否则不可能做到在 O(1) 时间复杂度内存取元素。
+基本类型的数据都非常小，可以直接放在数组里，这跟 C 里面的数组是一样的；
+但引用类型的对象就不一样了，存在数组里的都只是引用，不是真正的对象数据。我们通过数组拿到的还是引用，真正的对象分散地存在堆里，并不是连续的。
+
+数组是静态的
+Java 语言是典型的静态语言，因此 Java 数组是静态的，即当数组被初始化之后，该数组 所占的内存空间、数组长度都是不可变的。Java 程序中的数组必须经过初始化才可使用。所谓初始化，即创建实际的数组对象，也就是在内存中为数组对象分配内存空间，并为每个数组 元素指定初始值。
+
+数组的初始化有以下两种方式。
+静态初始化：初始化时由程序员显式指定每个数组元素的初始值，由系统决定数组长度。
+动态初始化：初始化时程序员只指定数组长度，由系统为数组元素分配初始值。
+不管采用哪种方式初始化Java 数组，一旦初始化完成，该数组的长度就不可改变，
+
+### 8.9 链表和数组使用场景
+
+数组应用场景
+
+数组是将元素在内存中连续存储的；它的优点：因为数据是连续存储的，内存地址连续，所以在查找数据的时候效率比较高
+
+1. 数据比较少；
+2. 经常做的运算是按序号访问数据元素；
+3. 构建的线性表较稳定。
+
+链表应用场景
+
+链表是动态申请内存空间，不需要像数组需要提前申请好内存的大小，链表只需在用的时候申请就可以
+
+1. 对线性表的长度或者规模难以估计；
+2. 频繁做插入删除操作；
+3. 构建动态性比较强的线性表。
+
+### 8.10 synchronized内部轻量级和重量级锁是什么？区别是什么？
+
+[java并发编程：synchronized原理之轻量级锁、重量级锁](https://baijiahao.baidu.com/s?id=1717781876275288385&wfr=spider&for=pc)
+
+采用锁升级的机制：偏向锁->自旋锁(轻量级锁)->重量级锁
+
+#### 偏向锁
+
+偏向锁加锁
+
+1、通过CAS操作将当前线程的地址设置到锁对象的markword中。如果设置成功了，那么就是设置偏向锁成功了
+2、在当前线程的栈贞中，创建锁记录（Lock Record），使这个锁记录锁标识指向锁对象。这个是不需要CAS操作的。
+
+偏向锁解锁
+
+偏向锁解锁不会主动进行解锁，出现竞争时才会解锁，这样做的目的是下一次同一个线程来获取锁时，直接检查mark word的锁记录就可以了。
+
+过程：在B线程获取偏向锁时，查看mark word的线程id不是自己的，那么B线程就会向VM的线程队列发送一个撤销偏向锁的任务，VM线程会不断检测是否有任务要执行，当检测到这个任务后，就需要在安全点去执行（安全点时，JVM内的所有线程都会被阻塞，只有VM线程处于运行状态，它可以执行一些特殊的任务，如full gc就是此时执行）
+
+- 存在竞争：那么就先将对象头设置为无锁状态，并**升级为轻量级锁**
+- 没有竞争：那么就先将对象头设置为无锁状态，并偏向另一个线程。
+
+当偏向锁的撤销次数超过40次后，会直接**升级为轻量级锁**。
+
+#### 轻量级锁（自旋锁）
+
+轻量级锁是指在满足一定的条件内，使用CAS（自旋）来尝试获取对象锁的一种机制，如果超过以下条件，则会膨胀为重量级锁：
+1）在jdk1.6前，默认10次，可通过-XX:PreBlockSpin来修改，或者自旋线程数超过CPU核数的一半。
+2）jdk1.6之后，引入了自适应自旋锁，次数并非一成不变。根据获取锁的成功率来决定是否能有更长的等待时间。
+
+当线程尝试获取这把锁的时候，会创建锁记录（Lock Record），每个线程的栈帧（线程执行到的方法，都会生成对应的栈帧），都会包含一个锁记录的结构，可以用来存储对象的Mark Word，让锁记录中 Object Reference 指向锁对象，并尝试用 CAS 替换 Object 的 Mark Word，将 Mark Word 的值存入锁记录（如图），并将锁记录的地址存入Object的Mark Word。
+
+<img src="pics/synchronized_lock1.jpeg" style="zoom:67%;" />
+
+如果CAS成功，对象的Mark Word将会存储Lock Record 地址 和 锁状态 00
+
+如果CAS失败，此时会有两种情况：
+
+ - 如果是其他线程已经持有了该轻量级锁，则表示发生竞争，此时进入锁膨胀，变成重量级锁。
+ - 如果是自己执行了 synchronized 锁重入（就像我们示例代码中的add()方法），那么再添加一条 Lock Record 作为重入的计数，只不过新添加的Lock Record中没有Object的Mark word内容，为null。
+
+#### 重量级锁
+
+假设当前Object对象，已经被Thread1所持有，当Thread2前来竞争这把锁，满足上述条件后，会发生锁膨胀，如下图所示：
+
+![](pics/synchronized_lock2.jpeg)
+
+此时Thread2来获取轻量级锁肯定失败的，所以会进入锁膨胀的流程：
+1）为Object对象申请Monitor锁，Object的Mark Word指向Monitor地址；Monitor的Owner指向Thread1的锁记录。
+2）Thread2进入Monitor的EntryList当中，状态变成BLOCKED。
+
+![](pics/synchronized_lock3.jpeg)
+
+当Thread1执行完代码块的内容后，开始释放锁，使用CAS去重置Object的Mark Word，此时会失败。因为当前对象头存储的是Monitor的地址。
+所示此时会进入重量级锁的解锁过程。将Monitor的Owner设置为null，同时唤醒EntryList中的Thread-2
+
+### 8.11 为什么需要Session？
+
+1. HTTP 协议是无状态的。服务端给特定的用户创建特定的 `Session` 之后就可以标识这个用户并且跟踪这个用户了。
+2. HTTP原始的设计是默认短连接，即客户端和服务端完成一次请求和响应之后就断开TCP连接，用户在收到响应时，往往要花一些时间来阅读页面，因此如果保持客户端和服务端之间的连接，那么这个连接在大多数的时间里都将是空闲的，这是一种资源的无端浪费。因此让HTTP协议来维护用户的访问状态也全然没有必要
+3. 将一部分复杂性转嫁到以HTTP协议之上，也赋予了HTTP更强的扩展能力。事实上，session技术从本质上来讲也是对HTTP协议的一种扩展。
+
+session和cookie一样都是为了记录用户的信息，实现识别用户，自动登录，显示购物车功能。
+
+不同之处在于session的主体在服务器上，体量大，cookie主体在客户端上，体量小。
+
+cookie是早于session出现的，cookie不可跨越域名，但是cookie存在一定的安全隐患
+
+### 8.12 什么是Dockerfile
+
+Dockerfile是Docker中的一种构建文件，它是一个文本文件，包含了一系列构建指令。使用Dockerfile可以快速构建Docker镜像。Dockerfile中的指令会按照顺序执行，每个指令都会创建一个新的镜像层，最终生成一个完整的Docker镜像。
+
+### 8.13 park & unpark
+
+park & unpark 是以线程为单位来【阻塞】和【唤醒】线程，而 notify 只能随机唤醒一个等待线程，notifyAll是唤醒所有等待线程，就不那么
+
+### 8.14 反射是什么
+
+Reflection(反射) 是 Java 程序开发语言的特征之一，它允许运行中的 Java 程序对自身进行检查。被private封装的资源只能类内部访问，外部是不行的，但反射能直接操作类私有属性。反射可以在运行时获取一个类的所有信息，（包括成员变量，成员方法，构造器等），并且可以操纵类的字段、方法、构造器等部分。
+
+### 8.15 future. get()
+
+`future. get()`任务执行是异步的，但获取任务执行结果是阻塞的；`JDK8`中的`CompleteblaFuture`采用流式编程方式，获取结果能够实现非阻塞，即采用完成后回调的方式执行。 
 
