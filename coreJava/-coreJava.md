@@ -173,7 +173,7 @@ AQS的核心思想是，如果被请求的共享资源空闲，则将当前请�
 
 AQS的三个关键如下：
 1、**state**
-state用来标记共享变量的状态，一般用volatile来修饰。
+state用来标记共享变量的状态，一般用volatile来修饰。AQS中用state属性表示锁，如果能成功将state属性通过CAS操作从0设置成1即获取了锁。
 2、**queue**
 当线程请求锁失败后，将线程包装为一个Node，加入到queue中，等待后续的唤醒操作。
 3、**CAS**
@@ -285,9 +285,15 @@ lock.lock()和lock.lockInterruptibly()在等待获取锁的时候，线程的int
 
 | 特性             | API                          | 描述                                                         |
 | ---------------- | ---------------------------- | ------------------------------------------------------------ |
-| 能响应中断       | lockInterruptbly()           | 如果不能自己释放，那可以响应中断也是很好的。Java多线程中断机制 专门描述了中断过程，目的是通过中断信号来跳出某种状态，比如阻塞 |
+| 能响应中断       | lockInterruptbly()           | 如果不能自己释放，那可以**响应中断**也是很好的。Java多线程中断机制专门描述了中断过程，目的是通过中断信号来跳出某种状态，比如阻塞。 |
 | 非阻塞式的获取锁 | tryLock()                    | 尝试获取，获取不到不会阻塞，直接返回                         |
 | 支持超时         | tryLock(long time, timeUnit) | 给定一个时间限制，如果一段时间内没获取到，不是进入阻塞状态，同样直接返回 |
+
+lockInterruptibly()方法能够中断等待获取锁的线程。当两个线程同时通过lock.lockInterruptibly()获取某个锁时，假若此时线程A获取到了锁，而线程B只有等待，那么对线程B调用threadB.interrupt()方法能够中断线程B的等待过程。
+
+lockInterruptibly() 方法是一种可以响应中断的阻塞方式，即如果获取不到锁，当前线程会被阻塞，直到锁可用为止。与 lock() 方法不同的是，lockInterruptibly() 方法可以在等待获取锁的过程中响应中断，即如果其他线程中断了等待线程，则该方法会抛出 InterruptedException 异常。
+
+lock()、tryLock()、tryLock(long,TimeUnit)、lockInterruptibly() 都是用来获取锁的，其中 lock 方法如果获取不到锁会一直阻塞等待；而 lockInterruptibly 方法虽然也会阻塞等待获取锁，但它却能中途响应线程的中断；无参的 tryLock 方法会立马返回一个获取锁成功与失败的结果，有参数的 tryLock(long,TimeUnit) 方法会在设定的时间内返回一个获取锁成功与失败的结果。
 
 ### 1.6 锁用到的数据结构
 
@@ -567,7 +573,7 @@ Node<E> node(int index) {
 
 ## 三、线程
 
-### volatile
+### 3.1 volatile
 
 1、保证可见性
 2、禁止指令重排序优化
@@ -582,7 +588,7 @@ volatile 修饰的变量，是直接拿的主内存的值，就是说这个值�
 volatile 是不安全的
 虽然 volatile 可见性保证了对 volatile 变量所有的写操作都能立刻反应到其他线程之中（即 volatile 变量在各个线程中都是一致的），但是 Java 里面的运算并非原子操作。只有是原子操作的 volatile 变量才是线程安全的，比如我们很常见的 变量++ 自增操作，在这个过程中，自增包括取数，加一，保存三个过程的操作，所以自增并不是原子性操作，使用 volatile 修饰的变量自增操作仍然是不安全的。
 
-### Java中主线程如何捕获子线程抛出的异常
+### 3.2 Java中主线程如何捕获子线程抛出的异常
 
 线程设计的理念：“线程的问题应该线程自己本身来解决，而不要委托到外部。”
 线程方法的异常只能自己来处理。
@@ -590,7 +596,7 @@ volatile 是不安全的
 
 但是，给某个thread设置一个UncaughtExceptionHandler，可以确保在该线程出现异常时能通过回调UncaughtExceptionHandler接口的public void uncaughtException(Thread t, Throwable e) 方法来处理异常，这样的好处或者说目的是可以在线程代码边界之外（Thread的run()方法之外），有一个地方能处理未捕获异常。但是要特别明确的是：虽然是在回调方法中处理异常，但这个回调方法在执行时依然还在抛出异常的这个线程中！另外还要特别说明一点：如果线程是通过线程池创建，线程异常发生时UncaughtExceptionHandler接口不一定会立即回调。
 
-### ThreadLocal?
+### 3.3 ThreadLocal?
 
 [ThreadLocal](../coreJava/ThreadLocal.md)
 
@@ -604,7 +610,7 @@ tomcat 使用的是线程池，在请求后，线程并不收回，所以ThreadL
 
 ThreadLocal最好要配合remove()方法来用。
 
-#### ThreadLocal类型变量为何声明为静态
+#### 3.3.1 ThreadLocal类型变量为何声明为静态
 
 Java 中每个线程都有与之关联的Thread对象，Thread对象中有一个ThreadLocal.ThreadLocalMap类型的成员变量，该变量是一个Hash表， 所以每个线程都单独维护这样一个Hash表，当ThreadLocal类型对象调用set方法时，threadLocalID.set(id)，这个set方法会使用当前线程维护的Hash表，把自己作为key, id作为value插入到Hash表中。由于每个线程维护的Hash表是独立的，因此在不同的Hash表中，key值即使相同也是没问题的。
 
@@ -617,9 +623,59 @@ Java 中每个线程都有与之关联的Thread对象，Thread对象中有一个
 所以如果 ThreadLocal 没有被外部强引用的情况下，在垃圾回收的时候会被清理掉的，这样一来 ThreadLocalMap中使用这个 ThreadLocal 的 key 也会被清理掉。但是，value 是强引用，不会被清理，这样一来就会出现 key 为 null 的 value。
 ThreadLocalMap实现中已经考虑了这种情况，在调用 set()、get()、remove() 方法的时候，会清理掉 key 为 null 的记录。如果说会出现内存泄漏，那只有在出现了 key 为 null 的记录后，没有手动调用 remove() 方法，并且之后也不再调用 get()、set()、remove() 方法的情况下。
 
+#### 3.3.2 ThreadLocal 面试夺命连问
+
+1. 为什么要用ThreadLocal?
+
+2. ThreadLocal的原理是什么？
+
+3. 为什么用ThreadLocal做key？
+  ThreadLocalMap为什么要用ThreadLocal做key，而不是用Thread做key？
+  如果在你的应用中，一个线程中只使用了一个ThreadLocal对象，那么使用Thread做key也未尝不可。
+
+  
+
+  假如使用Thread做key时，你的代码中定义了3个ThreadLocal对象，那么，通过Thread对象，它怎么知道要获取哪个ThreadLocal对象呢？因此，不能使用Thread做key，而应该改成用ThreadLocal对象做key，这样才能通过具体ThreadLocal对象的get方法，轻松获取到你想要的ThreadLocal对象。
+
+
+4. Entry的key为什么设计成弱引用？
+
+5. ThreadLocal真的会导致内存泄露？
+
+6. 如何解决内存泄露问题？
+  7.ThreadLocalMap怎么解决Hash冲突的？
+  HashMap使用了红黑树和链表来解决冲突，也就是链地址法。ThreadLocalMap没有使用链表，自然也不是用链地址法来解决冲突了，它用的是另外一种方式：开放定址法。开放定址法是什么意思呢？简单来说，就是这个坑被人占了，那就接着去找下一个空着的坑。
+  在get的时候，也会根据ThreadLocal对象的hash值，定位到table中的位置，然后判断该槽位Entry对象中的key是否和get的key一致，如果不一致，就判断下一个位置。
+
+7. ThreadLocal是如何定位数据的？
+
+8. ThreadLocal是如何扩容的？
+
+9. 父子线程如何共享数据？
+   使用InheritableThreadLocal，它是JDK自带的类，继承了ThreadLocal类。
+   在InheritableThreadLocal#init方法中会将父线程中往ThreadLocal设置的值，拷贝一份到子线程中
+
+10. 线程池中如何共享数据？
+
+    使用`TransmittableThreadLocal`，它并非JDK自带的类，而是阿里巴巴开源jar包中的类。
+
+11. 线程池中使用InheritableThreadLocal还会导致这个数据错乱（覆盖）
+
+    - 每次用完后ThreadLocal后及时remove
+
+    - 尽量不要在线程池里使用 ThreadLocal,很多时候开发关注的点比较多，疏忽的过程也在所难免，例如本次解决方案是我先把用户ID在线程池调用前查询出来,在传进去
+
 [ThreadLocal 面试夺命11连问](https://blog.csdn.net/agonie201218/article/details/125933740)
 
 [ThreadLocal 夺命14连问](https://blog.csdn.net/qq_39687472/article/details/129213948)
+
+### InheritableThreadLocal
+
+分析为什么用了InheritableThreadLocal还会出现数据错乱（覆盖）
+
+**ThreadLocal** 在 **ThreadLocalMap** 中是以一个弱引用身份被Entry中的Key引用的，因此如果ThreadLocal没有外部强引用来引用它，那么ThreadLocal会在下次JVM垃圾收集时被回收。这个时候就会出现Entry中Key已经被回收，出现一个null Key的情况，外部读取ThreadLocalMap中的元素是无法通过null Key来找到Value的。因此如果当前线程的生命周期很长（在本篇案例中,由于线程池的核心线程没有被回收，一直存在），那么其内部的ThreadLocalMap对象也一直生存下来，这些null key就存在一条强引用链的关系一直存在：Thread --> ThreadLocalMap-->Entry-->Value，这条强引用链会导致Entry不会回收，Value也不会回收；所以出现数据错乱的原因在于核心线程一直没有被回收，然后 InheritableThreadLocal 也未及时remove，导致核心线程一直存放着老
+
+
 
 ### InheritableThreadLocal和TransmittableThreadLocal
 
@@ -1165,6 +1221,8 @@ session和cookie一样都是为了记录用户的信息，实现识别用户，�
 
 cookie是早于session出现的，cookie不可跨越域名，但是cookie存在一定的安全隐患
 
+
+
 ### 8.12 什么是Dockerfile
 
 Dockerfile是Docker中的一种构建文件，它是一个文本文件，包含了一系列构建指令。使用Dockerfile可以快速构建Docker镜像。Dockerfile中的指令会按照顺序执行，每个指令都会创建一个新的镜像层，最终生成一个完整的Docker镜像。
@@ -1180,4 +1238,30 @@ Reflection(反射) 是 Java 程序开发语言的特征之一，它允许运行�
 ### 8.15 future. get()
 
 `future. get()`任务执行是异步的，但获取任务执行结果是阻塞的；`JDK8`中的`CompleteblaFuture`采用流式编程方式，获取结果能够实现非阻塞，即采用完成后回调的方式执行。 
+
+
+
+
+
+
+
+k8s注册中心和nacos注册中心的区别
+
+jdk和springboot的SPI区别
+
+spring使用中创建bean都有哪些方式
+
+spring环境变量参数赋值的优先级，yaml, xml, jvm参数，配置中心
+
+Spring bean加载顺序
+
+spring常用的注解
+
+Nacos1.0和2.0的区别
+
+rpc和http的异同点
+
+架构师都画哪些图 ？ 4+1, DDD
+
+ 
 
