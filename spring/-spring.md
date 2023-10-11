@@ -68,7 +68,7 @@ beanFactory主要是面对与 spring 框架的基础设施，面对 spring 自�
 
 #### IOC加载顺序
 
-![](https://farm2.staticflickr.com/1972/31036174918_83b9f5fe5e_b.jpg)
+![](http://farm2.staticflickr.com/1972/31036174918_83b9f5fe5e_b.jpg)
 
 bean的生命周期
 1、在IOC容器中，一个spring bean是通过类的构造器(class constractor)生成的
@@ -898,13 +898,42 @@ JWT是目前最流行的一个[跨域](https://mp.weixin.qq.com/s/HTMDZaukCb7pyf
 
 1. 同步和阻塞的关系，SpringBoot里面的同步非阻塞
 
+### 8.2 springboot配置文件优先级
 
+配置文件优先级：
 
+（1）命令行参数；
+（2）java:comp/env的JNDI属性；
+（3）JAVA系统的环境属性；
+（4）操作系统的环境变量；
+（5）JAR包外部的application-XXX.properties或application-XXX.yml配置文件；
+（6）JAR包内部的application-XXX.properties或application-XXX.yml配置文件；
+（7）JAR包外部的application.properties或application.yml配置文件；
+（8）JAR包内部的application.properties或application.yml配置文件；
+（9）@Configuration注解类上的@PropertySource指定的配置文件；
+（10）通过SpringApplication.setDefaultProperties 指定的默认属性；
 
+#### 项目外部配置文件：
+（1）命令行参数：
+在命令行中通过 java -jar 命令启动项目时，可以使用连续的两个减号 – 对配置文件中的属性值进行赋值，则命令行设置的属性会覆盖配置文件中属性的值。
+java -jar xx.jar --server.port=8081，会覆盖配置文件中的端口。
 
+（2）外置配置文件：
+还可以指定配置文件的路径或者目录，则系统会使用指定的配置文件，或者目录下所有的配置文件。
+java -jar xxx.jar --spring.config.location=/opt/servicex/config/application.yml
+java -jar xxx.jar --spring.config.location=/opt/servicex/config/
 
+#### 项目内部配置文件：
 
+（1）在同一级目录下(除后缀外其他部分都相同)配置文件的优先级：properties(最高) > yml > yaml(最低)， 优先级高的配置会覆盖优先级低的配置。
+（2）项目中优先级如下(从上往下优先级逐级降低，优先级高的配置会覆盖优先级低的配置)：
+项目名/config/XXX配置文件 (优先级最高)
+项目名/XXX配置文件
+项目名/src/main/resources/config/XXX配置文件
+项目名/src/main/resources/XXX配置文件 (优先级最低)
 
+BOOTSTRAP配置文件
 
-
+在 Spring Boot 中有两种上下文，一种是 bootstrap另外一种是 application， bootstrap 是应用程序的父上下文，bootstrap用于应用程序上下文的引导阶段，由父Spring ApplicationContext加载。bootstrap 的加载优先于 applicaton，所以优先级从大到小如下：
+bootstrap.properties -> bootstrap.yml -> application.properties -> application.yml
 
