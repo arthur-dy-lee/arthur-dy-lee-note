@@ -151,11 +151,11 @@ Kafka通过Zookeeper管理集群配置，选举leader，以及在Consumer Group�
 
 注册到消费者分组。每个消费者服务器启动时，都会到Zookeeper的指定节点下创建一个属于自己的消费者节点，例如/consumers/[group_id]/ids/[consumer_id]，完成节点创建后，消费者就会将自己订阅的Topic信息写入该临时节点。
 
-对 消费者分组中的消费者的变化注册监听。每个消费者都需要关注所属消费者分组中其他消费者服务器的变化情况，即对/consumers/[group_id]/ids节点注册子节点变化的Watcher监听，一旦发现消费者新增或减少，就触发消费者的负载均衡。
+对消费者分组中的消费者的变化注册监听。每个消费者都需要关注所属消费者分组中其他消费者服务器的变化情况，即对/consumers/[group_id]/ids节点注册子节点变化的Watcher监听，一旦发现消费者新增或减少，就触发消费者的负载均衡。
 
 对Broker服务器变化注册监听。消费者需要对/broker/ids/[0-N]中的节点进行监听，如果发现Broker服务器列表发生变化，那么就根据具体情况来决定是否需要进行消费者负载均衡。
 
-进行消费者负载均衡。为了让同一个Topic下不同分区的消息尽量均衡地被多个 消费者 消费而进行 消费者 与 消息 分区分配的过程，通常，对于一个消费者分组，如果组内的消费者服务器发生变更或Broker服务器发生变更，会发出消费者负载均衡。
+进行消费者负载均衡。为了让同一个Topic下不同分区的消息尽量均衡地被多个 消费者消费而进行 消费者 与 消息 分区分配的过程，通常，对于一个消费者分组，如果组内的消费者服务器发生变更或Broker服务器发生变更，会发出消费者负载均衡。
 
 #### 3.1.4 日志
 
@@ -830,7 +830,7 @@ sendfile可以替代前面的 `read()` 和 `write()` 这两个系统调用，这
 
 ```cpp
 #include <sys/socket.h>
-ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
+size_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 ```
 
 <img src="pics/sendfile.png" style="zoom:33%;" />
@@ -933,12 +933,19 @@ netty也有使用到, 以及它所用的mmap, epoll
 
 #### **不同点**
 
+##### 日志刷盘
+
+Kafka没有提供同步刷盘的方式。
+
+RocketMQ提供不同的刷盘方式，包括同步刷盘、异步刷盘。如果要使用同步刷盘方式，可以将 FlushMode 配置为 SYNC_FLUSH。同步刷盘在RocketMQ中有实现，实现原理是将异步刷盘的流程进行阻塞，等待响应，类似ajax的callback或者是java的future。
+
 **存储**
 
 1. Kafka采用partition，每个topic的每个partition对应一个文件。顺序写入，定时刷盘。但一旦单个broker的partition过多，则顺序写将退化为随机写，Page Cache脏页过多，频繁触发缺页中断，性能大幅下降。
 2. RocketMQ采用CommitLog+ConsumeQueue，单个broker所有topic在CommitLog中顺序写，Page Cache只需保持最新的页面即可。同时每个topic下的每个queue都有一个对应的ConsumeQueue文件作为索引。ConsumeQueue占用Page Cache极少，刷盘影响较小。
 
 **存储可靠性**
+
 - RocketMQ支持异步刷盘，同步刷盘，同步Replication，异步Replication。
 - Kafka使用异步刷盘，异步Replication。
 
@@ -958,6 +965,7 @@ netty也有使用到, 以及它所用的mmap, epoll
 - Kafka支持At Least Once、Exactly Once。
 
 **消息过滤**
+
 - RocketMQ执行过滤是在Broker端，支持tag过滤及自定义过滤逻辑。
 - Kafka不支持Broker端的消息过滤，需要在消费端自定义实现。
 
