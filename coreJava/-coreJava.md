@@ -630,8 +630,8 @@ ThreadLocalMap实现中已经考虑了这种情况，在调用 set()、get()、r
 2. ThreadLocal的原理是什么？
 
 3. 为什么用ThreadLocal做key？
-  ThreadLocalMap为什么要用ThreadLocal做key，而不是用Thread做key？
-  如果在你的应用中，一个线程中只使用了一个ThreadLocal对象，那么使用Thread做key也未尝不可。
+    ThreadLocalMap为什么要用ThreadLocal做key，而不是用Thread做key？
+    如果在你的应用中，一个线程中只使用了一个ThreadLocal对象，那么使用Thread做key也未尝不可。
 
   
 
@@ -643,9 +643,9 @@ ThreadLocalMap实现中已经考虑了这种情况，在调用 set()、get()、r
 5. ThreadLocal真的会导致内存泄露？
 
 6. 如何解决内存泄露问题？
-  7.ThreadLocalMap怎么解决Hash冲突的？
-  HashMap使用了红黑树和链表来解决冲突，也就是链地址法。ThreadLocalMap没有使用链表，自然也不是用链地址法来解决冲突了，它用的是另外一种方式：开放定址法。开放定址法是什么意思呢？简单来说，就是这个坑被人占了，那就接着去找下一个空着的坑。
-  在get的时候，也会根据ThreadLocal对象的hash值，定位到table中的位置，然后判断该槽位Entry对象中的key是否和get的key一致，如果不一致，就判断下一个位置。
+    7.ThreadLocalMap怎么解决Hash冲突的？
+    HashMap使用了红黑树和链表来解决冲突，也就是链地址法。ThreadLocalMap没有使用链表，自然也不是用链地址法来解决冲突了，它用的是另外一种方式：开放定址法。开放定址法是什么意思呢？简单来说，就是这个坑被人占了，那就接着去找下一个空着的坑。
+    在get的时候，也会根据ThreadLocal对象的hash值，定位到table中的位置，然后判断该槽位Entry对象中的key是否和get的key一致，如果不一致，就判断下一个位置。
 
 7. ThreadLocal是如何定位数据的？
 
@@ -1263,5 +1263,6 @@ rpc和http的异同点
 
 架构师都画哪些图 ？ 4+1, DDD
 
- 
+ReadWriteLock原理 
 
+Share（共享）：多个线程可同时执行，如Semaphore、CountDownLatch、 CyclicBarrier、ReadWriteLock，是如何 share的？
