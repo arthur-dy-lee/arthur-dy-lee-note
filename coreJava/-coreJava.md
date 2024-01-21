@@ -121,7 +121,7 @@ Synchronized关键字可以用来修饰方法或者代码块。对于同步方�
 #### Synchronized的使用用方式有三种
 
 - 修饰普通函数，监视器锁（`monitor`）便是对象实例（`this`）
-- 修饰静态静态函数，视器锁（`monitor`）便是对象的`Class`实例（每个对象只有一个`Class`实例），又因为Class的相关数据存储在永久带PermGen（jdk1.8则是metaspace），永久带是全局共享的，因此静态方法锁相当于类的一个全局锁，会锁所有调用该方法的线程
+- 修饰静态静态函数，监视器锁（`monitor`）便是对象的`Class`实例（每个对象只有一个`Class`实例），又因为Class的相关数据存储在永久带PermGen（jdk1.8则是metaspace），永久带是全局共享的，因此静态方法锁相当于类的一个全局锁，会锁所有调用该方法的线程
 - 修饰代码块，监视器锁（`monitor`）是指定对象实例
 
 #### synchronized原理
@@ -155,7 +155,9 @@ ObjectMonitor() {
 
 ####  两个线程是否可以同是访问一个对象的两个不同的synchronized方法?  
 
-多个线程访问同一个类的synchronized方法时, 都是串行执行的 ! 就算有多个cpu也不例外 ! synchronized方法使用了类java的内置锁, 即锁住的是方法所属对象本身. 同一个锁某个时刻只能被一个执行线程所获取, 因此其他线程都得等待锁的释放. 因此就算你有多余的cpu可以执行, 但是你没有锁, 所以你还是不能进入synchronized方法执行, CPU因此而空闲. 如果某个线程长期持有一个竞争激烈的锁, 那么将导致其他线程都因等待所的释放而被挂起, 从而导致CPU无法得到利用, 系统吞吐量低下. 因此要尽量避免某个线程对锁的长期占有 ! 
+锁的是对象，一个对象不会被2个线程同时锁住，所以是串行的。
+
+多个线程访问同一个类的synchronized方法时, 都是串行执行的 ! 就算有多个cpu也不例外 ! synchronized方法使用了类java的内置锁, 即锁住的是方法所属对象本身。同一个锁某个时刻只能被一个执行线程所获取, 因此其他线程都得等待锁的释放。
 
 ####  一个类的static构造方法加上synchronized之后的锁的影响。 
 
@@ -186,7 +188,7 @@ AQS使用一个FIFO的队列表示排队等待锁的线程，队列头节点称�
 
 
 AQS内部实现了两个队列，一个同步队列，一个条件队列。
-同步队列的作用是：当线程获取资源失败之后，就进入同步队列的尾部保持自旋等待，不断判断自己是否是链表的头节点，如果是头节点，就不断参试获取资源，获取成功后则退出同步队列。
+同步队列的作用是：当线程获取资源失败之后，就进入同步队列的尾部保持自旋等待，不断判断自己是否是链表的头节点，如果是头节点，就不断尝试获取资源，获取成功后则退出同步队列。
 
  - 条件队列是为Lock实现的一个基础同步器，并且一个线程可能会有多个条件队列，只有在使用了Condition才会存在条件队列。
  - 同步队列和条件队列都是由一个个Node组成的。AQS内部有一个静态内部类Node
@@ -295,7 +297,27 @@ lockInterruptibly() 方法是一种可以响应中断的阻塞方式，即如果
 
 lock()、tryLock()、tryLock(long,TimeUnit)、lockInterruptibly() 都是用来获取锁的，其中 lock 方法如果获取不到锁会一直阻塞等待；而 lockInterruptibly 方法虽然也会阻塞等待获取锁，但它却能中途响应线程的中断；无参的 tryLock 方法会立马返回一个获取锁成功与失败的结果，有参数的 tryLock(long,TimeUnit) 方法会在设定的时间内返回一个获取锁成功与失败的结果。
 
-### 1.6 锁用到的数据结构
+### 1.6  Condition
+
+Condition 用来替代传统的Object的wait()、notify()实现线程间的协作，使用Condition的await()、signal()这种方式实现线程间协作更加安全和高效。
+
+Condition对象是由Lock对象创建出来的
+
+#### wait/notify和Condition对比
+
+| 对比项                                               | Object 监视器方法         | Condition                                                    |
+| ---------------------------------------------------- | ------------------------- | ------------------------------------------------------------ |
+| 前置条件                                             | 获取对象的监视器锁        | 调用 Lock.lock() 获取锁调用 Lock.newCondition() 获取 Condition 对象 |
+| 调用方法                                             | 直接调用如：object.wait() | 直接调用如：condition.await()                                |
+| 等待队列个数                                         | 一个                      | 多个                                                         |
+| 当前线程释放锁并进入等待队列                         | 支持                      | 支持                                                         |
+| 当前线程释放锁并进入等待队列，在等待状态中不响应中断 | 不支持                    | 支持                                                         |
+| 当前线程释放锁并进入超时等待状态                     | 支持                      | 支持                                                         |
+| 当前线程释放锁并进入等待状态到将来的某个时间         | 不支持                    | 支持                                                         |
+| 唤醒等待队列中的一个线程                             | 支持                      | 支持                                                         |
+| 唤醒等待队列中的全部线程                             | 支持                      | 支持                                                         |
+
+### 1.7 锁用到的数据结构
 
 #### CLH锁
 
@@ -623,7 +645,82 @@ Java 中每个线程都有与之关联的Thread对象，Thread对象中有一个
 所以如果 ThreadLocal 没有被外部强引用的情况下，在垃圾回收的时候会被清理掉的，这样一来 ThreadLocalMap中使用这个 ThreadLocal 的 key 也会被清理掉。但是，value 是强引用，不会被清理，这样一来就会出现 key 为 null 的 value。
 ThreadLocalMap实现中已经考虑了这种情况，在调用 set()、get()、remove() 方法的时候，会清理掉 key 为 null 的记录。如果说会出现内存泄漏，那只有在出现了 key 为 null 的记录后，没有手动调用 remove() 方法，并且之后也不再调用 get()、set()、remove() 方法的情况下。
 
+
+
+软引用：用于缓存对象，在空间充裕的时候不回收软引保存的引用指向的对象的空间，空间不足时才回收，在对象被回收之前（可能GC已经运行多次了）都可以通过它访问到对象
+
+弱引用：用于缓存和与垃圾回收器配合清理map中的不可达对象，对象的内存在没有强引用后第一次GC算法调用的时候清理，与内存是否充裕无关，但在GC调用之前还可以通过它访问到对象
+
 #### 3.3.2 ThreadLocal 面试夺命连问
+
+```java
+public T get() {
+    //获取当前线程
+    Thread t = Thread.currentThread();
+    //获取当前线程的成员变量ThreadLocalMap对象
+    ThreadLocalMap map = getMap(t);
+    if (map != null) {
+        //根据threadLocal对象从map中获取Entry对象
+        ThreadLocalMap.Entry e = map.getEntry(this);
+        if (e != null) {
+            @SuppressWarnings("unchecked")
+            //获取保存的数据
+            T result = (T)e.value;
+            return result;
+        }
+    }
+    //初始化数据
+    return setInitialValue();
+}
+
+public void set(T value) {
+    //获取当前线程
+    Thread t = Thread.currentThread();
+    //获取当前线程的成员变量ThreadLocalMap对象
+    ThreadLocalMap map = getMap(t);
+    //如果map不为空
+    if (map != null)
+        //将值设置到map中，key是this，即threadLocal对象，value是传入的value值
+        map.set(this, value);
+    else
+        //如果map为空，则需要创建新的map对象
+        createMap(t, value);
+}
+ThreadLocalMap getMap(Thread t) {
+    return t.threadLocals;
+}
+void createMap(Thread t, T firstValue) {
+    t.threadLocals = new ThreadLocalMap(this, firstValue);
+}
+static class ThreadLocalMap {
+    static class Entry extends WeakReference<ThreadLocal<?>> {
+        /** The value associated with this ThreadLocal. */
+        Object value;
+        Entry(ThreadLocal<?> k, Object v) {
+            super(k);
+            value = v;
+        }
+    }
+```
+
+```java
+publi class Thread implements Runnable {
+    ThreadLocal.ThreadLocalMap threadLocals = null;
+    //....   
+}
+```
+
+```java
+public class WebServer {
+    private static final ThreadLocal<Connection> connectionHolder = new ThreadLocal<>();
+    private static final ThreadLocal<Session> sessionHolder = new ThreadLocal<>();
+    //....
+}
+```
+
+
+
+
 
 1. 为什么要用ThreadLocal?
 
@@ -673,9 +770,15 @@ ThreadLocalMap实现中已经考虑了这种情况，在调用 set()、get()、r
 
 分析为什么用了InheritableThreadLocal还会出现数据错乱（覆盖）
 
-**ThreadLocal** 在 **ThreadLocalMap** 中是以一个弱引用身份被Entry中的Key引用的，因此如果ThreadLocal没有外部强引用来引用它，那么ThreadLocal会在下次JVM垃圾收集时被回收。这个时候就会出现Entry中Key已经被回收，出现一个null Key的情况，外部读取ThreadLocalMap中的元素是无法通过null Key来找到Value的。因此如果当前线程的生命周期很长（在本篇案例中,由于线程池的核心线程没有被回收，一直存在），那么其内部的ThreadLocalMap对象也一直生存下来，这些null key就存在一条强引用链的关系一直存在：Thread --> ThreadLocalMap-->Entry-->Value，这条强引用链会导致Entry不会回收，Value也不会回收；所以出现数据错乱的原因在于核心线程一直没有被回收，然后 InheritableThreadLocal 也未及时remove，导致核心线程一直存放着老
+1. **线程池的使用**：在使用线程池时，线程是被复用的。如果一个线程（子线程）继承了父线程的 `InheritableThreadLocal` 变量，然后在不同的任务中重复使用，可能会导致数据错乱。因为线程池中的线程在执行完一个任务后，并不会销毁，而是可以被再次用于执行其他任务。如果这些线程的 `InheritableThreadLocal` 变量没有在每次任务结束时正确清理，那么这些变量就可能携带旧的数据，从而引发数据错乱。
+2. **子线程修改值的影响**：当子线程修改了继承自父线程的 `InheritableThreadLocal` 变量的值时，这个修改只影响当前子线程的副本。但是，如果子线程创建了自己的子线程，那么这些“孙”线程将继承修改后的值，而不是最初父线程中的值。这种行为在复杂的多线程操作中可能导致数据不一致或错乱。
+3. **并发修改**：如果多个线程（可能是父线程和子线程或多个子线程）同时对 `InheritableThreadLocal` 变量进行读写，而没有适当的同步机制，就可能导致竞态条件和数据错乱。
 
+为了避免这些问题，你可以采取以下措施：
 
+- 在使用线程池时，确保在任务执行完毕后清理 `InheritableThreadLocal` 变量。
+- 考虑使用其他机制来传递数据到子线程，比如显式地传递参数。
+- 如果必须使用 `InheritableThreadLocal`，那么需要小心处理线程间的数据共享和同步，以避免并发导致的问题。
 
 ### InheritableThreadLocal和TransmittableThreadLocal
 
@@ -719,9 +822,63 @@ LockSupport.park()后，通过jstack查看，线程进入到**WAITING**,这里�
 
 如果队列容量已达上限，并且当前大小poolSize没有达到maximumPoolSize，那么就新增线程来处理任务； 
 
-如果队列已满，并且当前线程数目也已经达到上限，那么意味着线程池的处理能力已经达到了极限，此时需要拒绝新增加的任务。至于如何拒绝处理新增 
+如果队列已满，并且当前线程数目也已经达到上限，那么意味着线程池的处理能力已经达到了极限，此时需要拒绝新增加的任务。至于如何拒绝处理新增的任务，取决于线程池的饱和策略RejectedExecutionHandler。 
+
+
+
+**allowCoreThreadTimeOut**：该属性用来控制是否允许核心线程超时退出。If false,core threads stay alive even when idle.If true, core threads use keepAliveTime to time out waiting for work。
+
+**keepAliveTime：**如果一个线程处在空闲状态的时间超过了该属性值，就会因为超时而退出。举个例子，如果线程池的核心大小corePoolSize=5，而当前大小poolSize =8，那么超出核心大小的线程，会按照keepAliveTime的值判断是否会超时退出。如果线程池的核心大小corePoolSize=5，而当前大小poolSize =5，那么线程池中所有线程都是核心线程，这个时候线程是否会退出，取决于allowCoreThreadTimeOut。
+
+
 
 #### newFixedThreadPool此种线程池如果线程数达到最大值后会怎么办，底层原理 
+
+java 线程池-四种拒绝策略总结
+
+- CallerRunsPolicy （调用者运行策略）
+
+  **功能**：当触发拒绝策略时，只要线程池没有关闭，就由提交任务的当前线程处理。
+
+  **使用场景**：一般在不允许失败的、对性能要求不高、并发量较小的场景下使用，因为线程池一般情况下不会关闭，也就是提交的任务一定会被运行，但是由于是调用者线程自己执行的，当多次提交任务时，就会阻塞后续任务执行，性能和效率自然就慢了。
+
+- AbortPolicy（中止策略）
+
+  **功能：**当触发拒绝策略时，直接抛出拒绝执行的异常，中止策略的意思也就是打断当前执行流程
+
+  **使用场景：**这个就没有特殊的场景了，但是一点要正确处理抛出的异常。
+
+  ThreadPoolExecutor中默认的策略就是AbortPolicy
+
+- DiscardPolicy（丢弃策略）
+
+  **功能：**直接静悄悄的丢弃这个任务，不触发任何动作
+
+  **使用场景：**如果你提交的任务无关紧要，你就可以使用它 。因为它就是个空实现，会悄无声息的吞噬你的的任务。所以这个策略基本上不用了
+
+- DiscardOldestPolicy（弃老策略）
+
+  **功能：**如果线程池未关闭，就弹出队列头部的元素，然后尝试执行
+
+  **使用场景：**这个策略还是会丢弃任务，丢弃时也是毫无声息，但是特点是丢弃的是老的未执行的任务，而且是待执行优先级较高的任务。
+
+第三方实现的拒绝策略、
+
+- dubbo中的线程拒绝策略
+
+  当dubbo的工作线程触发了线程拒绝后，主要做了三个事情：1）输出了一条警告级别的日志；2）输出当前线程堆栈详情；3）继续抛出拒绝执行异常，使本次任务失败，这个继承了JDK默认拒绝策略的特性
+
+- Netty中的线程池拒绝策略
+
+  Netty中的实现很像JDK中的CallerRunsPolicy，舍不得丢弃任务。不同的是，CallerRunsPolicy是直接在调用者线程执行的任务。而 Netty是新建了一个线程来处理的。
+
+所以，Netty的实现相较于调用者执行策略的使用面就可以扩展到支持高效率高性能的场景了。但是也要注意一点，Netty的实现里，在创建线程时未做任何的判断约束，也就是说只要系统还有资源就会创建新的线程来处理，直到new不出新的线程了，才会抛创建线程失败的异常
+
+- activeMq中的线程池拒绝策略
+
+  activeMq中的策略属于最大努力执行任务型，当触发拒绝策略时，在尝试一分钟的时间重新将任务塞进任务队列，当一分钟超时还没成功时，就抛出异常
+
+  pinpoint中的线程池拒绝策略
 
 更多可查看：[Java线程池实现原理及其在美团业务中的实践](Java线程池实现原理及其在美团业务中的实践.md)
 
@@ -1044,7 +1201,7 @@ Java8及以上的版本
 
 @Contended 注解会增加目标实例大小，要谨慎使用。默认情况下，除了 JDK 内部的类，JVM 会忽略该注解。要应用代码支持的话，要设置 -XX:-RestrictContended=false，它默认为 true（意味仅限 JDK 内部的类使用）。当然，也有个 –XX: EnableContented 的配置参数，来控制开启和关闭该注解的功能，默认是 true，如果改为 false，可以减少 Thread 和 ConcurrentHashMap 类的大小。参加《Java性能权威指南》210 页。
 
-### 8.5 包冲突时，依赖的是低版本还是高版本
+### 8.5  包冲突时，依赖的是低版本还是高版本
 
 ##### 依赖传递原则：最短路径优先，其次最先声明优先
 
