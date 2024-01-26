@@ -81,7 +81,7 @@ Nacos 致力于帮助您发现、配置和管理微服务。Nacos 提供了一�
 
 Nacos 数据模型 Key 由三元组唯一确定, Namespace默认是空串，公共命名空间（public），分组默认是 DEFAULT_GROUP。
 
-![](/Users/lidongyue/codes/GitHub/arthur-dy-lee-note/nacos/pics/nacos_datamodule.jpeg)
+![](pics/nacos_datamodule.jpeg)
 
 服务的逻辑隔离模型
 
@@ -114,7 +114,7 @@ nacos 配置中心就是采用：客户端 long pull 的方式
 
 nacos注册中心采用了 ：pull （客户端的轮询）和push （服务端主动push）
 
-![](/Users/lidongyue/codes/GitHub/arthur-dy-lee-note/nacos/pics/nacos_arch4b.png)
+![](pics/nacos_arch4b.png)
 
 #### 2.5.1 服务注册
 
