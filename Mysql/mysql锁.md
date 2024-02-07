@@ -105,7 +105,7 @@ mysql官网上对于意向锁的解释:
 
 > The main purpose of IX and IS locks is to show that someone is locking a row, or going to lock a row in the table.
 
-意向锁的目的是为了表明某个事务正在锁定一行或者将要锁定一行。
+意向锁(Intention Locks)的目的是为了表明某个事务正在锁定一行或者将要锁定一行。
 
 **意向锁可快速判断表里是否有记录被加锁**。之所以需要MDL锁，就是因为事务执行的时候，不能发生表结构的改变，否则就会导致同一个事务中，出现混乱的现象
 
