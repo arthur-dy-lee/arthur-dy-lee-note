@@ -282,11 +282,12 @@ Listener的列表如下
 ```java
 public ConfigurableApplicationContext run(String... args) {
 	ConfigurableApplicationContext context = null;
-	Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
-	configureHeadlessProperty();
-	//listeners值为：org.springframework.boot.context.event.EventPublishingRunListener
+	//...
+	//获取Spring应用运行监听器，这里的listeners实例为EventPublishingRunListener
 	SpringApplicationRunListeners listeners = getRunListeners(args);
 	//回调所有的获取SpringApplicationRunListener.starting()方法
+    //从spring.factories配置文件中加载到EventPublishingRunListener对象并赋值给SpringApplicationRunListeners
+    //主要用于触发ApplicationStartingEvent事件。这个事件可以被用来在应用上下文创建之前执行一些操作，比如环境检查或者是早期的配置
 	listeners.starting();
 	//...
 	//封装命令行参数
@@ -300,6 +301,7 @@ public ConfigurableApplicationContext run(String... args) {
 	//打印Banner图
 	Banner printedBanner = printBanner(environment);
 	//创建ApplicationContext,决定创建web的ioc还是普通的ioc
+    //对于 Web 应用，通常会创建一个 AnnotationConfigServletWebServerApplicationContext 实例
 	context = createApplicationContext();
 	exceptionReporters = getSpringFactoriesInstances(
 			SpringBootExceptionReporter.class,
@@ -312,6 +314,7 @@ public ConfigurableApplicationContext run(String... args) {
 			printedBanner);
 	//刷新容器,ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）
 	//扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）	
+    //调用AbstractApplicationContext 类的 refresh() 
 	refreshContext(context);
 	afterRefresh(context, applicationArguments);
 	stopWatch.stop();
@@ -320,12 +323,15 @@ public ConfigurableApplicationContext run(String... args) {
 				.logStarted(getApplicationLog(), stopWatch);
 	}
 	//所有的SpringApplicationRunListener回调started方法
+    //它主要用于触发ApplicationStartedEvent事件。这个事件可以用来执行一些依赖于完全初始化的Spring应用上下文的操作，比如执行数据库迁移脚本
 	listeners.started(context);
 	//从ioc容器中获取所有的ApplicationRunner和CommandLineRunner进行回调，
 	//ApplicationRunner先回调，CommandLineRunner再回调	
 	callRunners(context, applicationArguments);
 	//...
 	//所有的SpringApplicationRunListener回调running方法
+    //它主要用于触发ApplicationReadyEvent事件。这个事件表示应用已经完全启动并准备好接收请求。可以用来通知健康检查服务，或者通知管理员应用已经可用
+    //执行最终准备工作的理想地点，如启动内部监控、发送启动完成通知等
 	listeners.running(context);
 	//整个SpringBoot应用启动完成以后返回启动的ioc容器
 	return context;
@@ -422,37 +428,35 @@ protected void applyInitializers(ConfigurableApplicationContext context) {
 调用AbstractApplicationContext#refresh方法，和传统的spring初始化容器是一样的。这是就是**IOC管理的类的加载顺序，即类的全生命周期管理**，包括扫描，创建，加载所有组件的地方,（配置类，组件，自动配置）
 
 ```java
-@Override
 public void refresh() throws BeansException, IllegalStateException {
-	synchronized (this.startupShutdownMonitor) {
-		// Prepare this context for refreshing.
-		prepareRefresh();
-		// Tell the subclass to refresh the internal bean factory.
-		ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
-		// Prepare the bean factory for use in this context.
-		prepareBeanFactory(beanFactory);
-		try {
-			// Allows post-processing of the bean factory in context subclasses.
-			postProcessBeanFactory(beanFactory);
-			// Invoke factory processors registered as beans in the context.
-      //starter初始化过程
-			invokeBeanFactoryPostProcessors(beanFactory);  //<-- 这一步读springboot stater下META-INF/spring.factories的自定义的EnableAutoConfiguration
-			// Register bean processors that intercept bean creation.
-			registerBeanPostProcessors(beanFactory);
-			// Initialize message source for this context.
-			initMessageSource();
-			// Initialize event multicaster for this context.
-			initApplicationEventMulticaster();
-			// Initialize other special beans in specific context subclasses.
-			onRefresh();
-			// Check for listener beans and register them.
-			registerListeners();
-			// Instantiate all remaining (non-lazy-init) singletons.
-			finishBeanFactoryInitialization(beanFactory);
-			// Last step: publish corresponding event.
-			finishRefresh();
-		}
-//...
+    synchronized (this.startupShutdownMonitor) { 
+        // 准备刷新过程，设置启动时间、激活状态，以及执行属性源的初始化。
+        prepareRefresh(); 
+        // 重新加载或刷新 BeanFactory，关闭旧的 BeanFactory（如果有），创建新的 BeanFactory。
+        ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory(); 
+        // 配置 BeanFactory，设置类加载器、SpEL 解释器等。
+        prepareBeanFactory(beanFactory); 
+        try {
+            // 允许在上下文子类中对 BeanFactory 进行后处理。
+            postProcessBeanFactory(beanFactory); 
+            // 调用 BeanFactoryPostProcessor，这些处理器可以修改 BeanFactory 的状态。这一步骤包括处理 @Configuration 配置类、包括 @ComponentScan 和 @Import 注解的处理。
+            invokeBeanFactoryPostProcessors(beanFactory); 
+            // 注册 BeanPostProcessor，这些处理器可以在 Bean 创建过程中的不同时间点对 Bean 进行后处理，例如，自动注入注解的处理就是在这一步骤中完成的，如：@Autowired，@Qualifier，@Value，@Inject，@Resource
+            registerBeanPostProcessors(beanFactory); 
+            // 初始化 MessageSource，这是国际化功能的基础。
+            initMessageSource(); 
+            // 初始化 ApplicationEventMulticaster，这是事件发布和监听机制的基础。
+            initApplicationEventMulticaster(); 
+             // 留给子类的扩展点，特定上下文子类可以在这一步骤中初始化其他特殊的 Bean。
+            onRefresh();
+            // 注册事件监听器。扫描所有的 ApplicationListener Bean 并注册到事件多播器。
+            registerListeners(); 
+            // 初始化剩余的单例 Bean，这些非懒加载的 Bean 在这一步骤中被实例化。
+            finishBeanFactoryInitialization(beanFactory); 
+            // 完成刷新过程，通知生命周期处理器 lifecycleProcessor 刷新过程完成，发布 ContextRefreshedEvent 事件。
+            finishRefresh(); 
+        }
+// ...
 	}
 }
 ```
