@@ -1,0 +1,142 @@
+
+
+
+Redis 的数据类型（shlz字）
+
+索引失效的操作(函隐不等或前导，复限不均选择低)
+	在索引列上使用函数或表达式
+	隐式类型转换
+	使用NOT EQUAL (<>)运算符
+	使用OR条件连接不同列
+	使用前导模糊搜索
+	复合索引的列顺序不当
+	限制索引选择的SQL提示（IGNORE INDEX, FORCE INDEX）
+	数据分布不均匀
+	选择性低的索引
+
+互占不循
+	互斥条件
+	占有且等待
+	不可强行占有
+	循环等待
+
+高并发(SS缓数异池NGR漏斗)
+高可靠（超负压限隔降故故回灰灾心）
+
+创建Bean的几种方式
+	xml配置
+	@ComponentScan：@Componse、@Service、@Controller、@Repository
+	@Configuration：@Bean
+	@Import
+	FactoryBean实现Bean注入
+	通过Supplier方式创建Bean
+	starter的方式
+		在resources下创建META-INF/spring.factories文件
+	实现特定接口，注册bean
+		实现ImportSelector或者ImportBeanDefinitionRegistrar接口
+		implements BeanFactoryAware 接口，手动注入Bean实例
+		实现BeanDefinitionRegistryPostProcessor接口,该接口是spring提供的一个扩展点，用于允许开发者在应用程序上下文启动时动态修改或注册bean定义
+
+
+new SpringApplication对象
+	实例化ApplicationContextInitializer（从META-INF/spring.factories获取配置）
+	实例化ApplicationListener（从META-INF/spring.factories获取配置）
+SpringApplication#run
+	ApplicationListener#starting
+	准备环境environment
+	创建IOC容器：AnnotationConfigServletWebServerApplicationContext
+	prepareContext：保存environment到IOC中；执行ApplicationContextInitializer#initialize方法
+	IOC容器初始化refreshContext： 1、加载 Bean 定义，@ComponentScan扫@Component, @Service, @Repository, 和 @Controller；
+								2、自动配置，@EnableAutoConfiguration，注册 EnableAutoConfigurationImportSelector，Spring Factories Loader 机制，加载 META-INF/spring.factories
+								3、内嵌 Web 服务器启动
+
+SpringMVC处理请求的流程(DHHMVV)
+	DispatcherServlet，HandlerMapping来确定请求的目标处理器（Controller），HandlerAdapter来执行处理器（Controller），ModelAndView，ViewResolver，View
+
+
+批发反日同分页：批量，sendfile,react, logfile, ISR, partition, pageCache
+
+wait：让出CPU资源和锁资源
+sleep：让出CPU资源，但是不会释放锁资源
+
+IDEALS原则
+	接口分离（Interface segregation）
+	可部署性（deployability）
+	事件驱动（event-driven），提高了可伸缩性和吞吐量
+	可用性胜于一致性（Availability over Consistency）
+	松耦合（Loose coupling）
+	单一责任（single responsibility）
+
+
+SOLID原则
+	单一责任原则（Single responsibility principle）
+	开闭原则（Open/closed principle）
+	里氏代换原则（Liskov substitution principle）：只有当衍生类可以替换掉基类，软件单位的功能不受到影响时，基类才能真正被复用
+	接口分离原则（Interface segregation principle）
+	依赖倒置原则（Dependency inversion principle）：程序要依赖于抽象接口，不要依赖于具体实现
+
+AI给的答案
+	按业务能力拆分
+		这是微服务拆分的最基本原则之一，意味着根据业务功能的不同将应用程序拆分成多个服务
+	领域驱动设计（DDD）
+		领域驱动设计是一种软件开发方法，强调基于业务领域的逻辑来设计软件。在微服务架构中，可以利用DDD的概念来识别服务边界，将软件拆分成代表领域模型的微服务
+	分离读写操作
+		根据CQRS（Command Query Responsibility Segregation，命令查询责任分离）原则，可以将负责处理数据写入操作的服务与负责读取数据的服务分开。这有助于优化性能和扩展性，因为读写操作往往有不同的资源和性能需求
+	服务自治原则
+		每个微服务应该是自治的，拥有自己的数据库和数据存储，避免与其他服务共享数据库。这有助于减少服务间的耦合，提高服务的独立性和可维护性
+	按团队组织结构拆分
+		Conway定律表明，系统设计往往会复制组织的沟通结构。按照团队的组织结构来拆分服务，可以确保每个服务的开发和维护由一个独立的团队负责，从而提高效率和减少沟通成本
+	可重用性原则
+		在拆分微服务时，应考虑服务的可重用性。通用的功能或组件应该设计成可由多个服务共享的微服务，以减少代码重复和提高开发效率
+	演进式设计原则
+		微服务架构应支持逐步演进和迭代。初始拆分不必完美，应随着时间的推移根据实际需要进行调整和优化
+	服务粒度平衡
+		在微服务拆分时需要平衡服务的粒度。过大的服务可能导致单体应用的问题，如难以维护和部署；而过小的服务可能会导致管理和通信的开销增大。找到合适的服务大小是关键
+
+4+1视图：逻辑视图（Logical view）实现视图（Implemention view）部署视图（Deployment view）处理流程视图（Process view）场景视图(Use-Case view)
+
+
+HTTP/2 核心特性（多流头服请安），核心就在于应用层和传输层之间增加了一个二进制分帧层
+
+物数网传会表应
+网接网际传应
+
+TCP：面向连接，可靠的，基于字节流，传输层，通讯协议
+
+什么是HTTP：HTTP协议即超文本传送协议(Hypertext Transfer Protocol )，是Web联网的基础，也是手机联网常用的协议之一，HTTP协议是建立在TCP协议之上的一种应用。
+
+Nacos:
+	openAPI
+	configService, NamingService
+	Nacos Core: 流量控制、缓存机制、日志模块、插件机制....
+	一致性协议：JRaft, Distro
+	存储
+
+服务分级模型：Service/DataId, Group, Namespace
+
+Mybaits
+	配置文件
+	SqlSessionFactory
+	SqlSession
+	Exectutor:Executor通过Mapped Statement在执行sql前将输入的java对象映射至sql中，输入参数映射就是jdbc编程中对preparedStatement设置参数
+	MappedStatement:sql执行输入参数进行定义，包括HashMap、基本类型、pojo
+
+cpu100%
+	TOP
+	jps
+	top -H -p pid
+	十进制转为十六进制 echo “obase=16; number" | bc
+	导出栈 jstack pid > pid.tdump
+	堆的使用情况 jstat -gcutil pid
+	导出堆 jmap -dump:live,format=b,file=pid.hprof pid
+	jvisualvm分析快照: File file = new File("C:\\Users\\DELL\\Desktop\\heap.bin");
+
+
+一个对象在内存中分为三部分
+	对象头
+		Mark Word: GC 分代年龄、偏向锁、偏向 id、锁类型、hash 值等
+		Class Poiner 用来指向对象对应的Class对象（其对应的元数据对象）的内存地址
+	实例数据
+	对齐填充
+
+
