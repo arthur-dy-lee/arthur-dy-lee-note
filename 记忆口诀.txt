@@ -3,9 +3,9 @@
 
 Redis 的数据类型（shlz字）
 
-索引失效的操作(函隐不等或前导，复限不均选择低)
+索引失效的操作(隐函不等或前导，复限不均选择低)
 	在索引列上使用函数或表达式
-	隐式类型转换
+	隐式类型转换:将字符串与日期进行比较时，字符串可能会被隐式地转换为日期类型
 	使用NOT EQUAL (<>)运算符
 	使用OR条件连接不同列
 	使用前导模糊搜索
@@ -37,6 +37,23 @@ Redis 的数据类型（shlz字）
 		implements BeanFactoryAware 接口，手动注入Bean实例
 		实现BeanDefinitionRegistryPostProcessor接口,该接口是spring提供的一个扩展点，用于允许开发者在应用程序上下文启动时动态修改或注册bean定义
 
+bean生命周期
+	1、在IOC容器中，一个spring bean是通过类的构造器(class constractor)生成的
+	2、使用setter方法执行依赖注入
+	3、一旦依赖注入完成， `BeanNameAware.setBeanName()`被调用。在创建它的bean factory中，该bean的名字被设置
+	4、调用`BeanClassLoaderAware.setBeanClassLoader(ClassLoader classLoader)`，`BeanClassLoaderAware`用于获取Bean的类装载器(即当前bean factory加载bean类使用的class loader)的回调类
+	5、`BeanFactoryAware.setBeanFactory()` BeanFactoryAware实现此接口的bean可以获取到它们自己的Beanfactory
+	6、IOC容器调用`BeanPostProcessor.postProcessBeforeInitialization`
+	7、调用`@PostConstruct`
+	8、`InitializingBean.afterPropertiesSet()`
+	9、在xml文件中定义的 `init-method`
+	10、BeanPostProcessor.postProcessAfterInitialization()
+	11、bean实例已经准备好使用了。使用bean执行任务。
+	12、当`ApplicationContext`关闭时，比如使用`registerShutdownHook()`，然后调用带有``@PreDestroy`销毁注释的方法。
+	13、调用`DisposableBean.destroy()`
+	14、调用在xml中定义的 `destroy-method` 方法
+	15、在垃圾回收之前，`finalize()`方法被调用
+
 
 new SpringApplication对象
 	实例化ApplicationContextInitializer（从META-INF/spring.factories获取配置）
@@ -49,18 +66,20 @@ SpringApplication#run
 	IOC容器初始化refreshContext： 1、加载 Bean 定义，@ComponentScan扫@Component, @Service, @Repository, 和 @Controller；
 								2、自动配置，@EnableAutoConfiguration，注册 EnableAutoConfigurationImportSelector，Spring Factories Loader 机制，加载 META-INF/spring.factories
 								3、内嵌 Web 服务器启动
+	ApplicationListener回调:1. listeners.started(context)
+						   2.ApplicationRunner先回调，CommandLineRunner再回调
 
 SpringMVC处理请求的流程(DHHMVV)
 	DispatcherServlet，HandlerMapping来确定请求的目标处理器（Controller），HandlerAdapter来执行处理器（Controller），ModelAndView，ViewResolver，View
 
 
-批发反日同分页：批量，sendfile,react, logfile, ISR, partition, pageCache
+批发反日同分页：批量，sendfile,react, logfile, ISR( In-sync Replicas[ISR]), partition, pageCache
 
 wait：让出CPU资源和锁资源
 sleep：让出CPU资源，但是不会释放锁资源
 
 IDEALS原则
-	接口分离（Interface segregation）
+	接口分离（Interface segregation
 	可部署性（deployability）
 	事件驱动（event-driven），提高了可伸缩性和吞吐量
 	可用性胜于一致性（Availability over Consistency）
@@ -75,7 +94,7 @@ SOLID原则
 	接口分离原则（Interface segregation principle）
 	依赖倒置原则（Dependency inversion principle）：程序要依赖于抽象接口，不要依赖于具体实现
 
-AI给的答案
+AI给的答案：粒业服领，分团重演
 	按业务能力拆分
 		这是微服务拆分的最基本原则之一，意味着根据业务功能的不同将应用程序拆分成多个服务
 	领域驱动设计（DDD）
@@ -93,13 +112,19 @@ AI给的答案
 	服务粒度平衡
 		在微服务拆分时需要平衡服务的粒度。过大的服务可能导致单体应用的问题，如难以维护和部署；而过小的服务可能会导致管理和通信的开销增大。找到合适的服务大小是关键
 
+
+
 4+1视图：逻辑视图（Logical view）实现视图（Implemention view）部署视图（Deployment view）处理流程视图（Process view）场景视图(Use-Case view)
 
 
 HTTP/2 核心特性（多流头服请安），核心就在于应用层和传输层之间增加了一个二进制分帧层
+服务端推送, 头部压缩,流量控制,请求优先级,安全的SSL
+http1.1解决了http1.0 tcp短连接的问题，但仍受限于队头阻塞问题，一个连接只能同时跑一个请求，而http2允许在同一个连接上同时发起多个请求、返回多个响应
+什么是多路复用? HTTP/2 是基于二进制流的，它就可以把 HTTP 消息分解为独立的帧，交错发送，然后在另一端通过帧中的标识重新组装
+
 
 物数网传会表应
-网接网际传应
+网接网际传应(网络接口层，网际层，传输层，应用层)
 
 TCP：面向连接，可靠的，基于字节流，传输层，通讯协议
 
@@ -109,7 +134,7 @@ Nacos:
 	openAPI
 	configService, NamingService
 	Nacos Core: 流量控制、缓存机制、日志模块、插件机制....
-	一致性协议：JRaft, Distro
+	一致性协议：JRaft, Distro(Gossip)
 	存储
 
 服务分级模型：Service/DataId, Group, Namespace
@@ -138,5 +163,103 @@ cpu100%
 		Class Poiner 用来指向对象对应的Class对象（其对应的元数据对象）的内存地址
 	实例数据
 	对齐填充
+
+
+bean的生命周期
+  1.Bean 定义的注册（BeanDefinition）
+    每个 Bean 都是按照在 Spring 配置文件中定义的 BeanDefinition 来创建的。这个定义包含了类名、作用域、生命周期回调等信息
+    注册：BeanDefinition 对象通常在应用启动阶段通过读取配置文件（如 XML 文件、Java 配置类或者通过注解扫描得到的配置）注册到 BeanFactory
+  2.构造器实例化
+    根据 BeanDefinition 中的信息，Spring 使用 Bean 的构造器创建 Bean 实例。这是通过反射机制完成的
+  3.属性填充
+    Spring 容器将在 Bean 实例化后填充所有在 BeanDefinition 中指定的属性。这包括对其他 Bean 的引用，以及对基本类型和字符串的赋值
+  4.BeanNameAware 和 BeanFactoryAware
+    如果 Bean 实现了 BeanNameAware 或 BeanFactoryAware 接口，Spring 将调用 setBeanName(String) 或 setBeanFactory(BeanFactory) 方法，传入 Bean 的 ID 和容器的引用
+  5.BeanPostProcessors 的前置处理
+    在 Bean 初始化之前，Spring 允许 BeanPostProcessors 对象对 Bean 实例进行一些前置处理。postProcessBeforeInitialization(Object bean, String beanName) 方法将被调用
+  6.初始化方法
+    @PostConstruct
+    InitializingBean
+    init-method 属性
+  7.BeanPostProcessors 的后置处理
+    在 Bean 初始化之后，BeanPostProcessors 提供了另一个处理 Bean 实例的机会。postProcessAfterInitialization(Object bean, String beanName) 方法此时被调用
+  8.就绪
+    Bean 已完全初始化，可以被应用使用
+  9.销毁方法
+    如果 Bean 实现了 DisposableBean 接口或在 Bean 定义中指定了 destroy-method，当应用上下文被关闭时，这些销毁方法将被调用
+
+synchronized和reentrantLock区别(非超响)
+	响应中断lockInterruptbly()
+	非阻塞式的获取锁 tryLock()
+	超时 tryLock(long time, timeUnit)
+
+一个m阶的B-Tree有以下性质
+	每个节点最多有m个子节点；
+	每个非叶子节点（根节点除外）至少含有m/2个子节点；
+	如果根节点不是叶子节点，那么根节点至少有两个子节点；
+	每个节点上，所有的关键字都是有序的，从左到右，依次从小到大排序；
+	每个关键字的左子树的均值小于当前关键字，右子树的均值大于当前关键字；
+	每个节点都存有索引和数据；
+	对于一个非叶子节点而言，它最多能存储m-1个关键字；
+	所有叶子节点位于同一层。
+
+B+树索引是一个m叉树
+	1/每个节点中子节点的个数不能超过 m，也不能小于 m/2；
+	2/根节点的子节点个数可以不超过 m/2，这是一个例外；
+	3/m 叉树只存储索引，并不真正存储数据，这个有点儿类似跳表；
+	4/通过链表将叶子节点串联在一起，这样可以方便的按区间查找；
+	5/根节点会被存储在内存中，其他节点存储在磁盘中。
+
+
+线程间的通信机制都有哪些
+	 共享内存
+		线程或进程通过读写同一块内存区域来进行通信
+		线程共享进程的堆内存，可以通过修改对象字段或使用并发集合（如 ConcurrentHashMap）实现共享内存通信
+	消息传递
+		线程或进程通过发送消息来交换信息
+		BlockingQueue 提供了一个线程安全的队列实现，用于在生产者和消费者之间传递消息
+	管道
+		java
+			字节流：PipedOutputStream 和 PipedInputStream
+			字符流：PipedReader 和 PipedWriter
+		操作系统实现
+			UNIX 和 Linux 系统提供管道机制，允许进程间通过 pipe 系统调用进行通信
+	信号量
+		使用计数器控制对共享资源的访问
+		Semaphore
+	 等待/通知机制:通过 Object 类的 wait()、notify() 和 notifyAll() 方法实现
+	原子操作:AtomicInteger
+	锁：ReentrantLock、ReadWriteLock、synchronized
+	事件：线程可以等待一个或多个事件的发生
+	同步辅助工具：CountDownLatch、CyclicBarrier、Phaser，join，ThreadLocal
+	异步编程和结果合并：CompletableFuture
+	并发集合：ConcurrentHashMap、BlockingQueue
+
+
+线程间如何同步变量
+	synchronized
+		synchronized 实际上是对访问修改共享变量的代码块进行加互斥锁，多个线程对synchronized代码块的访问时，某一时刻仅仅有一个线程在访问和修改代码块中的内 容（加锁），其他所有的线程等待该线程离开代码块时（释放锁）才有机会进入synchronized代码块
+	Lock 接口
+		ReentrantLock：Condition 接口 与 Lock 配合使用
+		ReadWriteLock
+	wait 和 notify
+	Atomic 类:AtomicInteger, AtomicLong, LongAdder
+	并发工具类
+		CountDownLatch、Semaphore
+		CyclicBarrier 和 Phaser 用于多线程间的同步点，允许一组线程相互等待，直到达到某个公共屏障
+	Thread.join()
+		用于在一个线程中等待另一个线程完成
+	阻塞队列
+		LinkedBlockingQueue 队列是先进先出的顺序（FIFO）
+
+让主线程等待子任务执行的各种方式
+	利用java多线程工具Future.get()获取数据
+	利用CountDownLatch让主线程等待子线程任务结束
+	利用CyclicBarrier让主线程等待子线程
+	利用CompletionService
+	thread.join()
+	CompletableFuture
+
+
 
 
