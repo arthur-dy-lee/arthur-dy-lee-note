@@ -2,6 +2,11 @@
 
 
 Redis 的数据类型（shlz字）
+set,hashtable
+hash
+list
+zset
+字符串，
 
 索引失效的操作(隐函不等或前导，复限不均选择低)
 	在索引列上使用函数或表达式
@@ -29,7 +34,7 @@ Redis 的数据类型（shlz字）
 	@Configuration：@Bean
 	@Import
 	FactoryBean实现Bean注入
-	通过Supplier方式创建Bean
+	通过Supplier方式创建Bean。只有当Bean真正被请求时，才会调用Supplier来创建Bean，实现懒加载；可以根据运行时的条件动态决定创建哪个Bean；使用Supplier创建Bean可以减少对Spring容器的直接依赖
 	starter的方式
 		在resources下创建META-INF/spring.factories文件
 	实现特定接口，注册bean
@@ -101,7 +106,9 @@ AI给的答案：粒业服领，分团重演
 		领域驱动设计是一种软件开发方法，强调基于业务领域的逻辑来设计软件。在微服务架构中，可以利用DDD的概念来识别服务边界，将软件拆分成代表领域模型的微服务
 	分离读写操作
 		根据CQRS（Command Query Responsibility Segregation，命令查询责任分离）原则，可以将负责处理数据写入操作的服务与负责读取数据的服务分开。这有助于优化性能和扩展性，因为读写操作往往有不同的资源和性能需求
-	服务自治原则
+	服务自治原
+	AS1、】
+	【‘；。，m
 		每个微服务应该是自治的，拥有自己的数据库和数据存储，避免与其他服务共享数据库。这有助于减少服务间的耦合，提高服务的独立性和可维护性
 	按团队组织结构拆分
 		Conway定律表明，系统设计往往会复制组织的沟通结构。按照团队的组织结构来拆分服务，可以确保每个服务的开发和维护由一个独立的团队负责，从而提高效率和减少沟通成本
@@ -114,7 +121,8 @@ AI给的答案：粒业服领，分团重演
 
 
 
-4+1视图：逻辑视图（Logical view）实现视图（Implemention view）部署视图（Deployment view）处理流程视图（Process view）场景视图(Use-Case view)
+4+1视图： lidpU
+逻辑视图（Logical view）实现视图（Implemention view）部署视图（Deployment view）处理流程视图（Process view）场景视图(Use-Case view)
 
 
 HTTP/2 核心特性（多流头服请安），核心就在于应用层和传输层之间增加了一个二进制分帧层
